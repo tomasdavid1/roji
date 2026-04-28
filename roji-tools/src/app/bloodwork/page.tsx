@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { BloodworkInterpreter } from "@/components/BloodworkInterpreter";
 import { PageHero, MoreTools } from "@/components/PageChrome";
+import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
   title: "Bloodwork Interpreter — free blood panel analyzer",
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function BloodworkPage() {
   return (
     <>
+      <ToolView slug="bloodwork" />
       <PageHero
         pill="Calculator · Free"
         title="Bloodwork Interpreter"

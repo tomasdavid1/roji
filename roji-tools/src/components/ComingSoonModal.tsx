@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import type { DirectoryTool } from "@/lib/directory";
+import { track } from "@/lib/track";
 
 interface ComingSoonModalProps {
   tool: DirectoryTool;
@@ -25,6 +26,7 @@ export function ComingSoonModal({ tool, onClose }: ComingSoonModalProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    track("notify_me_open", { tool: tool.slug });
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
@@ -34,7 +36,7 @@ export function ComingSoonModal({ tool, onClose }: ComingSoonModalProps) {
       window.removeEventListener("keydown", handler);
       document.body.style.overflow = "";
     };
-  }, [onClose]);
+  }, [onClose, tool.slug]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +54,7 @@ export function ComingSoonModal({ tool, onClose }: ComingSoonModalProps) {
         throw new Error(j.error ?? `Error ${res.status}`);
       }
       setStatus("success");
+      track("notify_me_submit", { tool: tool.slug });
     } catch (err) {
       setStatus("error");
       setErrorMessage(err instanceof Error ? err.message : "Something went wrong.");
@@ -82,7 +85,7 @@ export function ComingSoonModal({ tool, onClose }: ComingSoonModalProps) {
 
         {status !== "success" ? (
           <>
-            <span className="inline-block rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider text-roji-muted">
+            <span className="inline-block rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-mono uppercase tracking-wider text-roji-muted">
               Coming soon
             </span>
             <h2
@@ -118,7 +121,7 @@ export function ComingSoonModal({ tool, onClose }: ComingSoonModalProps) {
             {errorMessage && (
               <p className="mt-3 text-xs text-roji-danger">{errorMessage}</p>
             )}
-            <p className="mt-4 text-[11px] text-roji-dim">
+            <p className="mt-4 text-[12px] text-roji-dim">
               We store your email only to send the launch notification.
               You can opt out at any time.
             </p>

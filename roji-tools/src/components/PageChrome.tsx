@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 
 import { otherTools } from "@/lib/tools";
+import { track } from "@/lib/track";
 
 interface PageHeroProps {
   pill: string;
@@ -46,9 +49,12 @@ export function MoreTools({ currentSlug }: { currentSlug: string }) {
           <Link
             key={t.slug}
             href={t.href}
+            onClick={() =>
+              track("more_tools_click", { from: currentSlug, to: t.slug })
+            }
             className="roji-card-interactive flex flex-col gap-2 p-5"
           >
-            <div className="text-[11px] font-mono uppercase tracking-wider text-roji-accent">
+            <div className="text-[12px] font-mono uppercase tracking-wider text-roji-accent">
               {t.category}
             </div>
             <div className="font-semibold">{t.shortTitle}</div>
@@ -101,7 +107,13 @@ export function StoreCTA({
             </p>
           </div>
           <div className="sm:text-right">
-            <a href={target} className="roji-btn-primary">
+            <a
+              href={target}
+              onClick={() =>
+                track("store_outbound_click", { source, label: buttonLabel })
+              }
+              className="roji-btn-primary"
+            >
               {buttonLabel}
             </a>
           </div>

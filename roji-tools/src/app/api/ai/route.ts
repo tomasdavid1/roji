@@ -127,7 +127,9 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await client.messages.create({
-      model: "claude-haiku-4-5",
+      // Pinned (not alias) so a future Haiku revision doesn't break our
+      // tightly-tuned safety prompt without us reviewing it first.
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 800,
       system: `${SYSTEM_PROMPT}\n\n${contextBlock}`,
       messages: messages.map((m) => ({ role: m.role, content: m.content })),

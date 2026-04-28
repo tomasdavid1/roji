@@ -1,28 +1,29 @@
 import type { Metadata } from "next";
 
 import { ResearchSearch } from "@/components/ResearchSearch";
-import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { PageHero, MoreTools } from "@/components/PageChrome";
+import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
-  title: "Peptide Research Library — searchable PubMed for biohackers",
+  title: "Research Database — peer-reviewed peptide studies",
   description:
-    "Free, ad-free search of published peptide research. Plain-English summaries, study-type tags, direct PubMed links.",
+    "Free, ad-free search of published peptide research. Plain-English summaries, study-type tags, direct PubMed links. No signup.",
 };
 
 export default function ResearchPage() {
   return (
     <>
+      <ToolView slug="research" />
       <PageHero
         pill="Database · Free"
-        title="Peptide Research Library"
+        title="Research Database"
         lede="PubMed, made human-readable. Search 30+ million peer-reviewed studies. Filter by study type. No accounts, no paywall."
       />
       <ResearchSearch />
-      <StoreCTA
-        source="research"
-        title="Research a compound, then source it cleanly."
-        body="When you've decided which compound you want to work with, Roji ships ≥99% Janoshik-verified vials with the COA on file."
-      />
+      <p className="mx-auto max-w-3xl px-6 pb-10 text-center text-xs text-roji-dim">
+        All studies link directly to their original PubMed source. Results are
+        for educational and informational purposes only.
+      </p>
       <MoreTools currentSlug="research" />
     </>
   );

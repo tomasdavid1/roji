@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { CostPerDoseCalculator } from "@/components/CostPerDoseCalculator";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
   title: "Cost-Per-Dose Calculator — true peptide cost across vendors",
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function CostPerDosePage() {
   return (
     <>
+      <ToolView slug="cost-per-dose" />
       <PageHero
         pill="Calculator · Free"
         title="Cost-Per-Dose Comparison"

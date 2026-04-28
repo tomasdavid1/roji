@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { HalfLifeBrowser } from "@/components/HalfLifeBrowser";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
   title: "Compound Half-Life Database — peptide pharmacokinetics",
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function HalfLifePage() {
   return (
     <>
+      <ToolView slug="half-life" />
       <PageHero
         pill="Database · Free"
         title="Compound Half-Life Database"

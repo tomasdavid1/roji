@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { InteractionChecker } from "@/components/InteractionChecker";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
   title: "Supplement Interaction Checker — free OTC stack analyzer",
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function InteractionsPage() {
   return (
     <>
+      <ToolView slug="interactions" />
       <PageHero
         pill="Calculator · Free"
         title="Supplement Interaction Checker"

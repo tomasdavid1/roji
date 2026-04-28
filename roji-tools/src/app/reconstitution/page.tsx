@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { ReconCalculator } from "@/components/ReconCalculator";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
   title: "Peptide Reconstitution Calculator — mg / mL → mcg per syringe unit",
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function ReconstitutionPage() {
   return (
     <>
+      <ToolView slug="reconstitution" />
       <PageHero
         pill="Calculator · Free"
         title="Reconstitution Calculator"

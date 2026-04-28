@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { RecompCalculator } from "@/components/RecompCalculator";
 import { PageHero, MoreTools } from "@/components/PageChrome";
+import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
   title: "Body Recomp Calculator — TDEE, macros, and 16-week projection",
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function RecompPage() {
   return (
     <>
+      <ToolView slug="recomp" />
       <PageHero
         pill="Calculator · Free"
         title="Body Recomp Calculator"

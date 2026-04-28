@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { CoaUploader } from "@/components/CoaUploader";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
   title: "COA Verifier — Is your peptide vendor's Certificate of Analysis legit?",
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function CoaPage() {
   return (
     <>
+      <ToolView slug="coa" />
       <PageHero
         pill="Verifier · Free"
         title="COA Verifier"

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { AiAssistant } from "@/components/AiAssistant";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
   title: "AI Research Assistant — cited answers from peptide literature",
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function AiPage() {
   return (
     <>
+      <ToolView slug="ai" />
       <PageHero
         pill="AI · Beta · Free"
         title="AI Research Assistant"

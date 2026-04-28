@@ -6,6 +6,7 @@ import { useState } from "react";
 import { ComingSoonModal } from "@/components/ComingSoonModal";
 import { ToolIcon } from "@/components/ToolIcon";
 import type { DirectoryTool } from "@/lib/directory";
+import { track } from "@/lib/track";
 
 interface ToolCardProps {
   tool: DirectoryTool;
@@ -32,6 +33,11 @@ export function ToolCard({ tool }: ToolCardProps) {
   const onSoonClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setModalOpen(true);
+    track("directory_card_click", { tool: tool.slug, status: "soon" });
+  };
+
+  const onLiveClick = () => {
+    track("directory_card_click", { tool: tool.slug, status: "live" });
   };
 
   const inner = (
@@ -48,7 +54,7 @@ export function ToolCard({ tool }: ToolCardProps) {
       <p className="mt-2 text-sm text-roji-muted leading-relaxed">
         {tool.description}
       </p>
-      <div className="mt-5 text-[13px] font-medium text-roji-accent inline-flex items-center gap-1.5 group-hover:translate-x-0.5 transition-transform">
+      <div className="mt-5 text-[14px] font-medium text-roji-accent inline-flex items-center gap-1.5 group-hover:translate-x-0.5 transition-transform">
         {isLive ? "Use tool" : "Get notified"}
         <span aria-hidden="true">→</span>
       </div>
@@ -64,6 +70,7 @@ export function ToolCard({ tool }: ToolCardProps) {
     return (
       <Link
         href={tool.href}
+        onClick={onLiveClick}
         className={baseClasses}
         data-tool-slug={tool.slug}
         data-tool-status="live"
@@ -95,7 +102,7 @@ export function ToolCard({ tool }: ToolCardProps) {
 function StatusBadge({ status }: { status: DirectoryTool["status"] }) {
   if (status === "live") {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-roji-success/10 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider text-roji-success">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-roji-success/10 px-2 py-0.5 text-[11px] font-mono uppercase tracking-wider text-roji-success">
         <span
           className="h-1.5 w-1.5 rounded-full bg-roji-success"
           aria-hidden="true"
@@ -105,7 +112,7 @@ function StatusBadge({ status }: { status: DirectoryTool["status"] }) {
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider text-roji-muted">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-mono uppercase tracking-wider text-roji-muted">
       Coming soon
     </span>
   );

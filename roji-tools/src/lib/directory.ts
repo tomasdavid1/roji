@@ -80,7 +80,7 @@ export const DIRECTORY_TOOLS: readonly DirectoryTool[] = [
     name: "Bloodwork Interpreter",
     description:
       "Visualize blood panel results against reference ranges. Plain-English explanations.",
-    status: "soon",
+    status: "live",
     icon: "activity",
   },
   {
@@ -89,7 +89,7 @@ export const DIRECTORY_TOOLS: readonly DirectoryTool[] = [
     name: "Body Recomp Calculator",
     description:
       "TDEE, macros, and projected body composition changes over 8–24 weeks.",
-    status: "soon",
+    status: "live",
     icon: "trendingUp",
   },
   {
@@ -98,7 +98,7 @@ export const DIRECTORY_TOOLS: readonly DirectoryTool[] = [
     name: "Research Database",
     description:
       "Search curated, peer-reviewed studies with plain-English summaries and PubMed links.",
-    status: "soon",
+    status: "live",
     icon: "bookOpen",
   },
   {
@@ -106,7 +106,7 @@ export const DIRECTORY_TOOLS: readonly DirectoryTool[] = [
     href: "/tracker",
     name: "Stack Tracker",
     description:
-      "Log compounds, track subjective metrics, and visualize trends over time.",
+      "Log your stack, track subjective metrics, and visualize trends over time.",
     status: "soon",
     icon: "clipboardList",
   },
