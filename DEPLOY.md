@@ -368,6 +368,78 @@ wp roji subs:provision        # idempotently create/update autoship siblings
 
 ---
 
+## 5d. Affiliate program
+
+Native implementation (no plugin dependency). Currently in **test mode**: commissions are recorded and tier-promoted automatically, but payouts are a manual operator step.
+
+### What's wired
+
+| Surface | Behavior | Requires |
+| --- | --- | --- |
+| **`?ref=CODE` cookie** | First-touch, 30-day window, HttpOnly + SameSite=Lax | (always on) |
+| **Click counter** | Per-affiliate lifetime click count, updated on `?ref=` visit | (always on) |
+| **Commission ledger** | One row per (affiliate, order). Idempotent. Tier-aware. | Order completed |
+| **Renewal commissions** | 50% of tier rate on every recurring renewal | Subs plugin active |
+| **Refund reversal** | Order refunded → commission flipped to `reversed`, lifetime gross decreased | (always on) |
+| **30-day commission lock** | New commissions start `pending`, transition to `approved` after the lock window via daily cron | (always on) |
+| **Signup form** | `[roji_affiliate_signup]` shortcode at `/become-an-affiliate/` page | (always on) |
+| **Admin moderation** | New applications land as `pending` posts; admin approves via WP admin → Affiliates | (always on) |
+| **Approval email** | When admin approves, affiliate gets emailed their referral link + tier ladder | (always on) |
+| **Dashboard** | `/affiliates` page with GMV (30d), pending/approved commission totals, tier ladder, top performers | `ROJI_INTERNAL_API_TOKEN` set on both sides |
+
+### Tier ladder (defaults — change in `wp-config.php` if needed)
+
+| Lifetime gross referred | Commission |
+| --- | --- |
+| < $10,000 | 10% |
+| ≥ $10,000 | 15% |
+| ≥ $50,000 | 20% |
+
+Subscription renewals always pay at 50% of the affiliate's current tier rate.
+
+### Optional config in `wp-config.php`
+
+```php
+define( 'ROJI_AFF_TIER_DEFAULT_PCT', 10 );
+define( 'ROJI_AFF_TIER_2_THRESHOLD', 10000 );
+define( 'ROJI_AFF_TIER_2_PCT', 15 );
+define( 'ROJI_AFF_TIER_3_THRESHOLD', 50000 );
+define( 'ROJI_AFF_TIER_3_PCT', 20 );
+define( 'ROJI_AFF_COOKIE_DAYS', 30 );           // attribution window
+define( 'ROJI_AFF_LOCK_DAYS', 30 );              // refund-protection window before payable
+define( 'ROJI_AFF_RENEWAL_PCT_OF_TIER', 50 );    // renewal commissions = 50% of tier
+```
+
+### CLI commands (run on the WP host)
+
+```bash
+wp roji aff:create --name="Joe Rogan" --email=joe@example.com --code=ROGAN --approve
+wp roji aff:approve <affiliate_id>     # approve a pending application
+wp roji aff:status                     # show the same numbers as the dashboard
+```
+
+### Migration to AffiliateWP (when ready)
+
+The native system is purpose-built for our needs. If you ever need AffiliateWP's richer features (creatives library, MLM, payout integrations):
+
+1. Buy AffiliateWP ($149/yr at <https://affiliatewp.com/>)
+2. Install the plugin
+3. Run `wp post list --post_type=roji_affiliate --format=csv > affiliates.csv`
+4. Run `wp post list --post_type=roji_aff_commission --format=csv > commissions.csv`
+5. Use AffiliateWP's CSV import (Settings → Tools) to bulk-load both
+6. Optional: deactivate this module by removing the `require_once` line in `functions.php`
+
+The cookie name (`roji_aff_ref`) is non-conflicting with AffiliateWP's (`affwp_ref`), so both can run in parallel during a migration period.
+
+### Why we chose to build native instead of using AffiliateWP from day one
+
+- **Scope is small**: cookie + commission calc + a CPT. ~700 LOC total. AffiliateWP would have been ~10x the surface area for the same MVP.
+- **No plugin lock-in**: our data is in standard WP posts/meta. Easy to query, easy to migrate.
+- **Tighter integration**: native module gets first-class hooks into the existing subscription + Trustpilot stack.
+- **Test-mode-first**: payouts stay manual until real revenue exists. No risk of wiring a payment processor against fake data.
+
+---
+
 ## 6. Smoke tests after everything is live
 
 - [ ] `https://protocol.rojipeptides.com` → wizard works, "Get this stack" redirects to `https://rojipeptides.com/cart/?protocol_stack=wolverine&utm_source=protocol_engine&...`
@@ -383,6 +455,10 @@ wp roji subs:provision        # idempotently create/update autoship siblings
 - [ ] (If Subscriptions plugin active) Protocol engine "Save 15% with autoship" toggle changes the destination URL.
 - [ ] (If Subscriptions plugin active) Cart shows "Save 15%" upsell when one-time stack is in cart, and "Switch to autoship" swaps the line item.
 - [ ] (If Subscriptions plugin active) `/subscriptions` dashboard page shows MRR/ARPU/churn from the WP REST endpoint.
+- [ ] `/become-an-affiliate/` page renders the signup form with tier ladder.
+- [ ] Visit `https://rojipeptides.com/?ref=TEST` (after creating a test affiliate) → cookie `roji_aff_ref` is set.
+- [ ] Place a test order → order notes show "Affiliate commission recorded: $X to affiliate #Y".
+- [ ] `/affiliates` dashboard page shows the test commission and click count.
 
 ---
 

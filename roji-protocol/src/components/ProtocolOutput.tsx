@@ -60,9 +60,23 @@ export function ProtocolOutput() {
         autoship: autoship ? "yes" : "no",
       });
     }
-    window.location.href = autoship
+    // Pass through ?ref=CODE if the user landed on the protocol engine via
+    // an affiliate link. The store reads it on first request and drops a
+    // 30-day cookie, so attribution survives even if they bounce and come
+    // back later.
+    let target = autoship
       ? recommendation.shopUrlAutoship
       : recommendation.shopUrl;
+    if (typeof window !== "undefined") {
+      const incomingRef = new URLSearchParams(window.location.search).get(
+        "ref",
+      );
+      if (incomingRef) {
+        const sep = target.includes("?") ? "&" : "?";
+        target = `${target}${sep}ref=${encodeURIComponent(incomingRef)}`;
+      }
+    }
+    window.location.href = target;
   };
 
   const autoshipPrice = (

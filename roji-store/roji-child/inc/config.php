@@ -206,6 +206,74 @@ function roji_subs_enabled() {
 	return roji_subs_provider() !== 'none';
 }
 
+/* -----------------------------------------------------------------------------
+ * Affiliate program (native — no plugin dependency)
+ *
+ * Why native instead of wrapping AffiliateWP or one of the free plugins:
+ *   - AffiliateWP uses its own custom tables (no overlap with WP standards
+ *     to "be compatible with"). So abstracting against it has zero benefit.
+ *   - Free plugins (Affiliates by Itthinx, YITH) bring large admin UIs
+ *     and MLM features we don't want.
+ *   - Our scope is small: ?ref=CODE cookie, commission calc on order
+ *     completion, signup form, custom post type. ~250 LOC total.
+ *   - When/if you outgrow this, we export to AffiliateWP via a one-shot
+ *     CSV — much cleaner than a maintained shim.
+ *
+ * Tiered commissions reward proven affiliates without burning margin on
+ * day-one signups. Thresholds are LIFETIME GROSS VOLUME (the affiliate's
+ * cumulative referred-order subtotals).
+ * -------------------------------------------------------------------------- */
+
+if ( ! defined( 'ROJI_AFF_TIER_DEFAULT_PCT' ) ) {
+	define( 'ROJI_AFF_TIER_DEFAULT_PCT', 10 );
+}
+if ( ! defined( 'ROJI_AFF_TIER_2_THRESHOLD' ) ) {
+	define( 'ROJI_AFF_TIER_2_THRESHOLD', 10000 ); // USD lifetime gross
+}
+if ( ! defined( 'ROJI_AFF_TIER_2_PCT' ) ) {
+	define( 'ROJI_AFF_TIER_2_PCT', 15 );
+}
+if ( ! defined( 'ROJI_AFF_TIER_3_THRESHOLD' ) ) {
+	define( 'ROJI_AFF_TIER_3_THRESHOLD', 50000 );
+}
+if ( ! defined( 'ROJI_AFF_TIER_3_PCT' ) ) {
+	define( 'ROJI_AFF_TIER_3_PCT', 20 );
+}
+// Cookie window: how many days after a click can the customer convert and
+// still credit the affiliate. 30d is the AffiliateWP / industry default.
+if ( ! defined( 'ROJI_AFF_COOKIE_DAYS' ) ) {
+	define( 'ROJI_AFF_COOKIE_DAYS', 30 );
+}
+// "Locked" period before commissions are payable: lets us wait out
+// chargeback / refund risk before a payout obligation crystallizes.
+// 30d is standard for D2C supplements.
+if ( ! defined( 'ROJI_AFF_LOCK_DAYS' ) ) {
+	define( 'ROJI_AFF_LOCK_DAYS', 30 );
+}
+// Commissions from autoship renewals: full first payment, half on
+// subsequent renewals. This is the SaaS-style model that keeps
+// affiliates incentivized for retention without breaking unit economics.
+if ( ! defined( 'ROJI_AFF_RENEWAL_PCT_OF_TIER' ) ) {
+	define( 'ROJI_AFF_RENEWAL_PCT_OF_TIER', 50 ); // 50% of tier rate
+}
+
+/**
+ * Resolve the commission % an affiliate should earn given their lifetime
+ * gross volume. Pure function — easy to unit test.
+ *
+ * @param float $lifetime_gross_usd Sum of referred-order subtotals.
+ * @return int Commission percent (10, 15, or 20).
+ */
+function roji_aff_tier_pct_for_volume( $lifetime_gross_usd ) {
+	if ( $lifetime_gross_usd >= ROJI_AFF_TIER_3_THRESHOLD ) {
+		return (int) ROJI_AFF_TIER_3_PCT;
+	}
+	if ( $lifetime_gross_usd >= ROJI_AFF_TIER_2_THRESHOLD ) {
+		return (int) ROJI_AFF_TIER_2_PCT;
+	}
+	return (int) ROJI_AFF_TIER_DEFAULT_PCT;
+}
+
 /**
  * Map a protocol_stack slug to a WooCommerce product ID.
  *

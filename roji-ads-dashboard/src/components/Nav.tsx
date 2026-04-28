@@ -10,6 +10,7 @@ const LINKS = [
   { href: "/search-terms", label: "Search terms" },
   { href: "/disapprovals", label: "Disapprovals" },
   { href: "/subscriptions", label: "Subscriptions" },
+  { href: "/affiliates", label: "Affiliates" },
 ];
 
 export type NavMode = "mock" | "test" | "live";
