@@ -252,7 +252,7 @@ function MarkerRow({
   const level: FlagLevel | null = haveNum && range ? flag(num, range) : null;
 
   return (
-    <div className="grid grid-cols-[1.5fr_1fr_2fr] items-center gap-3 border-b border-roji-border pb-3 last:border-b-0 last:pb-0">
+    <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[1.5fr_1fr_2fr] items-center gap-x-3 gap-y-2 border-b border-roji-border pb-3 last:border-b-0 last:pb-0">
       <div>
         <div className="text-sm font-medium" title={marker.description}>
           {marker.label}
@@ -263,13 +263,13 @@ function MarkerRow({
         <input
           type="number"
           step="0.01"
-          className="roji-input text-sm"
+          className="roji-input text-sm w-[110px] sm:w-full"
           value={raw}
           placeholder={range ? `${range.low}–${range.high}` : ""}
           onChange={(e) => onChange(e.target.value)}
         />
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="col-span-2 sm:col-span-1 flex flex-col gap-1">
         {range && <RangeBar range={range} value={haveNum ? num : null} />}
         {level && level !== "ok" && (
           <div

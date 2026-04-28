@@ -127,9 +127,9 @@ export function StackTracker() {
         <div className="space-y-6">
           <div className="roji-card">
             <div className="roji-mono-label mb-3">Your stack</div>
-            <div className="grid grid-cols-[1fr_120px_120px_auto] gap-2 mb-3">
+            <div className="grid grid-cols-2 sm:grid-cols-[1fr_120px_120px_auto] gap-2 mb-3">
               <input
-                className="roji-input text-sm"
+                className="col-span-2 sm:col-span-1 roji-input text-sm"
                 placeholder="Compound or supplement"
                 value={newItem.name}
                 onChange={(e) => setNewItem((p) => ({ ...p, name: e.target.value }))}
@@ -157,8 +157,12 @@ export function StackTracker() {
                 <option value="weekly">Weekly</option>
                 <option value="as-needed">As needed</option>
               </select>
-              <button onClick={addItem} className="roji-btn-primary">
-                +
+              <button
+                onClick={addItem}
+                className="col-span-2 sm:col-span-1 roji-btn-primary"
+                aria-label="Add item to stack"
+              >
+                + Add
               </button>
             </div>
             <div className="space-y-2">
