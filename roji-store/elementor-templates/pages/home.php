@@ -29,12 +29,12 @@ return array(
 				'flex_gap' => array( 'column' => '12', 'row' => '12', 'unit' => 'px', 'isLinked' => true ),
 				'padding' => array( 'top' => '12', 'right' => '0', 'bottom' => '0', 'left' => '0', 'unit' => 'px', 'isLinked' => false ),
 			), array(
-				roji_el_button( 'Browse research tools →', 'https://tools.rojipeptides.com', array(
+				roji_el_button( 'Browse the shop', '/shop/', array(
 					'size' => 'lg',
 					'text_padding' => array( 'top' => '18', 'right' => '32', 'bottom' => '18', 'left' => '32', 'unit' => 'px', 'isLinked' => false ),
 					'typography_font_size' => array( 'unit' => 'px', 'size' => 16, 'sizes' => array() ),
 				) ),
-				roji_el_button_secondary( 'Or browse the shop', '/shop/', array(
+				roji_el_button_secondary( 'Or browse research tools →', 'https://tools.rojipeptides.com', array(
 					'size' => 'lg',
 					'text_padding' => array( 'top' => '18', 'right' => '32', 'bottom' => '18', 'left' => '32', 'unit' => 'px', 'isLinked' => false ),
 					'typography_font_size' => array( 'unit' => 'px', 'size' => 16, 'sizes' => array() ),
