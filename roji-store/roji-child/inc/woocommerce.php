@@ -404,9 +404,22 @@ add_action( 'after_switch_theme', 'roji_pin_bundles_to_top' );
  * Slugs grouped under the "Bundles" meta-category. Update in one place if
  * you ever add a new bundle taxonomy. Maps to the term slugs from
  * `wp term list product_cat`.
+ *
+ * Slugs were updated 2026-04-28 after compliance copy rewrite renamed:
+ *   healing-recovery     -> tissue-research-compounds
+ *   body-recomposition   -> gh-axis-compounds
+ *   full-protocols       -> multi-compound-bundles
  */
 function roji_bundle_category_slugs() {
-	return array( 'healing-recovery', 'body-recomposition', 'full-protocols' );
+	return array( 'tissue-research-compounds', 'gh-axis-compounds', 'multi-compound-bundles' );
+}
+
+/**
+ * Slug for the "Individual Compounds" category — single-vial products
+ * sold separately (priced at a premium vs. the bundled equivalent).
+ */
+function roji_individuals_category_slug() {
+	return 'individual-compounds';
 }
 
 /**
@@ -429,26 +442,37 @@ add_action(
 			$current_view = 'bundles';
 		} elseif ( is_product_category( 'accessories' ) ) {
 			$current_view = 'supplies';
+		} elseif ( is_product_category( roji_individuals_category_slug() ) ) {
+			$current_view = 'individuals';
 		} elseif ( is_product_taxonomy() ) {
 			$term         = get_queried_object();
 			$current_view = isset( $term->slug ) ? $term->slug : '';
 		}
 
+		// Order chosen deliberately: Bundles first (highest-margin, best
+		// for the customer), then Individuals (where most lookers will
+		// land first), Supplies, and All as the catch-all on the right.
+		$individuals_term_link = get_term_link( roji_individuals_category_slug(), 'product_cat' );
 		$chips = array(
-			array(
-				'label' => __( 'All', 'roji-child' ),
-				'url'   => $shop_url,
-				'key'   => 'all',
-			),
 			array(
 				'label' => __( 'Bundles', 'roji-child' ),
 				'url'   => add_query_arg( 'roji_view', 'bundles', $shop_url ),
 				'key'   => 'bundles',
 			),
 			array(
+				'label' => __( 'Individuals', 'roji-child' ),
+				'url'   => is_wp_error( $individuals_term_link ) ? $shop_url : $individuals_term_link,
+				'key'   => 'individuals',
+			),
+			array(
 				'label' => __( 'Supplies', 'roji-child' ),
 				'url'   => get_term_link( 'accessories', 'product_cat' ),
 				'key'   => 'supplies',
+			),
+			array(
+				'label' => __( 'All', 'roji-child' ),
+				'url'   => $shop_url,
+				'key'   => 'all',
 			),
 		);
 
@@ -494,4 +518,67 @@ add_action(
 		);
 		$q->set( 'tax_query', $tax_query );
 	}
+);
+
+/* -----------------------------------------------------------------------------
+ * "Save with the bundle" messaging on the Individuals archive + cards.
+ *
+ * The per-product savings comes from a `_bundle_savings_usd` post-meta we
+ * set on each individual SKU at seed time. Renders as:
+ *   - a banner above the Individuals product grid
+ *   - a "Save $X with the bundle" badge on each individual product card
+ * -------------------------------------------------------------------------- */
+
+/**
+ * Banner above the Individuals archive nudging customers toward the
+ * matching bundle. Hooked at priority 6 so it sits between the chip
+ * filter (priority 5) and the product grid.
+ */
+add_action(
+	'woocommerce_before_shop_loop',
+	function () {
+		if ( ! is_product_category( roji_individuals_category_slug() ) ) {
+			return;
+		}
+		$bundles_url = add_query_arg(
+			'roji_view',
+			'bundles',
+			function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' )
+		);
+		?>
+		<div class="roji-individuals-banner" role="note">
+			<div class="roji-individuals-banner__body">
+				<div class="roji-individuals-banner__eyebrow">Tip · save 25–30%</div>
+				<div class="roji-individuals-banner__title">Most researchers save by bundling.</div>
+				<div class="roji-individuals-banner__sub">The Wolverine and Recomp Stacks bundle the same compounds at ~30% off the individual price. Worth a look.</div>
+			</div>
+			<a class="roji-individuals-banner__cta" href="<?php echo esc_url( $bundles_url ); ?>">See the bundles &rarr;</a>
+		</div>
+		<?php
+	},
+	6
+);
+
+/**
+ * "Save $X with the bundle" badge inside each individual product card on
+ * loop archives. The savings number comes from `_bundle_savings_usd`
+ * post-meta seeded by import-products.php; absent meta = no badge.
+ */
+add_action(
+	'woocommerce_after_shop_loop_item_title',
+	function () {
+		global $product;
+		if ( ! $product instanceof WC_Product ) {
+			return;
+		}
+		$savings = (float) get_post_meta( $product->get_id(), '_bundle_savings_usd', true );
+		if ( $savings <= 0 ) {
+			return;
+		}
+		printf(
+			'<div class="roji-card-savings"><span class="roji-card-savings__chip">−$%s</span><span class="roji-card-savings__txt">with the bundle</span></div>',
+			esc_html( number_format( $savings, 0 ) )
+		);
+	},
+	7
 );
