@@ -20,6 +20,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_filter( 'woocommerce_enqueue_styles', '__return_empty_array' );
 
 /**
+ * Suppress WooCommerce's default "Your cart is currently empty." notice —
+ * our custom woocommerce/cart/cart-empty.php template renders a richer
+ * branded card and we don't want the bare notice line above it.
+ */
+add_filter( 'wc_empty_cart_message', '__return_empty_string' );
+
+/**
  * Deep-link handler: ?protocol_stack=wolverine|recomp|full&qty=N&weeks=W
  *
  * Empties the cart, adds the mapped product at the requested quantity, and
