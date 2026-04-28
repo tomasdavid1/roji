@@ -157,7 +157,7 @@ $content[] = roji_el_container( array(
 			'flex_gap' => array( 'column' => '12', 'row' => '12', 'unit' => 'px', 'isLinked' => true ),
 			'padding' => array( 'top' => '12', 'right' => '0', 'bottom' => '0', 'left' => '0', 'unit' => 'px', 'isLinked' => false ),
 		), array(
-			roji_el_button( 'Build a research stack', 'https://protocol.rojipeptides.com' ),
+			roji_el_button( 'Explore the research tools', 'https://tools.rojipeptides.com' ),
 			roji_el_button_secondary( 'View COA library', '/coa/' ),
 		) ),
 	), array( 'padding' => array( 'top' => '32', 'right' => '32', 'bottom' => '32', 'left' => '32', 'unit' => 'px', 'isLinked' => true ) ) ),

@@ -22,14 +22,14 @@ return array(
 				'typography_line_height' => array( 'unit' => 'em', 'size' => 1.0, 'sizes' => array() ),
 				'typography_letter_spacing' => array( 'unit' => 'px', 'size' => -2, 'sizes' => array() ),
 			) ),
-			roji_el_text( '<p style="font-size:22px;line-height:1.5;color:#a8a8b8;max-width:680px;">Tested every batch. Cited every product. Built around a free protocol engine that does the dosing math for you.</p>' ),
+			roji_el_text( '<p style="font-size:22px;line-height:1.5;color:#a8a8b8;max-width:680px;">Tested every batch. Cited every product. Backed by a suite of free research calculators and reference databases.</p>' ),
 			roji_el_inner( array(
 				'flex_direction' => 'row',
 				'flex_wrap' => 'wrap',
 				'flex_gap' => array( 'column' => '12', 'row' => '12', 'unit' => 'px', 'isLinked' => true ),
 				'padding' => array( 'top' => '12', 'right' => '0', 'bottom' => '0', 'left' => '0', 'unit' => 'px', 'isLinked' => false ),
 			), array(
-				roji_el_button( 'Build my research stack →', 'https://protocol.rojipeptides.com', array(
+				roji_el_button( 'Browse research tools →', 'https://tools.rojipeptides.com', array(
 					'size' => 'lg',
 					'text_padding' => array( 'top' => '18', 'right' => '32', 'bottom' => '18', 'left' => '32', 'unit' => 'px', 'isLinked' => false ),
 					'typography_font_size' => array( 'unit' => 'px', 'size' => 16, 'sizes' => array() ),
@@ -68,14 +68,14 @@ return array(
 						'flex_gap' => array( 'column' => '12', 'row' => '12', 'unit' => 'px', 'isLinked' => true ),
 						'padding' => array( 'top' => '0', 'right' => '0', 'bottom' => '0', 'left' => '0', 'unit' => 'px', 'isLinked' => true ),
 					), array(
-						roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.15em;text-transform:uppercase;">Protocol Engine</div>' ),
-						roji_el_heading( 'Tell us your goal. Get a referenced stack in 60 seconds.', array(
+						roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.15em;text-transform:uppercase;">Research Tools</div>' ),
+						roji_el_heading( 'Calculators, databases, and analyzers — all free.', array(
 							'header_size' => 'h2',
 							'typography_font_size' => array( 'unit' => 'px', 'size' => 32, 'sizes' => array() ),
 							'typography_line_height' => array( 'unit' => 'em', 'size' => 1.15, 'sizes' => array() ),
 						) ),
-						roji_el_text( '<p style="font-size:16px;color:#a8a8b8;">Weight-adjusted dosing, frequency, cycle length — every number cited from published research. Skip the forum spelunking.</p>' ),
-						roji_el_button( 'Open the engine →', 'https://protocol.rojipeptides.com' ),
+						roji_el_text( '<p style="font-size:16px;color:#a8a8b8;">Reconstitution math, half-life databases, COA analyzers, and more. Open references. Open math. Skip the forum spelunking.</p>' ),
+						roji_el_button( 'Explore the tools →', 'https://tools.rojipeptides.com' ),
 					) ),
 					roji_el_inner( array(
 						'_inline_size' => 35,
@@ -272,7 +272,7 @@ return array(
 			),
 			roji_el_faq_item(
 				'How does autoship work?',
-				'<p>Pick a stack, choose "Save 15% with monthly autoship" at the top of any product page (or in the Protocol Engine). Your card is charged once a month and a fresh supply ships automatically. Free shipping on every renewal. Pause or cancel anytime from your account.</p>'
+				'<p>Pick a stack and choose "Save 15% with monthly autoship" at the top of any product page. Your card is charged once a month and a fresh supply ships automatically. Free shipping on every renewal. Pause or cancel anytime from your account.</p>'
 			),
 			roji_el_faq_item(
 				'Is the packaging discreet?',
@@ -299,7 +299,7 @@ return array(
 					'align' => 'center',
 					'typography_font_size' => array( 'unit' => 'px', 'size' => 40, 'sizes' => array() ),
 				) ),
-				roji_el_text( '<p style="text-align:center;font-size:18px;color:#a8a8b8;max-width:560px;margin:8px auto 0;">60 seconds to a referenced research stack tailored to your goal.</p>' ),
+				roji_el_text( '<p style="text-align:center;font-size:18px;color:#a8a8b8;max-width:560px;margin:8px auto 0;">Free calculators, half-life databases, and COA analyzers for the research community.</p>' ),
 				roji_el_inner( array(
 					'flex_direction' => 'row',
 					'flex_wrap' => 'wrap',
@@ -307,7 +307,7 @@ return array(
 					'flex_justify_content' => 'center',
 					'padding' => array( 'top' => '20', 'right' => '0', 'bottom' => '0', 'left' => '0', 'unit' => 'px', 'isLinked' => false ),
 				), array(
-					roji_el_button( 'Open the Protocol Engine', 'https://protocol.rojipeptides.com', array(
+					roji_el_button( 'Explore the research tools', 'https://tools.rojipeptides.com', array(
 						'align' => 'center',
 						'text_padding' => array( 'top' => '18', 'right' => '36', 'bottom' => '18', 'left' => '36', 'unit' => 'px', 'isLinked' => false ),
 						'typography_font_size' => array( 'unit' => 'px', 'size' => 16, 'sizes' => array() ),

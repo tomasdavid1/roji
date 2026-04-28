@@ -5,8 +5,8 @@
  * Replaces WC's "Your cart is currently empty. Return to shop." with
  * a richer empty state that:
  *   - Confirms the cart is empty
- *   - Offers two clear paths: "Build my protocol" (Protocol Engine,
- *     for goal-driven shoppers) or "Browse stacks" (for direct shoppers)
+ *   - Offers two clear paths: "Browse research tools" (educational
+ *     funnel) or "Browse stacks" (for direct shoppers)
  *   - Surfaces the three bundle products inline so a wandering visitor
  *     never has to navigate elsewhere to add something.
  *
@@ -35,7 +35,7 @@ foreach ( array( 'ROJI_WOLVERINE_PRODUCT_ID', 'ROJI_RECOMP_PRODUCT_ID', 'ROJI_FU
 		$bundles[] = $p;
 	}
 }
-$protocol_url = defined( 'ROJI_PROTOCOL_URL' ) ? ROJI_PROTOCOL_URL : home_url( '/' );
+$tools_url = defined( 'ROJI_TOOLS_URL' ) ? ROJI_TOOLS_URL : home_url( '/' );
 ?>
 
 <style>
@@ -65,10 +65,10 @@ $protocol_url = defined( 'ROJI_PROTOCOL_URL' ) ? ROJI_PROTOCOL_URL : home_url( '
 <div class="roji-empty-cart">
 	<span class="pill">Empty cart</span>
 	<h2>Nothing in your cart yet.</h2>
-	<p>Most researchers start with the Protocol Engine — answer a few quick questions and we'll calibrate a stack to your goal. Or jump straight to the shop if you already know what you want.</p>
+	<p>Browse our free research tools — calculators, half-life databases, and COA analyzers — or jump straight to the shop if you already know what you want.</p>
 
 	<div class="ctas">
-		<a class="primary" href="<?php echo esc_url( $protocol_url ); ?>">Build my protocol →</a>
+		<a class="primary" href="<?php echo esc_url( $tools_url ); ?>">Browse research tools →</a>
 		<a class="ghost" href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>">Browse stacks</a>
 	</div>
 

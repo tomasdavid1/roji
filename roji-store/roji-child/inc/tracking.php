@@ -29,12 +29,15 @@ add_action(
 		}
 		$primary_id = $ads_id ? $ads_id : $ga4_id;
 		// Cross-domain linker config: keep gclid + GA4 client_id alive
-		// when bouncing between protocol.rojipeptides.com and
-		// rojipeptides.com. Override ROJI_GTAG_LINKER_DOMAINS in
+		// when bouncing between rojipeptides.com (the store) and
+		// tools.rojipeptides.com (the research-tools subdomain).
+		// protocol.rojipeptides.com is included only as a redirect-shim
+		// host so any legacy traffic 301'd through it preserves the
+		// gclid as well. Override ROJI_GTAG_LINKER_DOMAINS in
 		// wp-config.php for non-prod test pairs.
 		$linker_domains = defined( 'ROJI_GTAG_LINKER_DOMAINS' )
 			? (array) ROJI_GTAG_LINKER_DOMAINS
-			: array( 'rojipeptides.com', 'protocol.rojipeptides.com', 'tools.rojipeptides.com' );
+			: array( 'rojipeptides.com', 'tools.rojipeptides.com', 'protocol.rojipeptides.com' );
 		$linker_json = wp_json_encode( array_values( array_filter( array_map( 'trim', $linker_domains ) ) ) );
 		?>
 <!-- Roji: Google tag (gtag.js) -->

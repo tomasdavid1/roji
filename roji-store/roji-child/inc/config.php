@@ -92,13 +92,23 @@ if ( ! defined( 'ROJI_AGE_REQUIREMENT' ) ) {
 }
 
 /* -----------------------------------------------------------------------------
- * Protocol engine URL
+ * Research tools URL
  *
- * Used for any in-store CTAs that link to the external protocol builder.
+ * Canonical Next.js subdomain hosting our public research-tools directory
+ * (calculators, half-life DB, COA analyzer, etc.). Used for any in-store
+ * CTAs that link out to those tools. The legacy protocol.rojipeptides.com
+ * subdomain has been retired in favor of this one for Google-Ads
+ * compliance — DNS for protocol.* now 301s here.
  * -------------------------------------------------------------------------- */
 
+if ( ! defined( 'ROJI_TOOLS_URL' ) ) {
+	define( 'ROJI_TOOLS_URL', 'https://tools.rojipeptides.com' );
+}
+
+// Back-compat alias so any older callers that still reference
+// ROJI_PROTOCOL_URL keep working and resolve to the new tools domain.
 if ( ! defined( 'ROJI_PROTOCOL_URL' ) ) {
-	define( 'ROJI_PROTOCOL_URL', 'https://protocol.rojipeptides.com' );
+	define( 'ROJI_PROTOCOL_URL', ROJI_TOOLS_URL );
 }
 
 /* -----------------------------------------------------------------------------

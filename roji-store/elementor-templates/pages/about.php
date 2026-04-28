@@ -44,8 +44,8 @@ return array(
 				) ),
 				roji_el_card( array(
 					roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.1em;">03</div>' ),
-					roji_el_heading( 'Stacks, not guesswork.', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 22, 'sizes' => array() ) ) ),
-					roji_el_text( '<p>Our <a href="https://protocol.rojipeptides.com">Protocol Engine</a> takes your goal and parameters and outputs an evidence-referenced research stack. The math is open. The references are clickable. No hand-waving.</p>' ),
+					roji_el_heading( 'Tools, not guesswork.', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 22, 'sizes' => array() ) ) ),
+					roji_el_text( '<p>Our <a href="https://tools.rojipeptides.com">Research Tools</a> — calculators, half-life databases, COA analyzers — turn the math you\'d otherwise dig out of forum threads into a clean, cited UI. The math is open. The references are clickable. No hand-waving.</p>' ),
 				) ),
 			), 3 ),
 		) ),
@@ -125,7 +125,7 @@ return array(
 		), array(
 			roji_el_card( array(
 				roji_el_heading( 'Ready to build a research stack?', array( 'header_size' => 'h2', 'align' => 'center', 'typography_font_size' => array( 'unit' => 'px', 'size' => 32, 'sizes' => array() ) ) ),
-				roji_el_text( '<p style="text-align:center;font-size:17px;">The Protocol Engine takes 60 seconds and outputs a referenced stack tailored to your research parameters.</p>' ),
+				roji_el_text( '<p style="text-align:center;font-size:17px;">Our research tools — calculators, half-life databases, COA analyzers — are free for everyone. No signup, no upsell.</p>' ),
 				roji_el_inner( array(
 					'flex_direction' => 'row',
 					'flex_wrap' => 'wrap',
@@ -133,7 +133,7 @@ return array(
 					'flex_justify_content' => 'center',
 					'padding' => array( 'top' => '12', 'right' => '0', 'bottom' => '0', 'left' => '0', 'unit' => 'px', 'isLinked' => false ),
 				), array(
-					roji_el_button( 'Open the Protocol Engine', 'https://protocol.rojipeptides.com', array( 'align' => 'center' ) ),
+					roji_el_button( 'Explore the research tools', 'https://tools.rojipeptides.com', array( 'align' => 'center' ) ),
 					roji_el_button_secondary( 'Browse the shop', '/shop/', array( 'align' => 'center' ) ),
 				) ),
 			), array( 'padding' => array( 'top' => '48', 'right' => '32', 'bottom' => '48', 'left' => '32', 'unit' => 'px', 'isLinked' => false ) ) ),

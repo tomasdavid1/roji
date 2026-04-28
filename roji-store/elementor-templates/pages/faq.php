@@ -18,11 +18,11 @@ $faqs = array(
 	array( 'cat' => 'Quality', 'q' => 'How do I store products after they arrive?',
 		'a' => '<p>General guidance: store lyophilized (freeze-dried) peptides in a cool, dry place away from direct sunlight. Refrigerate after reconstitution. Specific storage instructions ship with each product. Improper storage can affect compound integrity.</p>' ),
 
-	// Protocol Engine
-	array( 'cat' => 'Protocol Engine', 'q' => 'What is the Protocol Engine?',
-		'a' => '<p>It\'s our free research-protocol generator at <a href="https://protocol.rojipeptides.com">protocol.rojipeptides.com</a>. You answer a short questionnaire about your goal and parameters, and it outputs a tailored stack with weight-adjusted dosing, frequency, cycle length, and citations to the underlying published research. Then you can buy the matching stack with one click.</p>' ),
-	array( 'cat' => 'Protocol Engine', 'q' => 'Where does the dosing come from?',
-		'a' => '<p>Every dosing range is derived from published research — the same studies linked from each product page. Weight scaling is per-compound and based on standard mg/kg conversions. The math is open: the engine shows its work.</p>' ),
+	// Research Tools
+	array( 'cat' => 'Research Tools', 'q' => 'What research tools do you offer?',
+		'a' => '<p>A free suite of calculators, databases, and analyzers at <a href="https://tools.rojipeptides.com">tools.rojipeptides.com</a> — including a reconstitution calculator, a half-life database covering 15+ research compounds, a COA analyzer, a cost-per-dose calculator, and more. No signup, no upsell. They\'re educational reference tools for the research community.</p>' ),
+	array( 'cat' => 'Research Tools', 'q' => 'Are the tools free?',
+		'a' => '<p>Yes. All tools are 100% free, no account required. Data you enter into a calculator stays in your browser; we don\'t store it. Every reference data point links back to its published source.</p>' ),
 
 	// Shipping / orders
 	array( 'cat' => 'Shipping & orders', 'q' => 'How fast do you ship?',
@@ -42,7 +42,7 @@ $faqs = array(
 
 	// Subscriptions / autoship
 	array( 'cat' => 'Subscriptions', 'q' => 'How does autoship work?',
-		'a' => '<p>Pick a stack, choose "Save 15% with monthly autoship" at the top of any product page (or in the Protocol Engine). Your card is charged once a month and a fresh supply ships automatically. Free shipping on every renewal. You can pause or cancel any time from your account.</p>' ),
+		'a' => '<p>Pick a stack and choose "Save 15% with monthly autoship" at the top of any product page. Your card is charged once a month and a fresh supply ships automatically. Free shipping on every renewal. You can pause or cancel any time from your account.</p>' ),
 	array( 'cat' => 'Subscriptions', 'q' => 'What happens if my card fails on a renewal?',
 		'a' => '<p>We retry on day 1, day 3, and day 7. After each failed attempt you\'ll get an email with a one-click link to update your payment method. After three failures the subscription pauses and waits for you to fix it — we won\'t cancel without telling you first.</p>' ),
 

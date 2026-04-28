@@ -84,8 +84,7 @@ WP_CLI::log( "Provisioning Roji menus..." );
 
 roji_provision_menu( 'Roji Header', 'roji-header', 'menu-1', array(
 	array( 'title' => 'Shop',             'url' => '/shop/' ),
-	array( 'title' => 'Protocol Engine',  'url' => 'https://protocol.rojipeptides.com' ),
-	array( 'title' => 'Tools',            'url' => 'https://tools.rojipeptides.com' ),
+	array( 'title' => 'Research Tools',   'url' => 'https://tools.rojipeptides.com' ),
 	array( 'title' => 'Research Library', 'url' => '/research-library/' ),
 	array( 'title' => 'COA',              'url' => '/coa/' ),
 	array( 'title' => 'About',            'url' => '/about/' ),
@@ -95,8 +94,7 @@ roji_provision_menu( 'Roji Header', 'roji-header', 'menu-1', array(
 roji_provision_menu( 'Roji Footer', 'roji-footer', 'menu-2', array(
 	array( 'title' => 'Shop',                  'url' => '/shop/' ),
 	array( 'title' => 'About',                 'url' => '/about/' ),
-	array( 'title' => 'Protocol Engine',       'url' => 'https://protocol.rojipeptides.com' ),
-	array( 'title' => 'Free Tools',            'url' => 'https://tools.rojipeptides.com' ),
+	array( 'title' => 'Research Tools',        'url' => 'https://tools.rojipeptides.com' ),
 	array( 'title' => 'Research Library',      'url' => '/research-library/' ),
 	array( 'title' => 'COA Library',           'url' => '/coa/' ),
 	array( 'title' => 'FAQ',                   'url' => '/faq/' ),

@@ -5,8 +5,8 @@
  * Branded "page not found" with multiple recovery paths so users
  * never hit a dead end:
  *   - Search form (full-width, autofocused)
- *   - "Most-visited" links from the main IA (Protocol Engine, Shop,
- *     Research Library, Become an Affiliate)
+ *   - "Most-visited" links from the main IA (Research Tools, Shop,
+ *     Research Library, COA Library)
  *   - Three featured products (the bundles) so commerce-intent
  *     visitors who landed on a stale URL still convert.
  *   - Support email tucked at the bottom for stuck users.
@@ -28,7 +28,7 @@ foreach ( array( 'ROJI_WOLVERINE_PRODUCT_ID', 'ROJI_RECOMP_PRODUCT_ID', 'ROJI_FU
 		$bundles[] = $p;
 	}
 }
-$protocol_url = defined( 'ROJI_PROTOCOL_URL' ) ? ROJI_PROTOCOL_URL : home_url( '/' );
+$tools_url = defined( 'ROJI_TOOLS_URL' ) ? ROJI_TOOLS_URL : home_url( '/' );
 ?>
 <style>
 	.roji-404 { max-width: 960px; margin: 0 auto; padding: 56px 24px 80px; text-align: center; }
@@ -76,7 +76,7 @@ $protocol_url = defined( 'ROJI_PROTOCOL_URL' ) ? ROJI_PROTOCOL_URL : home_url( '
 	</div>
 
 	<div class="roji-404-quick">
-		<a href="<?php echo esc_url( $protocol_url ); ?>">Protocol Engine →</a>
+		<a href="<?php echo esc_url( $tools_url ); ?>">Research Tools →</a>
 		<a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>">Browse stacks →</a>
 		<a href="<?php echo esc_url( home_url( '/research-library/' ) ); ?>">Research library →</a>
 		<a href="<?php echo esc_url( home_url( '/coa/' ) ); ?>">COA library →</a>

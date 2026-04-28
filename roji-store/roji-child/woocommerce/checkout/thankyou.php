@@ -235,7 +235,7 @@ $ship_eta_max = 5;
 					</li>
 					<li>
 						<div class="step-num">4</div>
-						<div class="step-body"><strong>Begin your protocol</strong><span>Refer to your dosing schedule from the Protocol Engine. Reach out anytime if anything feels off.</span></div>
+						<div class="step-body"><strong>Reference materials</strong><span>Each product ships with a Certificate of Analysis. Reach out anytime if anything looks off.</span></div>
 					</li>
 				</ul>
 			</div>
@@ -246,7 +246,7 @@ $ship_eta_max = 5;
 		<div class="roji-thanks-cross">
 			<span class="pill"><?php echo $contains_stack ? 'Recommended add-ons' : 'Most popular'; ?></span>
 			<h3><?php echo $contains_stack
-					? esc_html__( 'You\'ll also need these to run your protocol', 'roji-child' )
+					? esc_html__( 'Common research supplies for this stack', 'roji-child' )
 					: esc_html__( 'Pair these supplies with a research stack', 'roji-child' ); ?></h3>
 			<p><?php echo $contains_stack
 					? esc_html__( "Most researchers running a stack also need bacteriostatic water, syringes, and alcohol swabs. We didn't want to bundle them in case you already have them — but if not, knock them out now.", 'roji-child' )
