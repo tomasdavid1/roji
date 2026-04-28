@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --roji-black: #0a0a0f;
+  --roji-dark: #111118;
+  --roji-darker: #0d0d14;
+  --roji-card: #16161f;
+  --roji-border: rgba(255, 255, 255, 0.06);
+  --roji-border-hover: rgba(255, 255, 255, 0.12);
+  --roji-text: #f0f0f5;
+  --roji-muted: #8a8a9a;
+  --roji-dim: #55556a;
+  --roji-accent: #4f6df5;
+  --roji-accent-hover: #6380ff;
+  --roji-accent-subtle: rgba(79, 109, 245, 0.08);
+  --roji-success: #22c55e;
+  --roji-warning: #eab308;
+  --roji-danger: #ef4444;
+}
+
+html,
+body {
+  background: var(--roji-black);
+  color: var(--roji-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+::selection {
+  background: var(--roji-accent-subtle);
+  color: var(--roji-text);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--roji-black);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+@layer components {
+  .roji-card {
+    @apply bg-roji-card border border-roji-border rounded-roji p-6 transition-colors;
+  }
+  .roji-card-interactive {
+    @apply roji-card hover:border-roji-border-hover cursor-pointer;
+  }
+  .roji-input {
+    @apply w-full bg-roji-dark border border-roji-border rounded-roji px-4 py-3 text-roji-text placeholder:text-roji-dim
+      focus:outline-none focus:border-roji-accent transition-colors;
+  }
+  .roji-btn {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-roji border border-roji-border
+      text-roji-text bg-roji-card hover:border-roji-border-hover transition-colors text-sm font-medium;
+  }
+  .roji-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-roji
+      bg-roji-accent text-white hover:bg-roji-accent-hover transition-colors text-sm font-semibold
+      disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .roji-label {
+    @apply block text-xs uppercase tracking-widest text-roji-muted mb-2 font-mono;
+  }
+  .roji-divider {
+    @apply h-px bg-roji-border w-full my-8;
+  }
+  .roji-pill {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
+      text-xs font-mono bg-roji-accent-subtle text-roji-accent border border-transparent;
+  }
+}

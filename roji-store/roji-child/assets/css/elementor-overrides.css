@@ -1,0 +1,104 @@
+/**
+ * Roji Child — Elementor visual overrides.
+ *
+ * Forces dark Roji palette through Elementor sections so widgets, headers,
+ * and footers stay on-brand even when content editors style their own
+ * blocks. Loaded only when Elementor is active (see inc/enqueue.php).
+ */
+
+/* Reset Elementor's default light backgrounds. */
+.elementor-section,
+.elementor-section-wrap,
+.elementor .elementor-element {
+  color: var(--roji-text-primary);
+}
+
+.elementor-section.elementor-section-boxed > .elementor-container {
+  max-width: 1200px;
+}
+
+/* Default heading + text colors in Elementor widgets. */
+.elementor-widget-heading .elementor-heading-title,
+.elementor-widget-text-editor,
+.elementor-widget-text-editor p,
+.elementor-widget-text-editor li {
+  color: var(--roji-text-primary);
+}
+.elementor-widget-text-editor p,
+.elementor-widget-text-editor li {
+  color: var(--roji-text-secondary);
+}
+
+/* Buttons. */
+.elementor-button-wrapper .elementor-button,
+.elementor-button-wrapper .elementor-button-link {
+  background: var(--roji-accent);
+  color: #fff !important;
+  border-radius: var(--roji-radius);
+  padding: 14px 24px;
+  font-weight: 600;
+  font-family: var(--roji-font-sans);
+  border: 0;
+  transition: background 0.15s ease;
+}
+.elementor-button-wrapper .elementor-button:hover {
+  background: var(--roji-accent-hover);
+  color: #fff !important;
+}
+
+/* Subtle outline button variant. */
+.elementor-button-wrapper .elementor-button[data-variant="outline"] {
+  background: transparent;
+  color: var(--roji-text-primary) !important;
+  border: 1px solid var(--roji-border);
+}
+.elementor-button-wrapper .elementor-button[data-variant="outline"]:hover {
+  border-color: var(--roji-border-hover);
+  background: transparent;
+}
+
+/* Cards / boxes. */
+.elementor-widget-call-to-action .elementor-cta,
+.elementor-widget-image-box .elementor-image-box-wrapper {
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+}
+
+/* Icons stroke weight: keep Lucide-style minimal look. */
+.elementor-icon {
+  stroke-width: 1.5px;
+}
+
+/* Forms (Elementor Pro). */
+.elementor-field-group input,
+.elementor-field-group textarea,
+.elementor-field-group select {
+  background: var(--roji-dark) !important;
+  border: 1px solid var(--roji-border) !important;
+  color: var(--roji-text-primary) !important;
+  border-radius: var(--roji-radius) !important;
+}
+.elementor-field-group input:focus,
+.elementor-field-group textarea:focus {
+  border-color: var(--roji-accent) !important;
+  outline: none;
+}
+
+/* Header / nav. */
+.elementor-nav-menu a,
+.elementor-nav-menu .elementor-item {
+  color: var(--roji-text-secondary) !important;
+  font-weight: 500;
+  letter-spacing: 0;
+  transition: color 0.15s ease;
+}
+.elementor-nav-menu a:hover,
+.elementor-nav-menu .elementor-item.elementor-item-active {
+  color: var(--roji-text-primary) !important;
+}
+
+/* Section dividers. */
+.elementor-divider-separator {
+  border-top-color: var(--roji-border) !important;
+}

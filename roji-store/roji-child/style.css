@@ -1,0 +1,307 @@
+/*
+Theme Name: Roji Child
+Theme URI: https://rojipeptides.com
+Template: hello-elementor
+Description: Roji Peptides custom child theme — dark-mode storefront with WooCommerce + Elementor.
+Author: Roji Peptides
+Version: 1.0.0
+Text Domain: roji-child
+*/
+
+:root {
+  --roji-black: #0a0a0f;
+  --roji-dark: #111118;
+  --roji-darker: #0d0d14;
+  --roji-card: #16161f;
+  --roji-border: rgba(255, 255, 255, 0.06);
+  --roji-border-hover: rgba(255, 255, 255, 0.12);
+  --roji-text-primary: #f0f0f5;
+  --roji-text-secondary: #8a8a9a;
+  --roji-text-muted: #55556a;
+  --roji-accent: #4f6df5;
+  --roji-accent-hover: #6380ff;
+  --roji-accent-subtle: rgba(79, 109, 245, 0.08);
+  --roji-success: #22c55e;
+  --roji-warning: #eab308;
+  --roji-danger: #ef4444;
+
+  --roji-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --roji-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --roji-radius: 8px;
+  --roji-radius-lg: 12px;
+}
+
+html,
+body {
+  background-color: var(--roji-black);
+  color: var(--roji-text-primary);
+  font-family: var(--roji-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--roji-text-primary);
+  font-family: var(--roji-font-sans);
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+a {
+  color: var(--roji-accent);
+  transition: color 0.15s ease;
+}
+a:hover,
+a:focus {
+  color: var(--roji-accent-hover);
+}
+
+::selection {
+  background: var(--roji-accent-subtle);
+  color: var(--roji-text-primary);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--roji-black);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ==========================================================================
+   WooCommerce — dark overrides
+   ========================================================================== */
+
+.woocommerce,
+.woocommerce-page {
+  background: transparent;
+  color: var(--roji-text-primary);
+}
+
+.woocommerce ul.products li.product,
+.woocommerce-page ul.products li.product {
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  padding: 20px;
+  transition: border-color 0.15s ease;
+}
+.woocommerce ul.products li.product:hover,
+.woocommerce-page ul.products li.product:hover {
+  border-color: var(--roji-border-hover);
+}
+
+.woocommerce ul.products li.product .price,
+.woocommerce-page ul.products li.product .price {
+  color: var(--roji-text-primary);
+  font-family: var(--roji-font-mono);
+  font-size: 1.2em;
+}
+
+.woocommerce ul.products li.product h2,
+.woocommerce ul.products li.product .woocommerce-loop-product__title {
+  color: var(--roji-text-primary);
+  font-size: 1rem;
+  padding: 0.5rem 0;
+}
+
+.woocommerce span.onsale {
+  background: var(--roji-accent);
+  color: #fff;
+  border-radius: 999px;
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.woocommerce #respond input#submit,
+.woocommerce a.button,
+.woocommerce button.button,
+.woocommerce input.button {
+  background: var(--roji-accent);
+  color: #fff;
+  border-radius: var(--roji-radius);
+  padding: 12px 22px;
+  font-weight: 600;
+  font-family: var(--roji-font-sans);
+  border: none;
+  transition: background 0.15s ease;
+}
+.woocommerce #respond input#submit:hover,
+.woocommerce a.button:hover,
+.woocommerce button.button:hover,
+.woocommerce input.button:hover {
+  background: var(--roji-accent-hover);
+}
+
+.woocommerce #respond input#submit.alt,
+.woocommerce a.button.alt,
+.woocommerce button.button.alt,
+.woocommerce input.button.alt {
+  background: var(--roji-accent);
+  color: #fff;
+}
+
+/* Product page */
+.woocommerce div.product .product_title {
+  color: var(--roji-text-primary);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.woocommerce div.product p.price,
+.woocommerce div.product span.price {
+  color: var(--roji-text-primary);
+  font-family: var(--roji-font-mono);
+  font-size: 1.5rem;
+}
+
+.woocommerce div.product .woocommerce-tabs ul.tabs {
+  border-bottom: 1px solid var(--roji-border);
+  padding: 0;
+}
+.woocommerce div.product .woocommerce-tabs ul.tabs li {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+}
+.woocommerce div.product .woocommerce-tabs ul.tabs li a {
+  color: var(--roji-text-secondary);
+  padding: 12px 18px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.woocommerce div.product .woocommerce-tabs ul.tabs li.active a {
+  color: var(--roji-text-primary);
+  border-bottom-color: var(--roji-accent);
+}
+
+/* Cart & checkout */
+.woocommerce table.shop_table,
+.woocommerce-cart table.cart,
+.woocommerce-checkout table.shop_table {
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-collapse: separate;
+  border-radius: var(--roji-radius);
+  color: var(--roji-text-primary);
+}
+
+.woocommerce table.shop_table th,
+.woocommerce table.shop_table td {
+  border-color: var(--roji-border);
+  background: transparent;
+  color: var(--roji-text-primary);
+}
+
+.woocommerce-checkout #payment {
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+}
+.woocommerce-checkout #payment ul.payment_methods {
+  border-bottom-color: var(--roji-border);
+}
+
+.woocommerce form .form-row input.input-text,
+.woocommerce form .form-row textarea,
+.woocommerce form .form-row select,
+.woocommerce-page form .form-row input.input-text,
+.woocommerce-page form .form-row textarea {
+  background: var(--roji-dark);
+  border: 1px solid var(--roji-border);
+  color: var(--roji-text-primary);
+  border-radius: var(--roji-radius);
+  padding: 12px 14px;
+}
+.woocommerce form .form-row input.input-text:focus,
+.woocommerce form .form-row textarea:focus,
+.woocommerce form .form-row select:focus {
+  border-color: var(--roji-accent);
+  outline: none;
+}
+
+.woocommerce-info,
+.woocommerce-message {
+  background: var(--roji-card);
+  border-top-color: var(--roji-accent);
+  color: var(--roji-text-primary);
+}
+
+.woocommerce-error {
+  background: rgba(239, 68, 68, 0.06);
+  border-top: 3px solid var(--roji-danger);
+  color: var(--roji-text-primary);
+}
+
+/* Roji helpers */
+.roji-disclaimer {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  font-size: 12px;
+  color: var(--roji-text-secondary);
+  line-height: 1.6;
+}
+.roji-disclaimer strong {
+  color: var(--roji-text-primary);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.roji-checkout-disclaimer {
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--roji-radius);
+  font-size: 12px;
+  color: var(--roji-text-secondary);
+  line-height: 1.6;
+}
+.roji-checkout-disclaimer a {
+  color: var(--roji-accent);
+}
+
+.roji-footer-disclaimer {
+  text-align: center;
+  padding: 20px;
+  font-size: 11px;
+  color: var(--roji-text-muted);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  max-width: 800px;
+  margin: 40px auto 0;
+  line-height: 1.6;
+}
+
+.roji-coa-tab,
+.roji-research-tab {
+  padding: 8px 0;
+}
+.roji-coa-tab .button {
+  background: var(--roji-accent);
+  color: #fff;
+  border: none;
+}

@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --roji-black: #0a0a0f;
+  --roji-dark: #111118;
+  --roji-card: #16161f;
+  --roji-border: rgba(255, 255, 255, 0.06);
+  --roji-text: #f0f0f5;
+  --roji-muted: #8a8a9a;
+  --roji-dim: #55556a;
+  --roji-accent: #4f6df5;
+  --roji-accent-hover: #6380ff;
+}
+
+html,
+body {
+  background: var(--roji-black);
+  color: var(--roji-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+@layer components {
+  .roji-card {
+    @apply bg-roji-card border border-roji-border rounded-roji p-5;
+  }
+  .roji-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-roji
+      bg-roji-accent text-white hover:bg-roji-accent-hover transition-colors text-sm font-semibold
+      disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .roji-btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-roji border border-roji-border
+      text-roji-text bg-roji-card hover:border-roji-border-hover transition-colors text-sm font-medium;
+  }
+  .roji-input {
+    @apply w-full bg-roji-dark border border-roji-border rounded-roji px-3 py-2.5 text-roji-text
+      placeholder:text-roji-dim focus:outline-none focus:border-roji-accent transition-colors;
+  }
+  .roji-pill {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-widest;
+  }
+  .roji-pill-success {
+    @apply roji-pill bg-roji-success/10 text-roji-success;
+  }
+  .roji-pill-warning {
+    @apply roji-pill bg-roji-warning/10 text-roji-warning;
+  }
+  .roji-pill-danger {
+    @apply roji-pill bg-roji-danger/10 text-roji-danger;
+  }
+  .roji-pill-muted {
+    @apply roji-pill bg-white/[0.04] text-roji-muted;
+  }
+}

@@ -1,0 +1,392 @@
+/**
+ * Google Ads API integration.
+ *
+ * - Real API calls when GOOGLE_ADS_* env vars are present.
+ * - Mock data otherwise so the dashboard runs out-of-the-box.
+ *
+ * Server-only. Never import this from a client component.
+ */
+
+import "server-only";
+import {
+  GoogleAdsApi,
+  Customer,
+  enums,
+  ResourceNames,
+} from "google-ads-api";
+
+const REQUIRED_ENV = [
+  "GOOGLE_ADS_DEVELOPER_TOKEN",
+  "GOOGLE_ADS_CLIENT_ID",
+  "GOOGLE_ADS_CLIENT_SECRET",
+  "GOOGLE_ADS_REFRESH_TOKEN",
+  "GOOGLE_ADS_CUSTOMER_ID",
+] as const;
+
+export function isLive(): boolean {
+  return REQUIRED_ENV.every((k) => !!process.env[k]);
+}
+
+let _client: GoogleAdsApi | null = null;
+let _customer: Customer | null = null;
+
+function client(): GoogleAdsApi {
+  if (_client) return _client;
+  _client = new GoogleAdsApi({
+    client_id: process.env.GOOGLE_ADS_CLIENT_ID!,
+    client_secret: process.env.GOOGLE_ADS_CLIENT_SECRET!,
+    developer_token: process.env.GOOGLE_ADS_DEVELOPER_TOKEN!,
+  });
+  return _client;
+}
+
+function customer(): Customer {
+  if (_customer) return _customer;
+  _customer = client().Customer({
+    customer_id: process.env.GOOGLE_ADS_CUSTOMER_ID!,
+    refresh_token: process.env.GOOGLE_ADS_REFRESH_TOKEN!,
+    login_customer_id: process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID,
+  });
+  return _customer;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Public types                                                               */
+/* -------------------------------------------------------------------------- */
+
+export type DateRange =
+  | "TODAY"
+  | "YESTERDAY"
+  | "LAST_7_DAYS"
+  | "LAST_14_DAYS"
+  | "LAST_30_DAYS"
+  | "THIS_MONTH"
+  | "LAST_MONTH";
+
+export interface CampaignRow {
+  id: string;
+  name: string;
+  status: "ENABLED" | "PAUSED" | "REMOVED" | "UNKNOWN";
+  impressions: number;
+  clicks: number;
+  cost_usd: number;
+  conversions: number;
+  cost_per_conversion_usd: number;
+}
+
+export interface KeywordRow {
+  campaign_id: string;
+  campaign_name: string;
+  ad_group_id: string;
+  ad_group_name: string;
+  keyword_text: string;
+  match_type: string;
+  impressions: number;
+  clicks: number;
+  cost_usd: number;
+  conversions: number;
+}
+
+export interface CreateCampaignInput {
+  name: string;
+  daily_budget_usd: number;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Mock data                                                                  */
+/* -------------------------------------------------------------------------- */
+
+const MOCK_CAMPAIGNS: CampaignRow[] = [
+  {
+    id: "11111111111",
+    name: "Protocol Engine — Search (US)",
+    status: "ENABLED",
+    impressions: 48210,
+    clicks: 1932,
+    cost_usd: 1247.55,
+    conversions: 184,
+    cost_per_conversion_usd: 6.78,
+  },
+  {
+    id: "22222222222",
+    name: "Brand Protect — roji peptides",
+    status: "ENABLED",
+    impressions: 5120,
+    clicks: 412,
+    cost_usd: 87.31,
+    conversions: 38,
+    cost_per_conversion_usd: 2.3,
+  },
+  {
+    id: "33333333333",
+    name: "Research Calculator — Phrase Match Test",
+    status: "PAUSED",
+    impressions: 12080,
+    clicks: 245,
+    cost_usd: 198.4,
+    conversions: 9,
+    cost_per_conversion_usd: 22.04,
+  },
+];
+
+const MOCK_KEYWORDS: KeywordRow[] = [
+  {
+    campaign_id: "11111111111",
+    campaign_name: "Protocol Engine — Search (US)",
+    ad_group_id: "ag1",
+    ad_group_name: "Calculator",
+    keyword_text: "research protocol calculator",
+    match_type: "PHRASE",
+    impressions: 14210,
+    clicks: 612,
+    cost_usd: 384.21,
+    conversions: 71,
+  },
+  {
+    campaign_id: "11111111111",
+    campaign_name: "Protocol Engine — Search (US)",
+    ad_group_id: "ag1",
+    ad_group_name: "Calculator",
+    keyword_text: "compound research framework",
+    match_type: "BROAD",
+    impressions: 9120,
+    clicks: 318,
+    cost_usd: 245.65,
+    conversions: 38,
+  },
+  {
+    campaign_id: "22222222222",
+    campaign_name: "Brand Protect — roji peptides",
+    ad_group_id: "ag2",
+    ad_group_name: "Brand",
+    keyword_text: "roji peptides",
+    match_type: "EXACT",
+    impressions: 4012,
+    clicks: 387,
+    cost_usd: 78.12,
+    conversions: 36,
+  },
+];
+
+/* -------------------------------------------------------------------------- */
+/* Read API                                                                   */
+/* -------------------------------------------------------------------------- */
+
+function microsToUsd(micros: number | string | null | undefined): number {
+  if (!micros) return 0;
+  return Number(micros) / 1_000_000;
+}
+
+function statusFromEnum(value: number | string | null | undefined): CampaignRow["status"] {
+  if (value === enums.CampaignStatus.ENABLED || value === "ENABLED") return "ENABLED";
+  if (value === enums.CampaignStatus.PAUSED || value === "PAUSED") return "PAUSED";
+  if (value === enums.CampaignStatus.REMOVED || value === "REMOVED") return "REMOVED";
+  return "UNKNOWN";
+}
+
+export async function getCampaignPerformance(
+  dateRange: DateRange = "LAST_30_DAYS",
+): Promise<CampaignRow[]> {
+  if (!isLive()) {
+    return MOCK_CAMPAIGNS;
+  }
+  const c = customer();
+  const rows = await c.report({
+    entity: "campaign",
+    attributes: ["campaign.id", "campaign.name", "campaign.status"],
+    metrics: [
+      "metrics.impressions",
+      "metrics.clicks",
+      "metrics.cost_micros",
+      "metrics.conversions",
+      "metrics.cost_per_conversion",
+    ],
+    from_date: undefined,
+    to_date: undefined,
+    date_constant: dateRange,
+  } as never);
+
+  return rows.map((rawRow): CampaignRow => {
+    const row = rawRow as unknown as Record<string, Record<string, unknown>>;
+    const camp = row.campaign ?? {};
+    const m = row.metrics ?? {};
+    return {
+      id: String(camp.id ?? ""),
+      name: String(camp.name ?? ""),
+      status: statusFromEnum(camp.status as number | string | undefined),
+      impressions: Number(m.impressions ?? 0),
+      clicks: Number(m.clicks ?? 0),
+      cost_usd: microsToUsd(m.cost_micros as number),
+      conversions: Number(m.conversions ?? 0),
+      cost_per_conversion_usd: microsToUsd(m.cost_per_conversion as number),
+    };
+  });
+}
+
+export async function getKeywordPerformance(
+  dateRange: DateRange = "LAST_30_DAYS",
+): Promise<KeywordRow[]> {
+  if (!isLive()) {
+    return MOCK_KEYWORDS;
+  }
+  const c = customer();
+  const rows = await c.report({
+    entity: "keyword_view",
+    attributes: [
+      "campaign.id",
+      "campaign.name",
+      "ad_group.id",
+      "ad_group.name",
+      "ad_group_criterion.keyword.text",
+      "ad_group_criterion.keyword.match_type",
+    ],
+    metrics: [
+      "metrics.impressions",
+      "metrics.clicks",
+      "metrics.cost_micros",
+      "metrics.conversions",
+    ],
+    date_constant: dateRange,
+  } as never);
+
+  return rows.map((rawRow): KeywordRow => {
+    const row = rawRow as unknown as Record<string, Record<string, unknown>>;
+    const camp = row.campaign ?? {};
+    const ag = row.ad_group ?? {};
+    const crit = (row.ad_group_criterion ?? {}) as Record<string, Record<string, unknown>>;
+    const kw = (crit.keyword ?? {}) as Record<string, unknown>;
+    const m = row.metrics ?? {};
+    return {
+      campaign_id: String(camp.id ?? ""),
+      campaign_name: String(camp.name ?? ""),
+      ad_group_id: String(ag.id ?? ""),
+      ad_group_name: String(ag.name ?? ""),
+      keyword_text: String(kw.text ?? ""),
+      match_type: String(kw.match_type ?? ""),
+      impressions: Number(m.impressions ?? 0),
+      clicks: Number(m.clicks ?? 0),
+      cost_usd: microsToUsd(m.cost_micros as number),
+      conversions: Number(m.conversions ?? 0),
+    };
+  });
+}
+
+/* -------------------------------------------------------------------------- */
+/* Write API                                                                  */
+/* -------------------------------------------------------------------------- */
+
+export async function setCampaignStatus(
+  campaignId: string,
+  status: "ENABLED" | "PAUSED",
+): Promise<{ ok: true }> {
+  if (!isLive()) {
+    return { ok: true };
+  }
+  const c = customer();
+  const resourceName = ResourceNames.campaign(
+    process.env.GOOGLE_ADS_CUSTOMER_ID!,
+    campaignId,
+  );
+  await c.campaigns.update([
+    {
+      resource_name: resourceName,
+      status:
+        status === "ENABLED"
+          ? enums.CampaignStatus.ENABLED
+          : enums.CampaignStatus.PAUSED,
+    },
+  ]);
+  return { ok: true };
+}
+
+export async function setCampaignBudget(
+  campaignId: string,
+  dailyBudgetUsd: number,
+): Promise<{ ok: true }> {
+  if (!isLive()) {
+    return { ok: true };
+  }
+  const c = customer();
+
+  // Look up the campaign to get its budget resource.
+  const rows = await c.query(`
+	SELECT campaign.id, campaign_budget.resource_name
+	FROM campaign
+	WHERE campaign.id = ${Number(campaignId)}
+	LIMIT 1
+  `);
+  const row = rows[0] as
+    | { campaign_budget?: { resource_name?: string } }
+    | undefined;
+  const budgetResource = row?.campaign_budget?.resource_name;
+  if (!budgetResource) {
+    throw new Error(`No campaign budget found for campaign ${campaignId}`);
+  }
+
+  await c.campaignBudgets.update([
+    {
+      resource_name: budgetResource,
+      amount_micros: Math.round(dailyBudgetUsd * 1_000_000),
+    },
+  ]);
+  return { ok: true };
+}
+
+/**
+ * Create a Search-only campaign targeting US, with the Maximize Conversions
+ * bid strategy and the supplied daily budget.
+ *
+ * Notes:
+ * - This creates the budget + campaign. Ad groups, keywords, and ad copy
+ *   are *not* created here — those should be added via the dashboard's
+ *   keyword/ad-creation flows (which run validateAdCopy first).
+ * - We intentionally do not enable the Display Network.
+ */
+export async function createCampaign(
+  input: CreateCampaignInput,
+): Promise<{ ok: true; campaign_id?: string; budget_id?: string }> {
+  if (!isLive()) {
+    return { ok: true, campaign_id: "mock-" + Date.now() };
+  }
+  const c = customer();
+
+  const budgetResp = await c.campaignBudgets.create([
+    {
+      name: `${input.name} — budget`,
+      amount_micros: Math.round(input.daily_budget_usd * 1_000_000),
+      delivery_method: enums.BudgetDeliveryMethod.STANDARD,
+      explicitly_shared: false,
+    },
+  ]);
+
+  const budgetResource =
+    (budgetResp as { results?: Array<{ resource_name?: string }> })
+      .results?.[0]?.resource_name ?? "";
+
+  const campaignResp = await c.campaigns.create([
+    {
+      name: input.name,
+      status: enums.CampaignStatus.PAUSED,
+      advertising_channel_type: enums.AdvertisingChannelType.SEARCH,
+      manual_cpc: undefined,
+      maximize_conversions: {},
+      campaign_budget: budgetResource,
+      network_settings: {
+        target_google_search: true,
+        target_search_network: false,
+        target_content_network: false,
+        target_partner_search_network: false,
+      },
+    },
+  ]);
+
+  const campaignResource =
+    (campaignResp as { results?: Array<{ resource_name?: string }> })
+      .results?.[0]?.resource_name ?? "";
+
+  return {
+    ok: true,
+    campaign_id: campaignResource.split("/").pop(),
+    budget_id: budgetResource.split("/").pop(),
+  };
+}
