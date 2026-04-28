@@ -24,3 +24,5 @@ require_once ROJI_CHILD_DIR . '/inc/age-gate.php';
 require_once ROJI_CHILD_DIR . '/inc/payment-failover.php';
 require_once ROJI_CHILD_DIR . '/inc/trustpilot-widgets.php';
 require_once ROJI_CHILD_DIR . '/inc/trustpilot-afs.php';
+require_once ROJI_CHILD_DIR . '/inc/subscriptions.php';
+require_once ROJI_CHILD_DIR . '/inc/subscriptions-dunning.php';

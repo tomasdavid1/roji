@@ -66,11 +66,20 @@ export interface ProtocolRecommendation {
   rationale: string;
   references: Reference[];
   shopUrl: string;
+  /** Pre-built URL with `&autoship=1` so the storefront swaps to the
+   *  autoship sibling automatically. Same destination as shopUrl, just
+   *  with the discount + recurring billing applied at checkout. */
+  shopUrlAutoship: string;
+  autoshipDiscountPct: number;
 }
 
 const STORE_URL =
   process.env.NEXT_PUBLIC_STORE_URL?.replace(/\/$/, "") ||
   "https://rojipeptides.com";
+
+// Mirrors ROJI_SUBS_DISCOUNT_PCT in the WP child theme. Hardcoded here to
+// keep the Protocol Engine dependency-free; if you change one, change both.
+const AUTOSHIP_DISCOUNT_PCT = 15;
 
 /** Round to a sensible research-literature increment. */
 function roundMcg(value: number): number {
@@ -300,13 +309,16 @@ function buildReferences(stackSlug: StackSlug): Reference[] {
   return refs;
 }
 
-function buildShopUrl(stackSlug: StackSlug): string {
+function buildShopUrl(stackSlug: StackSlug, autoship = false): string {
   const params = new URLSearchParams({
     protocol_stack: stackSlug,
     utm_source: "protocol_engine",
     utm_medium: "referral",
     utm_campaign: "protocol_builder",
   });
+  if (autoship) {
+    params.set("autoship", "1");
+  }
   return `${STORE_URL}/cart/?${params.toString()}`;
 }
 
@@ -340,5 +352,7 @@ export function generateProtocol(input: UserInput): ProtocolRecommendation {
     rationale: buildRationale(input, cycleWeeks),
     references: buildReferences(stack.slug),
     shopUrl: buildShopUrl(stack.slug),
+    shopUrlAutoship: buildShopUrl(stack.slug, true),
+    autoshipDiscountPct: AUTOSHIP_DISCOUNT_PCT,
   };
 }

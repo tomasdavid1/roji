@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useWizard } from "@/lib/store";
 import { generateProtocol } from "@/lib/recommend";
 import { StackCard } from "./StackCard";
@@ -14,6 +14,7 @@ declare global {
 export function ProtocolOutput() {
   const toUserInput = useWizard((s) => s.toUserInput);
   const reset = useWizard((s) => s.reset);
+  const [autoship, setAutoship] = useState(false);
 
   const recommendation = useMemo(() => {
     const input = toUserInput();
@@ -56,10 +57,18 @@ export function ProtocolOutput() {
         event_category: "protocol_engine",
         event_label: recommendation.stack,
         value: recommendation.stack_price,
+        autoship: autoship ? "yes" : "no",
       });
     }
-    window.location.href = recommendation.shopUrl;
+    window.location.href = autoship
+      ? recommendation.shopUrlAutoship
+      : recommendation.shopUrl;
   };
+
+  const autoshipPrice = (
+    recommendation.stack_price *
+    (1 - recommendation.autoshipDiscountPct / 100)
+  ).toFixed(0);
 
   return (
     <div className="space-y-8">
@@ -77,6 +86,37 @@ export function ProtocolOutput() {
         recommendation={recommendation}
         onGetStack={handleGetStack}
       />
+
+      <div
+        className="roji-card !p-4 flex items-center justify-between gap-3 border"
+        style={{
+          borderColor: autoship
+            ? "rgba(0,255,178,0.45)"
+            : "rgba(255,255,255,0.08)",
+          background: autoship ? "rgba(0,255,178,0.06)" : "transparent",
+        }}
+      >
+        <label
+          htmlFor="autoship-toggle"
+          className="flex items-center gap-3 cursor-pointer flex-1"
+        >
+          <input
+            id="autoship-toggle"
+            type="checkbox"
+            checked={autoship}
+            onChange={(e) => setAutoship(e.target.checked)}
+            className="h-4 w-4 accent-roji-accent"
+          />
+          <div>
+            <div className="text-sm font-semibold text-roji-text">
+              Save {recommendation.autoshipDiscountPct}% with monthly autoship
+            </div>
+            <div className="text-xs text-roji-muted mt-0.5">
+              ${autoshipPrice}/mo · free shipping · cancel anytime in your account
+            </div>
+          </div>
+        </label>
+      </div>
 
       <div>
         <h3 className="text-lg font-semibold mb-4">Compound schedule</h3>

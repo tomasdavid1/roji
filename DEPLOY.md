@@ -300,6 +300,74 @@ After adding all four (and setting them in Vercel for the dashboard):
 
 ---
 
+## 5c. Subscriptions / Autoship
+
+Wired up across all three apps. Currently using the **free** "Subscriptions for WooCommerce" (WP Swings) plugin; the integration code is provider-aware and will switch to the paid Automattic "WooCommerce Subscriptions" plugin automatically when that's installed.
+
+### What's wired
+
+| Surface | Behavior | Requires |
+| --- | --- | --- |
+| **Variable pricing on each stack** | One-time price + monthly autoship at 15% off + free shipping | Subs plugin active |
+| **Autoship sibling provisioning** | Three "<stack> — Autoship" hidden products auto-created, mirroring price/SKU | Subs plugin + WP-CLI |
+| **Deep-link `&autoship=1`** | Protocol engine "Get this stack" routes to autoship variant when toggle is on | (always on) |
+| **In-cart upsell** | Banner in cart shows "Save 15% with autoship" when one-time stack is present | Subs plugin |
+| **Free shipping for autoship-only carts** | All paid shipping rates hidden when cart contains only recurring items | Subs plugin |
+| **Dunning ladder** | 1d / 3d / 7d retries on failed renewals, then on-hold + email | Subs plugin |
+| **MRR/churn dashboard** | `/subscriptions` page in admin dashboard with MRR, ARPU, churn, recent cancellations | `ROJI_INTERNAL_API_TOKEN` set on both sides |
+
+### Provider switch
+
+The integration uses a single `roji_subs_provider()` function to dispatch between providers. To switch from free to paid:
+
+1. Buy WC Subscriptions ($199/yr at <https://woocommerce.com/products/woocommerce-subscriptions/>)
+2. Upload .zip and activate it in WP admin
+3. Deactivate the free "Subscriptions for WooCommerce" plugin
+4. Run `wp roji subs:provision` to re-mark the existing autoship sibling products with the paid plugin's meta keys
+5. Existing customer subscriptions on the free plugin **do not migrate automatically** — they remain functional under the free plugin's scheduler. Only future subscriptions use the paid plugin.
+
+### WordPress side — set in `wp-config.php`
+
+Required for the dashboard's `/subscriptions` page to read aggregate metrics:
+
+```php
+define( 'ROJI_INTERNAL_API_TOKEN', '<openssl rand -hex 32>' );
+```
+
+Optional config (sensible defaults shown):
+
+```php
+define( 'ROJI_SUBS_DISCOUNT_PCT', 15 );          // % off for autoship
+define( 'ROJI_SUBS_INTERVAL_NUMBER', 1 );         // 1 month between renewals
+define( 'ROJI_SUBS_INTERVAL_UNIT', 'month' );    // day | week | month | year
+define( 'ROJI_SUBS_FREE_SHIPPING', true );        // free ship for autoship-only carts
+define( 'ROJI_SUBS_DUNNING_DELAYS', '1,3,7' );    // retry days
+```
+
+### Ads dashboard side — set in Vercel env vars
+
+| Key | Value |
+| --- | --- |
+| `ROJI_STORE_URL` | `https://rojipeptides.com` |
+| `ROJI_INTERNAL_API_TOKEN` | same token as set in `wp-config.php` |
+
+### CLI commands (run on the WP host)
+
+```bash
+wp roji subs:status          # show provider, settings, sibling product map
+wp roji subs:provision        # idempotently create/update autoship siblings
+```
+
+### Known limitations of the free plugin
+
+- No "variable subscription" product type — that's why we duplicate stacks instead of adding a variant.
+- No prorated upgrades/downgrades between stacks.
+- No coupon support on renewals (only initial signup).
+- Renewal payment retry logic is naive — our dunning module wraps it with a proper 3-strike ladder.
+- These limitations all disappear with paid WC Subscriptions.
+
+---
+
 ## 6. Smoke tests after everything is live
 
 - [ ] `https://protocol.rojipeptides.com` → wizard works, "Get this stack" redirects to `https://rojipeptides.com/cart/?protocol_stack=wolverine&utm_source=protocol_engine&...`
@@ -312,6 +380,9 @@ After adding all four (and setting them in Vercel for the dashboard):
 - [ ] (If Trustpilot configured) TrustBox widgets render on homepage hero, cart, checkout, footer.
 - [ ] (If Trustpilot configured) Place a test order; after 7 days, order notes show "Trustpilot review invitation sent."
 - [ ] (If Trustpilot configured) `/performance` reviews card shows real trust score + count.
+- [ ] (If Subscriptions plugin active) Protocol engine "Save 15% with autoship" toggle changes the destination URL.
+- [ ] (If Subscriptions plugin active) Cart shows "Save 15%" upsell when one-time stack is in cart, and "Switch to autoship" swaps the line item.
+- [ ] (If Subscriptions plugin active) `/subscriptions` dashboard page shows MRR/ARPU/churn from the WP REST endpoint.
 
 ---
 

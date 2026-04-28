@@ -149,6 +149,63 @@ function roji_trustpilot_widgets_enabled() {
 	return ROJI_TRUSTPILOT_BUSINESS_UNIT_ID !== '';
 }
 
+/* -----------------------------------------------------------------------------
+ * Subscriptions / Autoship
+ *
+ * Plugin-agnostic config consumed by inc/subscriptions.php. Currently wired
+ * to the free 'Subscriptions for WooCommerce' (WP Swings) plugin via meta
+ * keys; the same layer can be repointed at the paid WC Subscriptions plugin
+ * by changing roji_subs_provider() return value.
+ *
+ *  - DISCOUNT_PCT: percent off when customer chooses autoship vs one-time.
+ *    15% is the industry default for monthly recurring (Quince, Athletic
+ *    Greens, etc.) and gives enough margin headroom for free shipping.
+ *  - INTERVAL: months between renewals. Peptide cycles are typically
+ *    8-12 weeks, so monthly = 1 cycle every renewal which matches dosing.
+ *  - DUNNING_RETRIES + delays: standard 3-attempt dunning ladder.
+ * -------------------------------------------------------------------------- */
+
+if ( ! defined( 'ROJI_SUBS_DISCOUNT_PCT' ) ) {
+	define( 'ROJI_SUBS_DISCOUNT_PCT', 15 );
+}
+if ( ! defined( 'ROJI_SUBS_INTERVAL_NUMBER' ) ) {
+	define( 'ROJI_SUBS_INTERVAL_NUMBER', 1 );
+}
+if ( ! defined( 'ROJI_SUBS_INTERVAL_UNIT' ) ) {
+	define( 'ROJI_SUBS_INTERVAL_UNIT', 'month' ); // day | week | month | year
+}
+if ( ! defined( 'ROJI_SUBS_FREE_SHIPPING' ) ) {
+	define( 'ROJI_SUBS_FREE_SHIPPING', true );
+}
+// Days to retry a failed renewal payment, in order. After the last entry,
+// the subscription moves to on-hold and the customer is asked to update
+// payment method.
+if ( ! defined( 'ROJI_SUBS_DUNNING_DELAYS' ) ) {
+	define( 'ROJI_SUBS_DUNNING_DELAYS', '1,3,7' );
+}
+
+/**
+ * Returns 'wps_sfw' (free WP Swings plugin) or 'woocommerce_subscriptions'
+ * (paid Automattic plugin), depending on what's installed. The subscriptions
+ * helper layer reads this to dispatch the correct meta keys / API.
+ */
+function roji_subs_provider() {
+	if ( defined( 'WCS_INIT_TIMESTAMP' ) ) {
+		return 'woocommerce_subscriptions';
+	}
+	if ( defined( 'SUBSCRIPTIONS_FOR_WOOCOMMERCE_VERSION' ) ) {
+		return 'wps_sfw';
+	}
+	return 'none';
+}
+
+/**
+ * True when any subscription plugin is active.
+ */
+function roji_subs_enabled() {
+	return roji_subs_provider() !== 'none';
+}
+
 /**
  * Map a protocol_stack slug to a WooCommerce product ID.
  *
@@ -173,12 +230,12 @@ function roji_product_id_for_stack( $slug ) {
 	}
 	list( $id, $sku ) = $map[ $slug ];
 	if ( $id > 0 && get_post_status( $id ) === 'publish' ) {
-		return (int) $id;
+		return (int) apply_filters( 'roji_product_id_for_stack', (int) $id, $slug );
 	}
 	if ( function_exists( 'wc_get_product_id_by_sku' ) ) {
 		$found = wc_get_product_id_by_sku( $sku );
 		if ( $found > 0 ) {
-			return (int) $found;
+			return (int) apply_filters( 'roji_product_id_for_stack', (int) $found, $slug );
 		}
 	}
 	return 0;
