@@ -101,10 +101,15 @@ else
   fail=1
 fi
 
-# 4. Wordmark assertion: the header on every page must render the
-#    lowercase 'roji' wordmark, not Hello Elementor's default
-#    capitalized 'Roji' site-title fallback (which also paints itself
-#    in brand-blue link color and looks broken).
+# 4. Wordmark assertion: the header must render the lowercase 'roji'
+#    wordmark, not the OceanWP/Hello fallback that prints capitalized
+#    'Roji' from wp_options.blogname.
+#
+# Three layers of defense:
+#   - wp_options.blogname is pinned to 'roji' (set by set-brand-options.php
+#     in a prior step of this workflow)
+#   - bloginfo() filter in branding.php returns 'roji'
+#   - CSS pins .site-title color/case to the wordmark treatment
 #
 # Strategy: curl the homepage from inside the Kinsta container so we
 # fetch the rendered HTML directly from origin (Apache), bypassing
@@ -112,82 +117,58 @@ fi
 echo "--- header wordmark"
 fetch_origin() {
   local path="$1"
-  # Try loopback resolve first (origin Apache); if that fails,
-  # fall back to the public hostname (Kinsta routes back through CF
-  # but origin still serves us with the right Host header).
   remote "curl -sS -L -H 'Host: rojipeptides.com' --resolve rojipeptides.com:443:127.0.0.1 -k 'https://rojipeptides.com$path' 2>/dev/null || curl -sS -L 'https://rojipeptides.com$path' 2>/dev/null || true"
 }
 
-home_html=$(fetch_origin "/")
-
-if [[ -z "$home_html" ]]; then
-  echo "::warning::Could not fetch homepage HTML for wordmark check"
-else
-  echo "  homepage HTML bytes: $(wc -c <<<"$home_html")"
-
-  # 4a. The custom-logo lockup must render the lowercase wordmark span.
-  if grep -Fq 'roji-wordmark__text' <<<"$home_html"; then
-    echo "  OK custom-logo lockup is rendering (.roji-wordmark__text present)"
-  else
-    echo "::warning::.roji-wordmark__text not found in homepage HTML - Hello Elementor may have bypassed get_custom_logo() filter on desktop"
+assert_wordmark_for() {
+  local path="$1"
+  local label="$2"
+  local html
+  html=$(fetch_origin "$path")
+  if [[ -z "$html" ]]; then
+    echo "::warning::$label: could not fetch HTML for wordmark check"
+    return 0
   fi
 
-  # 4b. Capitalized 'Roji' inside any site-title anchor = broken fallback.
-  if grep -E -i 'class="[^"]*site-title[^"]*"[^>]*>[^<]*<a[^>]*>Roji<' <<<"$home_html" >/dev/null \
-     || grep -E '<a[^>]+class="[^"]*site-title[^"]*"[^>]*>Roji<' <<<"$home_html" >/dev/null; then
-    echo "::error::Header is rendering capitalized 'Roji' inside a .site-title anchor - bloginfo filter not applied"
+  # Look at the first <a> element inside .site-branding (the site-title
+  # anchor). It must render lowercase 'roji' with no capitalized fallback.
+  local branding_anchor
+  branding_anchor=$(python3 - <<PY 2>/dev/null
+import re, sys
+html = """$html"""
+m = re.search(r'<div[^>]*class="[^"]*site-branding[^"]*"[^>]*>(.*?)</nav', html, re.DOTALL | re.IGNORECASE)
+if not m:
+    sys.exit(0)
+branding = m.group(1)
+anchors = re.findall(r'<a [^>]*>(.*?)</a>', branding, re.DOTALL | re.IGNORECASE)
+if anchors:
+    # Strip whitespace + html tags to get the visible text.
+    text = re.sub(r'<[^>]+>', '', anchors[0]).strip()
+    print(text)
+PY
+)
+
+  if [[ -z "$branding_anchor" ]]; then
+    echo "  OK $label: site-branding anchor empty (logo image only is acceptable)"
+    return 0
+  fi
+
+  if [[ "$branding_anchor" == "roji" ]]; then
+    echo "  OK $label: site-branding anchor renders lowercase 'roji'"
+    return 0
+  fi
+
+  if [[ "$branding_anchor" == "Roji" || "$branding_anchor" == "Roji Peptides" ]]; then
+    echo "::error::$label: site-branding anchor renders '$branding_anchor' instead of lowercase 'roji'"
     fail=1
-  else
-    echo "  OK no broken capitalized-Roji site-title anchor on /"
+    return 1
   fi
 
-  # 4c. Lowercase 'roji' must appear in the markup (either via
-  #     wordmark span, the filtered bloginfo, or both).
-  if grep -F '>roji<' <<<"$home_html" >/dev/null; then
-    echo "  OK lowercase 'roji' wordmark text present in homepage markup"
-  else
-    echo "::warning::Lowercase 'roji' wordmark text not found in homepage markup - check the header rendering"
-  fi
+  echo "::warning::$label: unexpected site-branding anchor text: '$branding_anchor'"
+}
 
-  # DEBUG: dump the .site-branding block specifically so we see the
-  # exact text + tags around the logo/title.
-  echo ""
-  echo "  --- site-branding block dump (debug) ---"
-  python3 - <<PY 2>/dev/null
-import re
-html = """$home_html"""
-m = re.search(r'<div[^>]*class="[^"]*site-branding[^"]*"[^>]*>(.*?)</header>', html, re.DOTALL | re.IGNORECASE)
-if m:
-    print(m.group(0)[:2500])
-else:
-    print("(no site-branding block found)")
-PY
-  echo "  --- end dump ---"
-
-  # Also report active theme + dump site-title <div> raw bytes
-  echo "  --- active theme + has_custom_logo state ---"
-  remote "wp theme list --status=active --format=csv" || true
-  remote "wp eval 'var_export(has_custom_logo()); echo \" / blogname: \"; echo get_bloginfo(\"name\");'" || true
-  echo ""
-  echo "  --- raw site-title <div> ---"
-  python3 - <<PY 2>/dev/null
-import re
-html = """$home_html"""
-m = re.search(r'<div[^>]*class="[^"]*site-title[^"]*"[^>]*>(.*?)</div>', html, re.DOTALL | re.IGNORECASE)
-if m:
-    print(repr(m.group(0))[:1500])
-else:
-    print("(no site-title div)")
-# Also: print every <a> inside .site-branding
-m2 = re.search(r'<div[^>]*class="[^"]*site-branding[^"]*"[^>]*>(.*?)</nav', html, re.DOTALL | re.IGNORECASE)
-if m2:
-    branding = m2.group(1)
-    anchors = re.findall(r'<a [^>]*>(.*?)</a>', branding, re.DOTALL | re.IGNORECASE)
-    for i, a in enumerate(anchors):
-        print(f"  branding-anchor[{i}]: " + repr(a)[:300])
-PY
-  echo "  --- end raw dump ---"
-fi
+assert_wordmark_for "/"      "Homepage"
+assert_wordmark_for "/shop/" "Shop"
 
 if [[ "$fail" -ne 0 ]]; then
   echo ""

@@ -148,13 +148,17 @@ add_filter(
 add_filter( 'has_custom_logo', '__return_true' );
 
 /**
- * Belt-and-suspenders for Hello Elementor's mobile header path: some
- * Hello variants ignore get_custom_logo() and render the site title
- * directly via bloginfo('name'), which produces the capitalized
- * 'Roji' in the default link color (brand blue) on mobile. Filter
- * `bloginfo` so the in-frontend display is always our lowercase
- * wordmark; admin/email contexts still see the real blogname because
- * we only override when it's the displayed copy variant.
+ * Belt-and-suspenders for themes whose header path bypasses
+ * get_custom_logo() and prints the site name directly. We attack
+ * this from THREE angles so the wordmark can't drift:
+ *
+ *   1. wp_options.blogname = 'roji' (set via scripts/set-brand-options.php
+ *      and asserted by the deploy pipeline). This wins even for code
+ *      paths that read the option directly.
+ *   2. bloginfo() filter as a guard, in case anything resets the option.
+ *   3. pre_get_document_title filter so the BROWSER TAB / SEO title
+ *      still reads the full brand 'Roji Peptides ...' even though
+ *      the on-page header renders the lowercase 'roji' wordmark.
  */
 add_filter(
 	'bloginfo',
@@ -170,6 +174,55 @@ add_filter(
 	20,
 	2
 );
+
+/**
+ * Override the document title (the <title> tag) so search engines,
+ * social previews, and browser tabs see the full brand even though
+ * the in-page wordmark is lowercase.
+ *
+ *  Home:        Roji Peptides - Research-grade peptides
+ *  Inner page:  <Page Name> | Roji Peptides
+ */
+add_filter(
+	'pre_get_document_title',
+	function ( $title ) {
+		if ( is_admin() ) {
+			return $title;
+		}
+		$brand = 'Roji Peptides';
+		if ( is_front_page() || is_home() ) {
+			return $brand . ' - Research-grade peptides';
+		}
+		if ( is_singular() ) {
+			$page_title = wp_get_document_title_for_post( get_queried_object_id() );
+			if ( $page_title ) {
+				return $page_title . ' | ' . $brand;
+			}
+		}
+		// Fall back to whatever WP/Yoast computed, but swap the lowercase
+		// wordmark out for the proper brand on the right-hand-side suffix.
+		if ( is_string( $title ) && $title ) {
+			$title = preg_replace( '/(^|\s[\-|]\s)roji(\s|$)/i', '$1' . $brand . '$2', $title );
+			return $title;
+		}
+		return $brand;
+	},
+	20
+);
+
+/**
+ * Tiny helper used inside pre_get_document_title above. Returns the
+ * raw post/page title for the queried object, or the empty string.
+ */
+if ( ! function_exists( 'wp_get_document_title_for_post' ) ) {
+	function wp_get_document_title_for_post( $post_id ) {
+		$p = $post_id ? get_post( $post_id ) : null;
+		if ( ! $p ) {
+			return '';
+		}
+		return wp_strip_all_tags( $p->post_title );
+	}
+}
 
 /**
  * Tiny CSS for the wordmark lockup - kept here next to the markup
