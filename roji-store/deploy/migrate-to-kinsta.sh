@@ -101,13 +101,15 @@ step "Push theme + Elementor templates + scripts"
 "$DEPLOY_DIR/deploy-theme.sh"
 
 step "Install required plugins on Kinsta (idempotent)"
+# NOTE: WordPress.org plugin slugs are not always intuitive:
+#   - "Yoast SEO"        → wordpress-seo  (NOT yoast-seo)
+#   - "Hello Elementor"  → THIS IS A THEME, not a plugin (handled below)
 PLUGINS=(
   woocommerce
   elementor
-  hello-elementor
   advanced-custom-fields
   age-gate
-  yoast-seo
+  wordpress-seo
   litespeed-cache
 )
 for p in "${PLUGINS[@]}"; do
@@ -121,8 +123,13 @@ for p in "${PLUGINS[@]}"; do
   fi
 done
 
-step "Activate Hello Elementor (parent) + roji-child"
-kinsta_wp "theme install hello-elementor --activate" >/dev/null 2>&1 || true
+step "Install Hello Elementor parent theme + activate roji-child"
+# hello-elementor is a THEME (the parent for our roji-child child theme).
+# Installing it with --activate would activate the parent over our child;
+# we install only, then explicitly switch to roji-child below.
+kinsta_wp "theme is-installed hello-elementor" >/dev/null 2>&1 \
+  || kinsta_wp "theme install hello-elementor" >/dev/null 2>&1 \
+  || warn "Could not install hello-elementor parent theme"
 kinsta_wp "theme activate roji-child" || warn "Could not activate roji-child"
 
 step "Flush rewrites + caches"
