@@ -27,6 +27,48 @@ export function isLive(): boolean {
   return REQUIRED_ENV.every((k) => !!process.env[k]);
 }
 
+export type ApiMode = "mock" | "test" | "live";
+
+/**
+ * Best-effort runtime mode detection. We can't ask Google "is my token in
+ * test mode?" without making a call, so this is heuristic: if no creds, we
+ * say "mock"; otherwise "live" until a real call returns a known test-mode
+ * error (which `wrapApiCall` flips to "test"). This is purely for UI hints.
+ */
+let _modeHint: ApiMode | null = null;
+export function apiMode(): ApiMode {
+  if (!isLive()) return "mock";
+  return _modeHint ?? "live";
+}
+
+function isTestModeError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const msg = JSON.stringify(err).toLowerCase();
+  return (
+    msg.includes("developer_token_not_approved") ||
+    msg.includes("test_accounts_only") ||
+    msg.includes("not approved for production")
+  );
+}
+
+/**
+ * Wrap a Google Ads call so that a test-mode failure becomes a clear,
+ * typed error and updates the mode hint for the UI.
+ */
+async function wrapApiCall<T>(label: string, fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (e) {
+    if (isTestModeError(e)) {
+      _modeHint = "test";
+      throw new Error(
+        `[${label}] Developer token is in TEST mode and the customer ID (${process.env.GOOGLE_ADS_CUSTOMER_ID}) is a production account. Apply for Basic Access at https://ads.google.com/aw/apicenter to call production accounts.`,
+      );
+    }
+    throw e;
+  }
+}
+
 let _client: GoogleAdsApi | null = null;
 let _customer: Customer | null = null;
 
@@ -191,7 +233,7 @@ export async function getCampaignPerformance(
     return MOCK_CAMPAIGNS;
   }
   const c = customer();
-  const rows = await c.report({
+  const rows = await wrapApiCall("getCampaignPerformance", () => c.report({
     entity: "campaign",
     attributes: ["campaign.id", "campaign.name", "campaign.status"],
     metrics: [
@@ -204,7 +246,7 @@ export async function getCampaignPerformance(
     from_date: undefined,
     to_date: undefined,
     date_constant: dateRange,
-  } as never);
+  } as never));
 
   return rows.map((rawRow): CampaignRow => {
     const row = rawRow as unknown as Record<string, Record<string, unknown>>;
@@ -230,7 +272,7 @@ export async function getKeywordPerformance(
     return MOCK_KEYWORDS;
   }
   const c = customer();
-  const rows = await c.report({
+  const rows = await wrapApiCall("getKeywordPerformance", () => c.report({
     entity: "keyword_view",
     attributes: [
       "campaign.id",
@@ -247,7 +289,7 @@ export async function getKeywordPerformance(
       "metrics.conversions",
     ],
     date_constant: dateRange,
-  } as never);
+  } as never));
 
   return rows.map((rawRow): KeywordRow => {
     const row = rawRow as unknown as Record<string, Record<string, unknown>>;
@@ -287,7 +329,7 @@ export async function setCampaignStatus(
     process.env.GOOGLE_ADS_CUSTOMER_ID!,
     campaignId,
   );
-  await c.campaigns.update([
+  await wrapApiCall("setCampaignStatus", () => c.campaigns.update([
     {
       resource_name: resourceName,
       status:
@@ -295,7 +337,7 @@ export async function setCampaignStatus(
           ? enums.CampaignStatus.ENABLED
           : enums.CampaignStatus.PAUSED,
     },
-  ]);
+  ]));
   return { ok: true };
 }
 
@@ -309,12 +351,12 @@ export async function setCampaignBudget(
   const c = customer();
 
   // Look up the campaign to get its budget resource.
-  const rows = await c.query(`
+  const rows = await wrapApiCall("setCampaignBudget.query", () => c.query(`
 	SELECT campaign.id, campaign_budget.resource_name
 	FROM campaign
 	WHERE campaign.id = ${Number(campaignId)}
 	LIMIT 1
-  `);
+  `));
   const row = rows[0] as
     | { campaign_budget?: { resource_name?: string } }
     | undefined;
@@ -323,12 +365,12 @@ export async function setCampaignBudget(
     throw new Error(`No campaign budget found for campaign ${campaignId}`);
   }
 
-  await c.campaignBudgets.update([
+  await wrapApiCall("setCampaignBudget.update", () => c.campaignBudgets.update([
     {
       resource_name: budgetResource,
       amount_micros: Math.round(dailyBudgetUsd * 1_000_000),
     },
-  ]);
+  ]));
   return { ok: true };
 }
 
@@ -350,20 +392,20 @@ export async function createCampaign(
   }
   const c = customer();
 
-  const budgetResp = await c.campaignBudgets.create([
+  const budgetResp = await wrapApiCall("createCampaign.budget", () => c.campaignBudgets.create([
     {
       name: `${input.name} — budget`,
       amount_micros: Math.round(input.daily_budget_usd * 1_000_000),
       delivery_method: enums.BudgetDeliveryMethod.STANDARD,
       explicitly_shared: false,
     },
-  ]);
+  ]));
 
   const budgetResource =
     (budgetResp as { results?: Array<{ resource_name?: string }> })
       .results?.[0]?.resource_name ?? "";
 
-  const campaignResp = await c.campaigns.create([
+  const campaignResp = await wrapApiCall("createCampaign.campaign", () => c.campaigns.create([
     {
       name: input.name,
       status: enums.CampaignStatus.PAUSED,
@@ -378,7 +420,7 @@ export async function createCampaign(
         target_partner_search_network: false,
       },
     },
-  ]);
+  ]));
 
   const campaignResource =
     (campaignResp as { results?: Array<{ resource_name?: string }> })

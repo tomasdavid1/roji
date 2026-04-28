@@ -9,7 +9,9 @@ const LINKS = [
   { href: "/keywords", label: "Keywords" },
 ];
 
-export function Nav({ live }: { live: boolean }) {
+export type NavMode = "mock" | "test" | "live";
+
+export function Nav({ mode }: { mode: NavMode }) {
   const pathname = usePathname();
   return (
     <nav className="border-b border-roji-border bg-roji-darker">
@@ -48,12 +50,25 @@ export function Nav({ live }: { live: boolean }) {
         <div className="flex items-center gap-3">
           <span
             className={
-              live
+              mode === "live"
                 ? "roji-pill-success"
-                : "roji-pill-warning"
+                : mode === "test"
+                  ? "roji-pill-warning"
+                  : "roji-pill-muted"
+            }
+            title={
+              mode === "test"
+                ? "Developer token in TEST mode — apply for Basic Access"
+                : mode === "mock"
+                  ? "Missing Google Ads credentials — using mock data"
+                  : "Connected to Google Ads API"
             }
           >
-            {live ? "Live API" : "Mock data"}
+            {mode === "live"
+              ? "Live API"
+              : mode === "test"
+                ? "Test mode"
+                : "Mock data"}
           </span>
         </div>
       </div>

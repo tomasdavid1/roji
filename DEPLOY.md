@@ -44,19 +44,36 @@ GOOGLE_ADS_REFRESH_TOKEN=1//0g...
 
 > If `gcloud auth application-default login` is your preferred path, that produces ADC credentials, not the format `google-ads-api` (the npm client) expects. Use the script above instead — it does the same OAuth flow but produces a refresh token in the right format.
 
-### Apply for the Google Ads developer token
+### Google Ads developer token + Basic Access
 
-Separate from the OAuth flow above. Required for live API calls.
+You already have a developer token (`UWqlm9Z...`, currently in **Test Account Access** mode). It's wired into [`roji-ads-dashboard/.env.local`](./roji-ads-dashboard/.env.local).
 
-1. **YOU**: Go to <https://ads.google.com/aw/apicenter>.
-2. Apply for API access. Approval typically takes 1–3 business days for "Basic" access (which is enough to start).
-3. Once approved, paste the developer token into `.env.local`:
+A test-mode token can only call the API against [Google Ads test accounts](https://developers.google.com/google-ads/api/docs/best-practices/test-accounts), not your production customer `667-978-0942`. To call your real account, **YOU** need to apply for **Basic Access**:
 
-   ```
-   GOOGLE_ADS_DEVELOPER_TOKEN=...
-   ```
+1. Go to <https://ads.google.com/aw/apicenter> (sign in with `tomasdaavid@gmail.com`).
+2. In the **Access level** section, click **Apply for Basic Access**.
+3. Fill out the application form. Recommended answers given Roji's setup:
 
-Until approved, the dashboard runs against mock data — the nav shows a `Mock data` pill so you always know which mode you're in.
+   | Field | Suggested answer |
+   | --- | --- |
+   | Tool name | Roji Ads Dashboard |
+   | Tool URL | `https://admin-ads.rojipeptides.com` (or `https://github.com/<you>/roji-platform` if not yet deployed) |
+   | Tool description | Internal admin dashboard for managing Google Ads search campaigns for Roji Peptides. Read-only metrics views (campaigns, keywords, performance) plus a server-validated campaign creation flow that runs an internal ad-copy safety check before submitting. Single user (the business owner). No third-party data sharing. |
+   | Tool's primary purpose | Reporting + campaign management |
+   | Estimated monthly API calls | < 5,000 (single-user internal admin) |
+   | Languages | English |
+   | Compliance with Google Ads API Required Minimum Functionality | Read-only metrics + create/update campaigns with mandatory ad-copy validation. Does not auto-create accounts. |
+
+4. Approval typically takes 1–3 business days. You'll get an email; the access level on the API Center page flips to "Basic Access".
+
+While you wait:
+
+- The dashboard nav shows a **Test mode** pill (orange).
+- A banner under each page tells you what's happening.
+- Any live API call will throw a clear error: `Developer token is in TEST mode...`.
+- You can still develop UI/logic against mock data by temporarily commenting out `GOOGLE_ADS_DEVELOPER_TOKEN=` in `.env.local` (which flips the dashboard to mock mode).
+
+> **Test it before applying** — you can spin up a Google Ads test account at <https://ads.google.com/intl/en/aw/anon/SignupTestAccount>, set its customer ID as `GOOGLE_ADS_CUSTOMER_ID`, and verify the wiring works end-to-end before submitting the Basic Access application. Reviewers like to see this.
 
 ### Smoke test locally
 
