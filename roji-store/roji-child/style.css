@@ -201,46 +201,176 @@ a:focus {
 /* Cart & checkout */
 .woocommerce table.shop_table,
 .woocommerce-cart table.cart,
-.woocommerce-checkout table.shop_table {
+.woocommerce-checkout table.shop_table,
+.woocommerce-cart .cart_totals table,
+.woocommerce-checkout-review-order-table {
   background: var(--roji-card);
   border: 1px solid var(--roji-border);
   border-collapse: separate;
   border-radius: var(--roji-radius);
   color: var(--roji-text-primary);
+  overflow: hidden;
 }
 
 .woocommerce table.shop_table th,
-.woocommerce table.shop_table td {
+.woocommerce table.shop_table td,
+.woocommerce-cart .cart_totals table th,
+.woocommerce-cart .cart_totals table td,
+.woocommerce-checkout-review-order-table th,
+.woocommerce-checkout-review-order-table td {
   border-color: var(--roji-border);
   background: transparent;
   color: var(--roji-text-primary);
 }
 
-.woocommerce-checkout #payment {
+.woocommerce table.shop_table thead th,
+.woocommerce-checkout-review-order-table thead th {
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--roji-text-secondary);
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.woocommerce table.shop_table tfoot th,
+.woocommerce table.shop_table tfoot td,
+.woocommerce-checkout-review-order-table tfoot th,
+.woocommerce-checkout-review-order-table tfoot td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.woocommerce-checkout #payment,
+.woocommerce-checkout #payment .payment_box {
   background: var(--roji-card);
   border: 1px solid var(--roji-border);
   border-radius: var(--roji-radius);
+  color: var(--roji-text-primary);
 }
 .woocommerce-checkout #payment ul.payment_methods {
+  background: transparent;
   border-bottom-color: var(--roji-border);
 }
+.woocommerce-checkout #payment ul.payment_methods li {
+  background: transparent;
+  color: var(--roji-text-primary);
+}
+.woocommerce-checkout #payment .payment_box::before {
+  border-bottom-color: var(--roji-card) !important;
+}
 
+/* ==========================================================================
+   Form inputs — ALL of them, on every storefront page.
+   The previous rules only targeted `.woocommerce form .form-row`, which
+   missed the country/state dropdowns and quantity spinners in the cart.
+   ========================================================================== */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="password"],
+input[type="search"],
+input[type="url"],
+input[type="date"],
+select,
+textarea,
 .woocommerce form .form-row input.input-text,
 .woocommerce form .form-row textarea,
 .woocommerce form .form-row select,
 .woocommerce-page form .form-row input.input-text,
-.woocommerce-page form .form-row textarea {
-  background: var(--roji-dark);
-  border: 1px solid var(--roji-border);
-  color: var(--roji-text-primary);
+.woocommerce-page form .form-row textarea,
+.woocommerce-page form .form-row select,
+.woocommerce .quantity input.qty {
+  background-color: var(--roji-card) !important;
+  color: var(--roji-text-primary) !important;
+  border: 1px solid var(--roji-border) !important;
   border-radius: var(--roji-radius);
   padding: 12px 14px;
+  font-family: var(--roji-font-sans);
+  font-size: 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
+
+/* Quantity spinner — narrower, monospace, doesn't need huge padding */
+.woocommerce .quantity input.qty {
+  padding: 8px 10px;
+  width: 70px;
+  text-align: center;
+  font-family: var(--roji-font-mono);
+}
+
+/* Native select arrow — re-add a chevron we control (since we killed appearance) */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238a8a9a' d='M6 8L0 0h12z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 10px !important;
+  padding-right: 36px !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
 .woocommerce form .form-row input.input-text:focus,
 .woocommerce form .form-row textarea:focus,
-.woocommerce form .form-row select:focus {
-  border-color: var(--roji-accent);
-  outline: none;
+.woocommerce form .form-row select:focus,
+.woocommerce .quantity input.qty:focus {
+  border-color: var(--roji-accent) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 1px var(--roji-accent);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--roji-text-muted);
+}
+
+/* Select2 dropdowns (used by WooCommerce country picker) */
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+  background-color: var(--roji-card) !important;
+  border: 1px solid var(--roji-border) !important;
+  color: var(--roji-text-primary) !important;
+  border-radius: var(--roji-radius) !important;
+  height: auto !important;
+  min-height: 46px;
+  padding: 10px 12px;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: var(--roji-text-primary) !important;
+  line-height: 24px !important;
+  padding: 0;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 100% !important;
+  top: 0 !important;
+  right: 8px !important;
+}
+.select2-dropdown {
+  background-color: var(--roji-card) !important;
+  border: 1px solid var(--roji-border) !important;
+  color: var(--roji-text-primary) !important;
+}
+.select2-container--default .select2-results__option {
+  color: var(--roji-text-primary);
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected],
+.select2-container--default .select2-results__option--highlighted {
+  background-color: var(--roji-accent) !important;
+  color: #fff !important;
+}
+.select2-container--default .select2-search--dropdown .select2-search__field {
+  background-color: var(--roji-dark) !important;
+  border: 1px solid var(--roji-border) !important;
+  color: var(--roji-text-primary) !important;
+}
+
+/* Checkboxes + radios — keep native-ish, just give them indigo accent */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--roji-accent);
 }
 
 .woocommerce-info,
@@ -254,6 +384,115 @@ a:focus {
   background: rgba(239, 68, 68, 0.06);
   border-top: 3px solid var(--roji-danger);
   color: var(--roji-text-primary);
+}
+
+/* Cart-totals heading + cart-collaterals layout */
+.cart_totals h2,
+.cross-sells h2 {
+  color: var(--roji-text-primary);
+}
+
+/* "Update cart" + "Proceed to checkout" buttons already styled above by
+   .woocommerce a.button — no change needed. Just make the disabled
+   variant readable on dark. */
+.woocommerce a.button.disabled,
+.woocommerce button.button:disabled {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--roji-text-muted);
+}
+
+/* ==========================================================================
+   Shop / Products archive — grid layout + cleaner tile
+   ========================================================================== */
+
+.woocommerce ul.products,
+.woocommerce-page ul.products {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin: 0 0 32px;
+  padding: 0;
+  list-style: none;
+}
+.woocommerce ul.products li.product,
+.woocommerce-page ul.products li.product {
+  width: auto !important;       /* override Hello Elementor's float math */
+  margin: 0 !important;
+  float: none !important;
+  clear: none !important;
+}
+
+@media (max-width: 1023px) {
+  .woocommerce ul.products,
+  .woocommerce-page ul.products {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 599px) {
+  .woocommerce ul.products,
+  .woocommerce-page ul.products {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tile: image, title, price stack, button on its own row beneath */
+.woocommerce ul.products li.product .woocommerce-loop-product__link {
+  display: block;
+}
+.woocommerce ul.products li.product .price {
+  display: block;
+  margin-bottom: 14px;
+}
+.woocommerce ul.products li.product .button,
+.woocommerce ul.products li.product a.button.add_to_cart_button,
+.woocommerce ul.products li.product a.button.product_type_simple {
+  display: block;
+  margin-top: 0;
+  width: 100%;
+  text-align: center;
+}
+
+/* Hide WooCommerce's default "Showing all X results" + sort dropdown.
+   We replace them with branded category chips (rendered server-side
+   via the `roji_shop_category_filter` shortcode/action). */
+.woocommerce .woocommerce-result-count,
+.woocommerce-page .woocommerce-result-count,
+.woocommerce .woocommerce-ordering,
+.woocommerce-page .woocommerce-ordering {
+  display: none !important;
+}
+
+/* Category filter chips */
+.roji-cat-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+}
+.roji-cat-filter a {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px solid var(--roji-border);
+  border-radius: 999px;
+  background: var(--roji-card);
+  color: var(--roji-text-secondary);
+  font-size: 13px;
+  font-family: var(--roji-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.roji-cat-filter a:hover {
+  color: var(--roji-text-primary);
+  border-color: var(--roji-border-hover);
+}
+.roji-cat-filter a.is-active {
+  background: var(--roji-accent);
+  border-color: var(--roji-accent);
+  color: #fff;
 }
 
 /* Roji helpers */

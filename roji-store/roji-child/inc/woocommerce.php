@@ -382,3 +382,109 @@ function roji_pin_bundles_to_top() {
 	}
 }
 add_action( 'after_switch_theme', 'roji_pin_bundles_to_top' );
+
+/* -----------------------------------------------------------------------------
+ * Shop archive — branded category filter chips (replaces the result count
+ * + sort dropdown that we hide via CSS).
+ *
+ * Rendered as plain anchors that use WooCommerce's built-in product_cat
+ * permalink structure, so the filter just works without a query handler.
+ * The "Bundles" chip is a meta-filter that maps to a comma-list of
+ * bundle category slugs, served by `roji_apply_bundles_filter` below.
+ * -------------------------------------------------------------------------- */
+
+/**
+ * Slugs grouped under the "Bundles" meta-category. Update in one place if
+ * you ever add a new bundle taxonomy. Maps to the term slugs from
+ * `wp term list product_cat`.
+ */
+function roji_bundle_category_slugs() {
+	return array( 'healing-recovery', 'body-recomposition', 'full-protocols' );
+}
+
+/**
+ * Render the filter chips above the product grid on the shop archive
+ * + every product_cat archive. Hooked into `woocommerce_before_shop_loop`
+ * so it appears just above the products and below the page title.
+ */
+add_action(
+	'woocommerce_before_shop_loop',
+	function () {
+		if ( ! is_shop() && ! is_product_taxonomy() ) {
+			return;
+		}
+		$shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
+
+		$current_view = '';
+		if ( is_shop() && empty( $_GET['roji_view'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$current_view = 'all';
+		} elseif ( ! empty( $_GET['roji_view'] ) && 'bundles' === $_GET['roji_view'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$current_view = 'bundles';
+		} elseif ( is_product_category( 'accessories' ) ) {
+			$current_view = 'supplies';
+		} elseif ( is_product_taxonomy() ) {
+			$term         = get_queried_object();
+			$current_view = isset( $term->slug ) ? $term->slug : '';
+		}
+
+		$chips = array(
+			array(
+				'label' => __( 'All', 'roji-child' ),
+				'url'   => $shop_url,
+				'key'   => 'all',
+			),
+			array(
+				'label' => __( 'Bundles', 'roji-child' ),
+				'url'   => add_query_arg( 'roji_view', 'bundles', $shop_url ),
+				'key'   => 'bundles',
+			),
+			array(
+				'label' => __( 'Supplies', 'roji-child' ),
+				'url'   => get_term_link( 'accessories', 'product_cat' ),
+				'key'   => 'supplies',
+			),
+		);
+
+		echo '<ul class="roji-cat-filter">';
+		foreach ( $chips as $chip ) {
+			$is_active = ( $chip['key'] === $current_view );
+			$cls       = $is_active ? 'is-active' : '';
+			printf(
+				'<li><a href="%s" class="%s">%s</a></li>',
+				esc_url( is_wp_error( $chip['url'] ) ? $shop_url : $chip['url'] ),
+				esc_attr( $cls ),
+				esc_html( $chip['label'] )
+			);
+		}
+		echo '</ul>';
+	},
+	5
+);
+
+/**
+ * When the "Bundles" chip is clicked, restrict the shop loop to products
+ * in any of the bundle categories. Uses the main query's `tax_query`
+ * via pre_get_posts so pagination + sorting still behave.
+ */
+add_action(
+	'pre_get_posts',
+	function ( $q ) {
+		if ( is_admin() || ! $q->is_main_query() ) {
+			return;
+		}
+		if ( empty( $_GET['roji_view'] ) || 'bundles' !== $_GET['roji_view'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+		if ( ! ( is_shop() || is_post_type_archive( 'product' ) ) ) {
+			return;
+		}
+		$tax_query   = (array) $q->get( 'tax_query' );
+		$tax_query[] = array(
+			'taxonomy' => 'product_cat',
+			'field'    => 'slug',
+			'terms'    => roji_bundle_category_slugs(),
+			'operator' => 'IN',
+		);
+		$q->set( 'tax_query', $tax_query );
+	}
+);
