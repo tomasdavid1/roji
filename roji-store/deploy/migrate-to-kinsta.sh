@@ -108,10 +108,13 @@ PLUGINS=(
   woocommerce
   elementor
   advanced-custom-fields
-  age-gate
   wordpress-seo
   litespeed-cache
 )
+# NOT in the list: `age-gate` plugin. We use our own self-hosted modal
+# in roji-child/inc/age-gate.php (a simple yes/no over-21 check). The
+# .org plugin shows a DOB Day/Month/Year form by default and ships
+# with a "Bluum" disclaimer in its copy — wrong UX and wrong brand.
 for p in "${PLUGINS[@]}"; do
   EXISTS="$(kinsta_wp "plugin is-installed $p" >/dev/null 2>&1 && echo y || echo n)"
   if [[ "$EXISTS" == "n" ]]; then
