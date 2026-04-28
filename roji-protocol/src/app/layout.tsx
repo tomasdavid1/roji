@@ -17,14 +17,29 @@ const mono = JetBrains_Mono({
   variable: "--font-mono",
 });
 
+const SITE_URL = "https://protocol.rojipeptides.com";
+
 export const metadata: Metadata = {
-  title: "Roji Protocol Engine — Build your research protocol",
+  metadataBase: new URL(SITE_URL),
+  title: "Roji Research Tools — Free Calculators & Databases",
   description:
-    "Free research protocol builder. Personalized, evidence-based protocol framework for research compounds. Powered by Roji Peptides.",
-  robots: {
-    index: true,
-    follow: true,
+    "Free research tools for the scientific community. Reconstitution calculators, half-life databases, COA analyzers, bloodwork interpreters, and more. No signup required.",
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: "Free Research Tools — Roji Peptides",
+    description:
+      "Calculators, analyzers, and databases for the research community. Free, no signup, open references.",
+    type: "website",
+    url: SITE_URL,
+    siteName: "Roji Research Tools",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Free Research Tools — Roji Peptides",
+    description:
+      "Calculators, analyzers, and databases for the research community. Free, no signup, open references.",
+  },
+  alternates: { canonical: SITE_URL },
 };
 
 export default function RootLayout({
@@ -35,12 +50,12 @@ export default function RootLayout({
   const adsId = process.env.NEXT_PUBLIC_GADS_ID;
   const ga4Id = process.env.NEXT_PUBLIC_GA4_ID;
   const gtagAnyId = adsId || ga4Id;
-  // Domains that should share a Google linker (preserves gclid + GA4 client_id
-  // when bouncing between protocol engine and store). Comma-separated.
-  // Default keeps prod working out of the box; LocalDev can override.
+  // Cross-domain attribution between rojipeptides.com (store),
+  // protocol.rojipeptides.com (this app), and tools.rojipeptides.com
+  // (tools subdomain). Override via env for staging.
   const linkerDomains = (
     process.env.NEXT_PUBLIC_GTAG_LINKER_DOMAINS ??
-    "rojipeptides.com,protocol.rojipeptides.com"
+    "rojipeptides.com,protocol.rojipeptides.com,tools.rojipeptides.com"
   )
     .split(",")
     .map((d) => d.trim())
