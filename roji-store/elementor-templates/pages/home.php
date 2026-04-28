@@ -53,7 +53,7 @@ return array(
 			</div>' ),
 		) ),
 
-		// ── PROTOCOL ENGINE TEASER ──────────────────────────────────────────
+		// ── RESEARCH TOOLS TEASER ───────────────────────────────────────────
 		roji_el_container( array(
 			'padding' => array( 'top' => '40', 'right' => '20', 'bottom' => '80', 'left' => '20', 'unit' => 'px', 'isLinked' => false ),
 			'content_width' => 'boxed',

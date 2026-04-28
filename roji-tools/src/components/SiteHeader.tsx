@@ -6,12 +6,13 @@ import { usePathname } from "next/navigation";
 import { STORE_URL } from "@/lib/tools";
 
 /**
- * Roji R monogram. Inline SVG so the header has zero external image
- * requests and the mark inherits its color from the parent's Tailwind
- * `text-*` class via `currentColor`. The geometry mirrors
- * `/brand/src/r-mark.svg` — keep them in sync if you tweak the curve.
+ * Roji R monogram - kept exported for use in places like breadcrumbs
+ * (Revolut-style) and the favicon, but the primary site lockup is
+ * deliberately the lowercase "roji" wordmark by itself. Don't add this
+ * back to the header without a design conversation - the wordmark IS
+ * the logo.
  */
-function RojiMark({ className }: { className?: string }) {
+export function RojiMark({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 256 256"
@@ -57,23 +58,19 @@ export function SiteHeader() {
     <header className="sticky top-0 z-30 border-b border-roji-border bg-roji-black/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         {isHome ? (
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <RojiMark className="h-7 w-7 text-roji-accent transition-transform group-hover:scale-105" />
-            <span className="flex items-baseline gap-2">
-              <span className="text-xl font-semibold tracking-tight text-roji-text">
-                roji
-              </span>
-              <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-roji-muted group-hover:text-roji-text transition-colors">
-                Research Tools
-              </span>
+          <Link href="/" className="flex items-baseline gap-3 group">
+            <span className="text-xl font-semibold tracking-tight text-roji-text">
+              roji
+            </span>
+            <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-roji-muted group-hover:text-roji-text transition-colors">
+              Research Tools
             </span>
           </Link>
         ) : (
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm text-roji-muted hover:text-roji-text transition-colors group"
+            className="inline-flex items-center gap-2 text-sm text-roji-muted hover:text-roji-text transition-colors"
           >
-            <RojiMark className="h-5 w-5 text-roji-accent" />
             <span aria-hidden="true">←</span>
             <span>All tools</span>
           </Link>

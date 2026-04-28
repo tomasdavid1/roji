@@ -106,15 +106,13 @@ function roji_r_mark_svg( $size = 28 ) {
 
 /**
  * Override Hello Elementor's site-title / custom-logo block in the
- * header with our R + wordmark lockup. Filters apply only when our
- * theme is the active stylesheet.
- *
- * Lockup is: [ R glyph ] [ "roji" wordmark ]
- * - R glyph in #4f6df5
- * - "roji" in lowercase in roji-text white at 22px
+ * header with our wordmark. The "roji" lowercase wordmark IS the logo
+ * by itself - we deliberately do NOT pair it with the R glyph in the
+ * primary lockup. The glyph is reserved for the favicon, breadcrumb
+ * markers, and other supporting contexts.
  *
  * Hello Elementor's header pulls the logo via get_custom_logo() and
- * the title via get_bloginfo(); we filter both to a single lockup.
+ * the title via get_bloginfo(); we filter both to the wordmark.
  */
 add_filter(
 	'get_custom_logo',
@@ -122,11 +120,9 @@ add_filter(
 		$home = esc_url( home_url( '/' ) );
 		return sprintf(
 			'<a href="%s" class="custom-logo-link roji-wordmark" rel="home" aria-label="Roji Peptides home">'
-				. '<span class="roji-wordmark__glyph" style="color:#4f6df5;">%s</span>'
 				. '<span class="roji-wordmark__text" style="color:#f0f0f5;font-family:Inter,system-ui,sans-serif;font-weight:600;font-size:22px;letter-spacing:-0.01em;line-height:1;">roji</span>'
 			. '</a>',
-			$home,
-			roji_r_mark_svg( 28 )
+			$home
 		);
 	},
 	20
@@ -149,10 +145,7 @@ add_action(
 	function () {
 		?>
 <style>
-	.roji-wordmark { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
-	.roji-wordmark__glyph { display: inline-flex; line-height: 0; }
-	.roji-wordmark__glyph svg { display: block; }
-	.roji-wordmark:hover .roji-wordmark__glyph { transform: translateX(0); }
+	.roji-wordmark { display: inline-flex; align-items: baseline; text-decoration: none; }
 	.roji-wordmark img { display: none !important; } /* hide any Customizer-uploaded image */
 </style>
 		<?php
