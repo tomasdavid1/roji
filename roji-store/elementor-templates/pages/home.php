@@ -197,6 +197,45 @@ return array(
 			), 4 ),
 		) ),
 
+		// ── FREE TOOLS ─────────────────────────────────────────────────────
+		roji_el_container( array(
+			'padding' => array( 'top' => '40', 'right' => '20', 'bottom' => '80', 'left' => '20', 'unit' => 'px', 'isLinked' => false ),
+			'content_width' => 'boxed',
+		), array(
+			roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#55556a;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;">Free tools</div>' ),
+			roji_el_heading( 'Tools we wish someone else had built.', array(
+				'header_size' => 'h2',
+				'typography_font_size' => array( 'unit' => 'px', 'size' => 36, 'sizes' => array() ),
+			) ),
+			roji_el_text( '<p style="color:#a8a8b8;font-size:17px;max-width:640px;margin:0 0 32px;">Calculators, databases, and verifiers for the peptide research community. Free, ad-free, no accounts. <a href="https://tools.rojipeptides.com" style="color:#4f6df5;">See all tools →</a></p>' ),
+			roji_el_grid( array(
+				roji_el_card( array(
+					roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.1em;">CALCULATOR</div>' ),
+					roji_el_heading( 'Reconstitution Calculator', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 20, 'sizes' => array() ) ) ),
+					roji_el_text( '<p style="color:#a8a8b8;">Vial mg + BAC water mL → exact mcg per insulin-syringe tick.</p>' ),
+					roji_el_button( 'Open →', 'https://tools.rojipeptides.com/reconstitution', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ) ) ),
+				) ),
+				roji_el_card( array(
+					roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.1em;">VERIFIER</div>' ),
+					roji_el_heading( 'COA Verifier', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 20, 'sizes' => array() ) ) ),
+					roji_el_text( '<p style="color:#a8a8b8;">Drop in any vendor COA. Plain-English breakdown + red-flag scoring.</p>' ),
+					roji_el_button( 'Open →', 'https://tools.rojipeptides.com/coa', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ) ) ),
+				) ),
+				roji_el_card( array(
+					roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.1em;">DATABASE</div>' ),
+					roji_el_heading( 'Half-Life Database', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 20, 'sizes' => array() ) ) ),
+					roji_el_text( '<p style="color:#a8a8b8;">PK data + plasma decay charts for 20+ research peptides. Cited.</p>' ),
+					roji_el_button( 'Open →', 'https://tools.rojipeptides.com/half-life', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ) ) ),
+				) ),
+				roji_el_card( array(
+					roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.1em;">CALCULATOR</div>' ),
+					roji_el_heading( 'Bloodwork Interpreter', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 20, 'sizes' => array() ) ) ),
+					roji_el_text( '<p style="color:#a8a8b8;">Drop in a panel. See where each marker falls vs reference ranges.</p>' ),
+					roji_el_button( 'Open →', 'https://tools.rojipeptides.com/bloodwork', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ) ) ),
+				) ),
+			), 4 ),
+		) ),
+
 		// ── TRUSTPILOT ──────────────────────────────────────────────────────
 		roji_el_container( array(
 			'padding' => array( 'top' => '60', 'right' => '20', 'bottom' => '60', 'left' => '20', 'unit' => 'px', 'isLinked' => false ),
