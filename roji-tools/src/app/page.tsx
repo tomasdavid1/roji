@@ -56,7 +56,7 @@ export default function HomePage() {
             Roji Peptides · Research Tools
           </span>
 
-          <h1 className="text-[40px] sm:text-[56px] lg:text-[64px] font-semibold mt-5 leading-[1.05] tracking-tightest">
+          <h1 className="text-[44px] sm:text-[60px] lg:text-[68px] font-semibold mt-5 leading-[1.05] tracking-tightest">
             Free tools for{" "}
             <TypewriterRotator
               words={["researchers", "biohackers", "the curious", "your lab"]}

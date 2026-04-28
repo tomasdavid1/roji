@@ -71,7 +71,7 @@ export function CostPerDoseCalculator() {
       <div className="mt-6 overflow-x-auto rounded-roji border border-roji-border bg-roji-card">
         <table className="w-full min-w-[820px] text-sm">
           <thead>
-            <tr className="border-b border-roji-border text-left text-[10px] font-mono uppercase tracking-wider text-roji-muted">
+            <tr className="border-b border-roji-border text-left text-[11px] font-mono uppercase tracking-wider text-roji-muted">
               <th className="px-4 py-3">Vendor</th>
               <th className="px-4 py-3">Vial mg</th>
               <th className="px-4 py-3">Purity %</th>
@@ -184,7 +184,7 @@ export function CostPerDoseCalculator() {
         </div>
       )}
 
-      <p className="mt-4 text-[11px] text-roji-dim leading-relaxed">
+      <p className="mt-4 text-[12px] text-roji-dim leading-relaxed">
         Real cost = (price + shipping) ÷ effective peptide mass. We multiply
         vial mg by reported purity to get effective peptide content. If a
         vendor doesn't disclose purity, set it to 100% — and treat that as

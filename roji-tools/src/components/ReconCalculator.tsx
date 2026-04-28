@@ -156,7 +156,7 @@ export function ReconCalculator() {
                   </button>
                 ))}
               </div>
-              <p className="mt-2 text-[11px] text-roji-dim">
+              <p className="mt-2 text-[12px] text-roji-dim">
                 Compound names shown for convenience. The calculator does
                 nothing different per compound — it's pure unit math.
               </p>
@@ -270,7 +270,7 @@ function Metric({
 }) {
   return (
     <div>
-      <div className="text-[10px] font-mono uppercase tracking-wider text-roji-muted">
+      <div className="text-[11px] font-mono uppercase tracking-wider text-roji-muted">
         {label}
       </div>
       <div
@@ -330,7 +330,7 @@ function SyringeViz({
         </div>
         <div className="h-3 w-3 rotate-45 bg-roji-text/30" />
       </div>
-      <div className="mt-1 flex justify-between text-[10px] font-mono text-roji-dim">
+      <div className="mt-1 flex justify-between text-[11px] font-mono text-roji-dim">
         {ticks.map((t) => (
           <span key={t}>{t}</span>
         ))}

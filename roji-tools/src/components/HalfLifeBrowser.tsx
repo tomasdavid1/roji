@@ -78,12 +78,12 @@ export function HalfLifeBrowser() {
               >
                 <div>
                   <div className="text-sm font-medium">{c.name}</div>
-                  <div className="text-[11px] text-roji-muted">
+                  <div className="text-[12px] text-roji-muted">
                     {c.category}
                   </div>
                 </div>
                 {Object.entries(c.halfLifeHoursByRoute)[0] && (
-                  <div className="text-right text-[11px] font-mono text-roji-dim">
+                  <div className="text-right text-[12px] font-mono text-roji-dim">
                     {hrRangeLabel(
                       (Object.values(c.halfLifeHoursByRoute)[0] as [
                         number,
@@ -161,7 +161,7 @@ function CompoundDetail({ compound }: { compound: Compound }) {
               <button
                 key={r}
                 onClick={() => setRoute(r)}
-                className={`rounded-full border px-3 py-1 text-[11px] font-mono uppercase tracking-wider transition-colors ${
+                className={`rounded-full border px-3 py-1 text-[12px] font-mono uppercase tracking-wider transition-colors ${
                   route === r
                     ? "border-roji-accent bg-roji-accent/10 text-roji-accent"
                     : "border-roji-border text-roji-muted hover:border-roji-border-hover hover:text-roji-text"
@@ -175,7 +175,7 @@ function CompoundDetail({ compound }: { compound: Compound }) {
 
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-wider text-roji-muted">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-roji-muted">
               Half-life
             </div>
             <div className="mt-1 font-mono text-2xl text-roji-accent">
@@ -183,7 +183,7 @@ function CompoundDetail({ compound }: { compound: Compound }) {
             </div>
           </div>
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-wider text-roji-muted">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-roji-muted">
               Falls to 25%
             </div>
             <div className="mt-1 font-mono text-2xl text-roji-text">
@@ -191,7 +191,7 @@ function CompoundDetail({ compound }: { compound: Compound }) {
             </div>
           </div>
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-wider text-roji-muted">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-roji-muted">
               Effectively cleared
             </div>
             <div className="mt-1 font-mono text-2xl text-roji-text">
@@ -215,7 +215,7 @@ function CompoundDetail({ compound }: { compound: Compound }) {
             halfLifeHours={middle}
             windowHours={window}
           />
-          <p className="mt-2 text-[11px] text-roji-dim">
+          <p className="mt-2 text-[12px] text-roji-dim">
             Single-compartment exponential decay model — for illustration.
             Real plasma curves include absorption, distribution, and
             elimination phases.
@@ -303,7 +303,7 @@ function DecayChart({
             x={PAD - 6}
             y={yScale(g) + 3}
             textAnchor="end"
-            className="fill-roji-dim font-mono text-[9px]"
+            className="fill-roji-dim font-mono text-[10px]"
           >
             {g}%
           </text>
@@ -322,7 +322,7 @@ function DecayChart({
       <text
         x={xScale(halfLifeHours) + 4}
         y={yScale(50) - 4}
-        className="fill-roji-text font-mono text-[10px]"
+        className="fill-roji-text font-mono text-[11px]"
       >
         t½ {halfLifeHours.toFixed(1)} h
       </text>
@@ -330,11 +330,11 @@ function DecayChart({
         x={W - PAD}
         y={H - 6}
         textAnchor="end"
-        className="fill-roji-dim font-mono text-[9px]"
+        className="fill-roji-dim font-mono text-[10px]"
       >
         {windowHours.toFixed(0)} h
       </text>
-      <text x={PAD} y={H - 6} className="fill-roji-dim font-mono text-[9px]">
+      <text x={PAD} y={H - 6} className="fill-roji-dim font-mono text-[10px]">
         0 h
       </text>
     </svg>

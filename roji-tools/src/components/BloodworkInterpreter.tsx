@@ -153,7 +153,7 @@ export function BloodworkInterpreter() {
             >
               Save current panel ({filledCount})
             </button>
-            <p className="mt-2 text-[11px] text-roji-dim">
+            <p className="mt-2 text-[12px] text-roji-dim">
               Panels are stored locally in your browser. Nothing is uploaded.
             </p>
             {!!panels.length && (
@@ -257,7 +257,7 @@ function MarkerRow({
         <div className="text-sm font-medium" title={marker.description}>
           {marker.label}
         </div>
-        <div className="text-[11px] text-roji-muted">{marker.unit}</div>
+        <div className="text-[12px] text-roji-muted">{marker.unit}</div>
       </div>
       <div className="flex items-center gap-2">
         <input
@@ -273,7 +273,7 @@ function MarkerRow({
         {range && <RangeBar range={range} value={haveNum ? num : null} />}
         {level && level !== "ok" && (
           <div
-            className="text-[11px] font-mono uppercase tracking-wider"
+            className="text-[12px] font-mono uppercase tracking-wider"
             style={{ color: levelColor(level) }}
           >
             {labelForLevel(level)} ·{" "}
@@ -316,10 +316,10 @@ function RangeBar({
           style={{ left: `calc(${pct(value)}% - 1.5px)` }}
         />
       )}
-      <div className="absolute -bottom-4 left-0 text-[9px] font-mono text-roji-dim">
+      <div className="absolute -bottom-4 left-0 text-[10px] font-mono text-roji-dim">
         {range.low}
       </div>
-      <div className="absolute -bottom-4 right-0 text-[9px] font-mono text-roji-dim">
+      <div className="absolute -bottom-4 right-0 text-[10px] font-mono text-roji-dim">
         {range.high}
       </div>
     </div>

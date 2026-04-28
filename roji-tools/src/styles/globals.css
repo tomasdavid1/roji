@@ -23,6 +23,11 @@
 html, body { background: var(--roji-black); color: var(--roji-text); }
 body {
   font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  /* Sitewide typography bump: scales every Tailwind text-{xs..xl} up
+     ~6% (since they're all rem-based) without affecting any spacing
+     or layout units. Per-component pixel sizes (`text-[Npx]`) have
+     been bumped +1px individually so they stay consistent. */
+  font-size: 17px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -63,12 +68,12 @@ h1, h2, h3, h4 { letter-spacing: -0.02em; font-weight: 600; }
     @apply roji-btn bg-roji-accent border-roji-accent hover:bg-roji-accent-hover hover:border-roji-accent-hover text-white;
   }
   .roji-pill {
-    @apply inline-block px-3 py-1 rounded-full text-[11px] font-mono uppercase tracking-wider;
+    @apply inline-block px-3 py-1 rounded-full text-[12px] font-mono uppercase tracking-wider;
     background: var(--roji-accent-subtle);
     color: var(--roji-accent);
   }
   .roji-mono-label {
-    @apply text-[11px] font-mono uppercase tracking-wider text-roji-muted;
+    @apply text-[12px] font-mono uppercase tracking-wider text-roji-muted;
   }
   .roji-disclaimer {
     @apply text-xs text-roji-muted leading-relaxed;

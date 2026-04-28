@@ -20,7 +20,7 @@ export function SiteFooter() {
   return (
     <footer className="mt-20 px-5 pb-12">
       <div className="mx-auto max-w-3xl">
-        <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-[13px] text-roji-muted">
+        <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-[14px] text-roji-muted">
           {DIRECTORY_TOOLS.map((tool) => (
             <li key={tool.slug}>
               <Link
@@ -33,7 +33,7 @@ export function SiteFooter() {
           ))}
         </ul>
 
-        <ul className="mt-5 flex flex-wrap justify-center gap-x-4 gap-y-2 text-[13px] text-roji-muted">
+        <ul className="mt-5 flex flex-wrap justify-center gap-x-4 gap-y-2 text-[14px] text-roji-muted">
           <li>
             <a
               href={STORE_URL}
@@ -66,7 +66,7 @@ export function SiteFooter() {
           </li>
         </ul>
 
-        <p className="mt-6 mx-auto max-w-[700px] border-t border-white/[0.04] pt-6 text-center text-[11px] leading-relaxed text-roji-dim">
+        <p className="mt-6 mx-auto max-w-[700px] border-t border-white/[0.04] pt-6 text-center text-[12px] leading-relaxed text-roji-dim">
           All tools are for educational and informational purposes only.
           These tools do not provide medical advice, diagnosis, or
           treatment recommendations. Products available on rojipeptides.com

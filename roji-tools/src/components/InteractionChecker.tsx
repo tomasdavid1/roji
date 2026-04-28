@@ -66,7 +66,7 @@ export function InteractionChecker() {
           <div className="max-h-[64vh] overflow-y-auto rounded-roji border border-roji-border bg-roji-darker">
             {Object.entries(groups).map(([cat, items]) => (
               <div key={cat}>
-                <div className="sticky top-0 border-b border-roji-border bg-roji-darker px-4 py-2 text-[10px] font-mono uppercase tracking-wider text-roji-muted">
+                <div className="sticky top-0 border-b border-roji-border bg-roji-darker px-4 py-2 text-[11px] font-mono uppercase tracking-wider text-roji-muted">
                   {cat}
                 </div>
                 {items.map((s) => {

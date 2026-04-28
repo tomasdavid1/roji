@@ -178,7 +178,7 @@ export function ResearchSearch() {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
-                  <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] font-mono uppercase tracking-wider text-roji-muted">
+                  <div className="mb-2 flex flex-wrap items-center gap-2 text-[12px] font-mono uppercase tracking-wider text-roji-muted">
                     <span
                       className={`rounded-full px-2 py-[1px] ${STUDY_BADGE[h.studyType] ?? "bg-white/5 text-roji-muted"}`}
                     >
@@ -209,7 +209,7 @@ export function ResearchSearch() {
         </div>
       )}
 
-      <p className="mt-10 text-[11px] text-roji-dim">
+      <p className="mt-10 text-[12px] text-roji-dim">
         Search powered by NCBI PubMed E-utilities. Results cached for 30
         minutes. Educational use only — Roji does not endorse, verify, or
         translate the conclusions of any individual paper.

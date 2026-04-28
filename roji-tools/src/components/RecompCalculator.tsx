@@ -113,7 +113,7 @@ export function RecompCalculator() {
                 value={bodyFatPct}
                 onChange={(e) => setBodyFatPct(Number(e.target.value))}
               />
-              <p className="mt-1 text-[12px] text-roji-dim">
+              <p className="mt-1 text-[13px] text-roji-dim">
                 Best estimate. DEXA, BodPod, or smart-scale all work.
               </p>
             </Field>
@@ -177,7 +177,7 @@ export function RecompCalculator() {
             <div className="roji-mono-label mb-3">Projection</div>
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-[11px] font-mono uppercase tracking-wider text-roji-muted">
+                <tr className="text-left text-[12px] font-mono uppercase tracking-wider text-roji-muted">
                   <th className="pb-2">In…</th>
                   <th className="pb-2 text-right">Weight</th>
                   <th className="pb-2 text-right">Lean</th>
@@ -203,7 +203,7 @@ export function RecompCalculator() {
                 ))}
               </tbody>
             </table>
-            <p className="mt-4 text-[12px] text-roji-dim leading-relaxed">
+            <p className="mt-4 text-[13px] text-roji-dim leading-relaxed">
               Projections assume consistent calorie + macro adherence and
               the training frequency you entered. Real-world variance is
               substantial — biology, sleep, and stress all matter.
@@ -256,7 +256,7 @@ function Stat({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-mono uppercase tracking-wider text-roji-muted">
+      <div className="text-[12px] font-mono uppercase tracking-wider text-roji-muted">
         {label}
       </div>
       <div

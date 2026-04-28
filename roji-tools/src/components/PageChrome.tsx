@@ -54,7 +54,7 @@ export function MoreTools({ currentSlug }: { currentSlug: string }) {
             }
             className="roji-card-interactive flex flex-col gap-2 p-5"
           >
-            <div className="text-[12px] font-mono uppercase tracking-wider text-roji-accent">
+            <div className="text-[13px] font-mono uppercase tracking-wider text-roji-accent">
               {t.category}
             </div>
             <div className="font-semibold">{t.shortTitle}</div>

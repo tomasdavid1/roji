@@ -95,7 +95,7 @@ export function AiAssistant() {
         )}
         {citations.length > 0 && (
           <div className="rounded-roji border border-roji-border bg-roji-darker p-4">
-            <div className="mb-2 text-[10px] font-mono uppercase tracking-wider text-roji-muted">
+            <div className="mb-2 text-[11px] font-mono uppercase tracking-wider text-roji-muted">
               Studies referenced
             </div>
             <ul className="space-y-1 text-xs">
@@ -152,7 +152,7 @@ function Bubble({ msg }: { msg: Msg }) {
       }`}
     >
       <div
-        className={`mb-2 text-[10px] font-mono uppercase tracking-wider ${
+        className={`mb-2 text-[11px] font-mono uppercase tracking-wider ${
           isUser ? "text-roji-accent" : "text-roji-muted"
         }`}
       >

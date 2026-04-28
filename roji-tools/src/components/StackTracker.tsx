@@ -235,13 +235,13 @@ export function StackTracker() {
               <div className="grid grid-cols-5 gap-3">
                 {METRIC_KEYS.map(([key, label]) => (
                   <div key={key}>
-                    <div className="text-[10px] font-mono uppercase tracking-wider text-roji-muted">
+                    <div className="text-[11px] font-mono uppercase tracking-wider text-roji-muted">
                       {label}
                     </div>
                     <div className="mt-1 font-mono text-2xl text-roji-accent">
                       {averages[key].toFixed(1)}
                     </div>
-                    <div className="text-[10px] text-roji-dim">/ 10</div>
+                    <div className="text-[11px] text-roji-dim">/ 10</div>
                   </div>
                 ))}
               </div>
@@ -319,7 +319,7 @@ function ItemRow({
         />
         <div className="flex-1">
           <div className="text-sm font-medium">{item.name}</div>
-          <div className="text-[11px] text-roji-muted">
+          <div className="text-[12px] text-roji-muted">
             {item.doseLabel || "—"} · {item.frequency}
           </div>
         </div>
@@ -399,7 +399,7 @@ function TrendChart({ entries }: { entries: LogEntry[] }) {
       <path d={path(yEnergy)} fill="none" stroke="var(--roji-accent)" strokeWidth="2" />
       <path d={path(ySleep)} fill="none" stroke="var(--roji-success)" strokeWidth="2" />
       <path d={path(yMood)} fill="none" stroke="var(--roji-warning)" strokeWidth="2" />
-      <g className="text-[9px] font-mono">
+      <g className="text-[10px] font-mono">
         <text x={PAD} y={14} className="fill-roji-accent">
           Energy
         </text>

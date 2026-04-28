@@ -85,7 +85,7 @@ export function ComingSoonModal({ tool, onClose }: ComingSoonModalProps) {
 
         {status !== "success" ? (
           <>
-            <span className="inline-block rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-mono uppercase tracking-wider text-roji-muted">
+            <span className="inline-block rounded-full bg-white/5 px-2 py-0.5 text-[12px] font-mono uppercase tracking-wider text-roji-muted">
               Coming soon
             </span>
             <h2
@@ -121,7 +121,7 @@ export function ComingSoonModal({ tool, onClose }: ComingSoonModalProps) {
             {errorMessage && (
               <p className="mt-3 text-xs text-roji-danger">{errorMessage}</p>
             )}
-            <p className="mt-4 text-[12px] text-roji-dim">
+            <p className="mt-4 text-[13px] text-roji-dim">
               We store your email only to send the launch notification.
               You can opt out at any time.
             </p>
