@@ -43,10 +43,13 @@ return array(
 
 			// Trust strip
 			roji_el_html( '<div style="display:flex;flex-wrap:wrap;gap:24px;margin-top:32px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06);font-size:13px;color:#8a8a9a;">
-				<div style="display:flex;align-items:center;gap:8px;"><span style="color:#22c55e;font-size:16px;">✓</span>Third-party COA on every batch</div>
+				<div style="display:flex;align-items:center;gap:8px;"><span style="color:#22c55e;font-size:16px;">✓</span>Janoshik third-party COA on every batch</div>
 				<div style="display:flex;align-items:center;gap:8px;"><span style="color:#22c55e;font-size:16px;">✓</span>Free shipping over $200</div>
 				<div style="display:flex;align-items:center;gap:8px;"><span style="color:#22c55e;font-size:16px;">✓</span>21+ verified · US ship only</div>
 				<div style="display:flex;align-items:center;gap:8px;"><span style="color:#22c55e;font-size:16px;">✓</span>Card + crypto accepted</div>
+			</div>
+			<div style="margin-top:16px;font-family:JetBrains Mono,monospace;font-size:11px;color:#55556a;letter-spacing:0.05em;line-height:1.6;max-width:680px;">
+				All products are intended strictly for laboratory and preclinical research use. We do not provide usage instructions, dosing guidelines, or any advice regarding the application of our products.
 			</div>' ),
 		) ),
 
@@ -114,9 +117,9 @@ return array(
 			roji_el_grid( array(
 				// Wolverine
 				roji_el_card( array(
-					roji_el_html( '<div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.1em;">HEALING & RECOVERY</div><div style="font-family:JetBrains Mono,monospace;font-size:18px;color:#f0f0f5;font-weight:600;">$149</div></div>' ),
+					roji_el_html( '<div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.1em;">TISSUE-RESEARCH</div><div style="font-family:JetBrains Mono,monospace;font-size:18px;color:#f0f0f5;font-weight:600;">$149</div></div>' ),
 					roji_el_heading( 'Wolverine Stack', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 24, 'sizes' => array() ) ) ),
-					roji_el_text( '<p style="color:#a8a8b8;">BPC-157 10mg + TB-500 10mg. The most-cited research stack for in-vitro tendon, ligament, and tissue work. 4-week supply.</p>' ),
+					roji_el_text( '<p style="color:#a8a8b8;">BPC-157 10mg + TB-500 10mg. Among the most-referenced two-compound stacks in the published preclinical literature. 4-week supply.</p>' ),
 					roji_el_html( '<ul style="list-style:none;padding:0;margin:0;font-size:13px;color:#8a8a9a;display:flex;flex-direction:column;gap:6px;"><li>↳ 2 compounds</li><li>↳ 4-week supply</li><li>↳ 3 published references</li></ul>' ),
 					roji_el_inner( array(
 						'flex_direction' => 'row',
@@ -131,7 +134,7 @@ return array(
 				roji_el_card( array(
 					roji_el_html( '<div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.1em;">GH AXIS</div><div style="font-family:JetBrains Mono,monospace;font-size:18px;color:#f0f0f5;font-weight:600;">$199</div></div>' ),
 					roji_el_heading( 'Recomp Stack', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 24, 'sizes' => array() ) ) ),
-					roji_el_text( '<p style="color:#a8a8b8;">CJC-1295 (DAC) 5mg + Ipamorelin 5mg + MK-677 30-day oral. Comprehensive GH-axis research stack. 4-week supply.</p>' ),
+					roji_el_text( '<p style="color:#a8a8b8;">CJC-1295 (DAC) 5mg + Ipamorelin 5mg + MK-677 30-day oral. Three GH-axis research compounds with extensive published pharmacokinetic data. 4-week supply.</p>' ),
 					roji_el_html( '<ul style="list-style:none;padding:0;margin:0;font-size:13px;color:#8a8a9a;display:flex;flex-direction:column;gap:6px;"><li>↳ 3 compounds</li><li>↳ 4-week supply</li><li>↳ 3 published references</li></ul>' ),
 					roji_el_inner( array(
 						'flex_direction' => 'row',
@@ -182,7 +185,7 @@ return array(
 				roji_el_card( array(
 					roji_el_html( '<div style="font-size:36px;line-height:1;">📚</div>' ),
 					roji_el_heading( 'PubMed-cited products', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 18, 'sizes' => array() ) ) ),
-					roji_el_text( '<p>Every compound page links to the foundational research. No anecdotes. <a href="/research-library/">Read the library →</a></p>' ),
+					roji_el_text( '<p>Every compound page links to the foundational peer-reviewed literature. No anecdotes. <a href="/research-library/">Read the library →</a></p>' ),
 				) ),
 				roji_el_card( array(
 					roji_el_html( '<div style="font-size:36px;line-height:1;">🚚</div>' ),
