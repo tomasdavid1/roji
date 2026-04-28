@@ -164,11 +164,29 @@ else:
 PY
   echo "  --- end dump ---"
 
-  # Also report active theme
+  # Also report active theme + dump site-title <div> raw bytes
   echo "  --- active theme + has_custom_logo state ---"
   remote "wp theme list --status=active --format=csv" || true
   remote "wp eval 'var_export(has_custom_logo()); echo \" / blogname: \"; echo get_bloginfo(\"name\");'" || true
   echo ""
+  echo "  --- raw site-title <div> ---"
+  python3 - <<PY 2>/dev/null
+import re
+html = """$home_html"""
+m = re.search(r'<div[^>]*class="[^"]*site-title[^"]*"[^>]*>(.*?)</div>', html, re.DOTALL | re.IGNORECASE)
+if m:
+    print(repr(m.group(0))[:1500])
+else:
+    print("(no site-title div)")
+# Also: print every <a> inside .site-branding
+m2 = re.search(r'<div[^>]*class="[^"]*site-branding[^"]*"[^>]*>(.*?)</nav', html, re.DOTALL | re.IGNORECASE)
+if m2:
+    branding = m2.group(1)
+    anchors = re.findall(r'<a [^>]*>(.*?)</a>', branding, re.DOTALL | re.IGNORECASE)
+    for i, a in enumerate(anchors):
+        print(f"  branding-anchor[{i}]: " + repr(a)[:300])
+PY
+  echo "  --- end raw dump ---"
 fi
 
 if [[ "$fail" -ne 0 ]]; then
