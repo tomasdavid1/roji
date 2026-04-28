@@ -17,7 +17,7 @@ return array(
 				'typography_font_size' => array( 'unit' => 'px', 'size' => 56, 'sizes' => array() ),
 				'typography_line_height' => array( 'unit' => 'em', 'size' => 1.05, 'sizes' => array() ),
 			) ),
-			roji_el_text( '<p style="font-size:20px;line-height:1.6;color:#a8a8b8;max-width:700px;">We exist because every other research-chemical site reads like it was built to confuse you. Vague claims, generic stock photography of test tubes, no documentation. We do the opposite: published references on every product, third-party COA on every batch, and a protocol builder that shows our math.</p>' ),
+			roji_el_text( '<p style="font-size:20px;line-height:1.6;color:#a8a8b8;max-width:700px;">We exist because every other research-chemical site reads like it was built to confuse you. Vague claims, generic stock photography of test tubes, no documentation. We do the opposite: published references on every product, third-party COA on every batch, and a free suite of research tools that show our math.</p>' ),
 		) ),
 
 		// ── PRINCIPLES (3 cards) ────────────────────────────────────────────
