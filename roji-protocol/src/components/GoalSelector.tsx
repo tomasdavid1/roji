@@ -6,7 +6,6 @@ import { SelectableCard } from "./ui/SelectableCard";
 const GOALS = [
   {
     id: "healing" as const,
-    icon: "🔬",
     title: "Healing & Recovery",
     description:
       "Tissue, tendon, and ligament research applications. Maps to the Wolverine stack.",
@@ -14,7 +13,6 @@ const GOALS = [
   },
   {
     id: "recomp" as const,
-    icon: "💪",
     title: "Body Recomposition",
     description:
       "GH-axis research stack for lean-mass and metabolic optimization studies.",
@@ -22,7 +20,6 @@ const GOALS = [
   },
   {
     id: "comprehensive" as const,
-    icon: "🧬",
     title: "Comprehensive Protocol",
     description:
       "Full 12-week protocol combining healing and recomposition compounds.",
@@ -48,7 +45,6 @@ export function GoalSelector() {
             key={g.id}
             selected={goal === g.id}
             onClick={() => setGoal("goal", g.id)}
-            icon={g.icon}
             title={g.title}
             description={g.description}
             meta={g.meta}
