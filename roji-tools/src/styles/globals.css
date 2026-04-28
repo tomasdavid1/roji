@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --roji-black: #0a0a0f;
+  --roji-dark: #111118;
+  --roji-darker: #0d0d14;
+  --roji-card: #16161f;
+  --roji-border: rgba(255, 255, 255, 0.06);
+  --roji-border-hover: rgba(255, 255, 255, 0.12);
+  --roji-text: #f0f0f5;
+  --roji-muted: #8a8a9a;
+  --roji-dim: #55556a;
+  --roji-accent: #4f6df5;
+  --roji-accent-hover: #6380ff;
+  --roji-accent-subtle: rgba(79, 109, 245, 0.08);
+  --roji-success: #22c55e;
+  --roji-warning: #eab308;
+  --roji-danger: #ef4444;
+}
+
+html, body { background: var(--roji-black); color: var(--roji-text); }
+body {
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 { letter-spacing: -0.02em; font-weight: 600; }
+
+::selection { background: var(--roji-accent-subtle); color: var(--roji-text); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--roji-black); }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.06); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.12); }
+
+@layer components {
+  .roji-card {
+    @apply bg-roji-card border border-roji-border rounded-roji p-6 transition-colors;
+  }
+  .roji-card-interactive {
+    @apply roji-card hover:border-roji-border-hover cursor-pointer;
+  }
+  .roji-input {
+    @apply w-full bg-roji-dark border border-roji-border rounded-roji px-4 py-3 text-roji-text
+      placeholder:text-roji-dim focus:outline-none focus:border-roji-accent transition-colors;
+  }
+  .roji-select {
+    @apply w-full bg-roji-dark border border-roji-border rounded-roji px-4 py-3 text-roji-text
+      focus:outline-none focus:border-roji-accent transition-colors appearance-none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='none' stroke='%238a8a9a' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  .roji-btn {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-roji border border-roji-border
+      text-roji-text bg-roji-card hover:border-roji-border-hover transition-colors text-sm font-medium;
+  }
+  .roji-btn-primary {
+    @apply roji-btn bg-roji-accent border-roji-accent hover:bg-roji-accent-hover hover:border-roji-accent-hover text-white;
+  }
+  .roji-pill {
+    @apply inline-block px-3 py-1 rounded-full text-[11px] font-mono uppercase tracking-wider;
+    background: var(--roji-accent-subtle);
+    color: var(--roji-accent);
+  }
+  .roji-mono-label {
+    @apply text-[11px] font-mono uppercase tracking-wider text-roji-muted;
+  }
+  .roji-disclaimer {
+    @apply text-xs text-roji-muted leading-relaxed;
+  }
+}
+
+/* Range slider — used by reconstitution + recomp calculators. */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  width: 100%;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+}
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 16px; width: 16px;
+  border-radius: 50%;
+  background: var(--roji-accent);
+  margin-top: -6px;
+  border: 2px solid var(--roji-black);
+}
+input[type="range"]::-moz-range-thumb {
+  height: 16px; width: 16px;
+  border-radius: 50%;
+  background: var(--roji-accent);
+  border: 2px solid var(--roji-black);
+}
+
+/* Subtle ambient orb behind hero sections. */
+.roji-orb {
+  position: absolute;
+  pointer-events: none;
+  width: 900px;
+  height: 600px;
+  left: 50%;
+  top: -180px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(79,109,245,0.18) 0%, transparent 60%);
+  filter: blur(80px);
+  opacity: 0.6;
+  z-index: 0;
+}
