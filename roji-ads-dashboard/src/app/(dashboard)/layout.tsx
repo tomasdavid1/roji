@@ -30,8 +30,9 @@ export default function DashboardLayout({
               Test mode
             </strong>
             Your developer token is enabled for Test Account Access only.
-            Production calls (e.g. customer 667-978-0942) will fail until you
-            apply for Basic Access at{" "}
+            Production calls (e.g. customer 667-978-0942 via manager
+            263-783-2527) will fail until you apply for Basic Access from the
+            manager account at{" "}
             <a
               href="https://ads.google.com/aw/apicenter"
               target="_blank"

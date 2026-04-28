@@ -41,9 +41,13 @@ export function apiMode(): ApiMode {
   return _modeHint ?? "live";
 }
 
+function errMsg(err: unknown): string {
+  if (!err || typeof err !== "object") return "";
+  return JSON.stringify(err).toLowerCase();
+}
+
 function isTestModeError(err: unknown): boolean {
-  if (!err || typeof err !== "object") return false;
-  const msg = JSON.stringify(err).toLowerCase();
+  const msg = errMsg(err);
   return (
     msg.includes("developer_token_not_approved") ||
     msg.includes("test_accounts_only") ||
@@ -51,18 +55,35 @@ function isTestModeError(err: unknown): boolean {
   );
 }
 
+function isPermissionError(err: unknown): boolean {
+  const msg = errMsg(err);
+  return (
+    msg.includes("user_permission_denied") ||
+    msg.includes("not_adwords_user") ||
+    msg.includes("customer_not_enabled") ||
+    msg.includes("customer_not_found")
+  );
+}
+
 /**
- * Wrap a Google Ads call so that a test-mode failure becomes a clear,
- * typed error and updates the mode hint for the UI.
+ * Wrap a Google Ads call so failures become clear, actionable errors
+ * and update the mode hint for the UI.
  */
 async function wrapApiCall<T>(label: string, fn: () => Promise<T>): Promise<T> {
   try {
     return await fn();
   } catch (e) {
+    const customerId = process.env.GOOGLE_ADS_CUSTOMER_ID;
+    const mcc = process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID;
     if (isTestModeError(e)) {
       _modeHint = "test";
       throw new Error(
-        `[${label}] Developer token is in TEST mode and the customer ID (${process.env.GOOGLE_ADS_CUSTOMER_ID}) is a production account. Apply for Basic Access at https://ads.google.com/aw/apicenter to call production accounts.`,
+        `[${label}] Developer token is in TEST mode and customer ${customerId} is a production account. Apply for Basic Access at https://ads.google.com/aw/apicenter (apply from the manager account ${mcc ?? "<none set>"}).`,
+      );
+    }
+    if (isPermissionError(e)) {
+      throw new Error(
+        `[${label}] Permission denied for customer ${customerId}${mcc ? ` via manager ${mcc}` : ""}. Check that (a) ${customerId} is linked under the MCC in Google Ads → Account access → Sub-accounts, and (b) the OAuth-authorized user has access to the MCC. Original: ${e instanceof Error ? e.message : "unknown"}`,
       );
     }
     throw e;

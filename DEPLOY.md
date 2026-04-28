@@ -46,9 +46,16 @@ GOOGLE_ADS_REFRESH_TOKEN=1//0g...
 
 ### Google Ads developer token + Basic Access
 
-You already have a developer token (`UWqlm9Z...`, currently in **Test Account Access** mode). It's wired into [`roji-ads-dashboard/.env.local`](./roji-ads-dashboard/.env.local).
+You have a developer token (`UWqlm9Z...`, currently in **Test Account Access** mode), wired into [`roji-ads-dashboard/.env.local`](./roji-ads-dashboard/.env.local).
 
-A test-mode token can only call the API against [Google Ads test accounts](https://developers.google.com/google-ads/api/docs/best-practices/test-accounts), not your production customer `667-978-0942`. To call your real account, **YOU** need to apply for **Basic Access**:
+**Account topology:**
+
+- Manager (MCC) account: **263-783-2527** (`GOOGLE_ADS_LOGIN_CUSTOMER_ID=2637832527`) — owns the developer token and authorizes calls
+- Operating account: **667-978-0942** (`GOOGLE_ADS_CUSTOMER_ID=6679780942`) — Roji Peptides, the actual ad account
+
+The operating account must be linked under the MCC. **YOU**: in the MCC, go to **Account access → Sub-accounts** and confirm `667-978-0942` is linked. If not, the API will return `USER_PERMISSION_DENIED` regardless of token state.
+
+A test-mode token can only call the API against [Google Ads test accounts](https://developers.google.com/google-ads/api/docs/best-practices/test-accounts), not your production customer `667-978-0942`. To call your real account, **YOU** need to apply for **Basic Access** from the **MCC** (not the operating account):
 
 1. Go to <https://ads.google.com/aw/apicenter> (sign in with `tomasdaavid@gmail.com`).
 2. In the **Access level** section, click **Apply for Basic Access**.
@@ -172,8 +179,8 @@ Or use the exact records Vercel shows you.
    | `GOOGLE_ADS_CLIENT_SECRET` | rotated value from step 0 |
    | `GOOGLE_ADS_DEVELOPER_TOKEN` | once approved |
    | `GOOGLE_ADS_REFRESH_TOKEN` | from `get-refresh-token.js` |
-   | `GOOGLE_ADS_CUSTOMER_ID` | `6679780942` |
-   | `GOOGLE_ADS_LOGIN_CUSTOMER_ID` | only if using a manager account |
+   | `GOOGLE_ADS_CUSTOMER_ID` | `6679780942` (operating account: Roji) |
+   | `GOOGLE_ADS_LOGIN_CUSTOMER_ID` | `2637832527` (manager / MCC) |
    | `ADMIN_USER` | a username you choose |
    | `ADMIN_PASS` | a long random password |
 
