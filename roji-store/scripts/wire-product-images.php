@@ -65,9 +65,16 @@ foreach ( $map as $sku => $filename ) {
 	$current_thumb_id = (int) get_post_thumbnail_id( $product_id );
 	if ( $current_thumb_id ) {
 		$current_path = get_attached_file( $current_thumb_id );
-		if ( $current_path && basename( $current_path ) === $filename ) {
-			++$skipped;
-			continue;
+		// Skip only if the existing attachment's bytes match the source PNG.
+		// Filename match alone is unreliable when we replace the artwork in
+		// place (same slug, new bytes).
+		if ( $current_path && file_exists( $current_path ) ) {
+			$src_hash = md5_file( $file );
+			$cur_hash = md5_file( $current_path );
+			if ( $src_hash && $src_hash === $cur_hash ) {
+				++$skipped;
+				continue;
+			}
 		}
 	}
 
