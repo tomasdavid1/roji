@@ -195,3 +195,18 @@ jobs:
           if [ "$rc" != "200" ] && [ "$rc" != "301" ] && [ "$rc" != "302" ]; then
             echo "::warning::Homepage did not return 200/301/302 (got $rc) — investigate"
           fi
+
+      - name: Compliance assertion - no Protocol Engine residue on live site
+        if: github.event.inputs.dry_run != 'true'
+        env:
+          SSHPASS: ${{ secrets.KINSTA_SSH_PASSWORD }}
+          HOST: ${{ secrets.KINSTA_SSH_HOST }}
+          PORT: ${{ secrets.KINSTA_SSH_PORT }}
+          USER: ${{ secrets.KINSTA_SSH_USER }}
+          WP_PATH: ${{ secrets.KINSTA_WP_PATH }}
+        run: |
+          # Audit the live DB for forbidden Protocol Engine residue across
+          # post_content + the Elementor _elementor_data postmeta (which is
+          # what actually drives the rendered front-end).
+          set -euo pipefail
+          bash roji-store/deploy/assert-compliance.sh
