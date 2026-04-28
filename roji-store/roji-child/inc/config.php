@@ -46,6 +46,11 @@ if ( ! defined( 'ROJI_GADS_ID' ) ) {
 if ( ! defined( 'ROJI_GADS_PURCHASE_LABEL' ) ) {
 	define( 'ROJI_GADS_PURCHASE_LABEL', '' );
 }
+// Optional Google Ads conversion label for the protocol-engine →
+// add-to-cart transition. Leave empty to fire only the GA4 event.
+if ( ! defined( 'ROJI_GADS_ADD_TO_CART_LABEL' ) ) {
+	define( 'ROJI_GADS_ADD_TO_CART_LABEL', '' );
+}
 if ( ! defined( 'ROJI_GA4_ID' ) ) {
 	define( 'ROJI_GA4_ID', '' );
 }

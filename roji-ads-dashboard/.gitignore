@@ -8,3 +8,6 @@ build/
 .env*.local
 .vercel
 *.tsbuildinfo
+
+# Blueprint provisioner local report
+scripts/.last-provision.json

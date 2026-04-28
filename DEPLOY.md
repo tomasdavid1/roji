@@ -22,6 +22,8 @@ See [SECURITY-NOTE.md](./SECURITY-NOTE.md) for the full reasoning.
 
 ## 1. Get the Google Ads refresh token
 
+> **For the day-by-day launch sequence (which campaigns to launch when, how to handle TEST_MODE while products aren't live yet), see [`ADS-PLAYBOOK.md`](./ADS-PLAYBOOK.md).** This section just covers the OAuth refresh-token plumbing.
+
 Required for the dashboard to talk to live Google Ads.
 
 ```bash

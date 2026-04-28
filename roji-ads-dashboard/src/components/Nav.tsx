@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/keywords", label: "Keywords" },
   { href: "/search-terms", label: "Search terms" },
   { href: "/disapprovals", label: "Disapprovals" },
+  { href: "/tracking", label: "Tracking" },
   { href: "/subscriptions", label: "Subscriptions" },
   { href: "/affiliates", label: "Affiliates" },
 ];

@@ -35,6 +35,16 @@ export default function RootLayout({
   const adsId = process.env.NEXT_PUBLIC_GADS_ID;
   const ga4Id = process.env.NEXT_PUBLIC_GA4_ID;
   const gtagAnyId = adsId || ga4Id;
+  // Domains that should share a Google linker (preserves gclid + GA4 client_id
+  // when bouncing between protocol engine and store). Comma-separated.
+  // Default keeps prod working out of the box; LocalDev can override.
+  const linkerDomains = (
+    process.env.NEXT_PUBLIC_GTAG_LINKER_DOMAINS ??
+    "rojipeptides.com,protocol.rojipeptides.com"
+  )
+    .split(",")
+    .map((d) => d.trim())
+    .filter(Boolean);
 
   return (
     <html lang="en" className={`${inter.variable} ${mono.variable}`}>
@@ -50,8 +60,8 @@ export default function RootLayout({
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
-                ${adsId ? `gtag('config', '${adsId}');` : ""}
-                ${ga4Id ? `gtag('config', '${ga4Id}');` : ""}
+                ${ga4Id ? `gtag('config', '${ga4Id}', { linker: { domains: ${JSON.stringify(linkerDomains)} } });` : ""}
+                ${adsId ? `gtag('config', '${adsId}', { linker: { domains: ${JSON.stringify(linkerDomains)} } });` : ""}
               `}
             </Script>
           </>

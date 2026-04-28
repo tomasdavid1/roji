@@ -1,5 +1,6 @@
 import { getCampaignPerformance } from "@/lib/google-ads";
 import { CreateCampaignForm } from "@/components/CreateCampaignForm";
+import { BlueprintCard } from "@/components/BlueprintCard";
 import { ApiBlocked } from "@/components/ApiBlocked";
 import { fmtInt, fmtUsd } from "@/lib/format";
 
@@ -82,11 +83,15 @@ export default async function CampaignsPage() {
           </div>
         </section>
 
-        <aside>
-          <h2 className="text-sm font-mono uppercase tracking-widest text-roji-muted mb-3">
-            New campaign
-          </h2>
-          <CreateCampaignForm />
+        <aside className="space-y-6">
+          <BlueprintCard />
+
+          <div>
+            <h2 className="text-sm font-mono uppercase tracking-widest text-roji-muted mb-3">
+              Or create blank campaign
+            </h2>
+            <CreateCampaignForm />
+          </div>
         </aside>
       </div>
     </div>
