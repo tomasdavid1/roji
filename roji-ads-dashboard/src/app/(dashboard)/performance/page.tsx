@@ -1,11 +1,17 @@
 import { getCampaignPerformance } from "@/lib/google-ads";
 import { MetricCard } from "@/components/MetricCard";
+import { ApiBlocked } from "@/components/ApiBlocked";
 import { fmtInt, fmtPct, fmtUsd } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function PerformancePage() {
-  const rows = await getCampaignPerformance("LAST_30_DAYS");
+  let rows;
+  try {
+    rows = await getCampaignPerformance("LAST_30_DAYS");
+  } catch (err) {
+    return <ApiBlocked pageLabel="Performance" error={err} />;
+  }
 
   const totals = rows.reduce(
     (acc, r) => {

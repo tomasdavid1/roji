@@ -1,11 +1,17 @@
 import { getCampaignPerformance } from "@/lib/google-ads";
 import { CreateCampaignForm } from "@/components/CreateCampaignForm";
+import { ApiBlocked } from "@/components/ApiBlocked";
 import { fmtInt, fmtUsd } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function CampaignsPage() {
-  const rows = await getCampaignPerformance("LAST_30_DAYS");
+  let rows;
+  try {
+    rows = await getCampaignPerformance("LAST_30_DAYS");
+  } catch (err) {
+    return <ApiBlocked pageLabel="Campaigns" error={err} />;
+  }
 
   return (
     <div>

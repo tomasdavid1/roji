@@ -1,10 +1,16 @@
 import { getKeywordPerformance } from "@/lib/google-ads";
+import { ApiBlocked } from "@/components/ApiBlocked";
 import { fmtInt, fmtUsd } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function KeywordsPage() {
-  const rows = await getKeywordPerformance("LAST_30_DAYS");
+  let rows;
+  try {
+    rows = await getKeywordPerformance("LAST_30_DAYS");
+  } catch (err) {
+    return <ApiBlocked pageLabel="Keywords" error={err} />;
+  }
 
   return (
     <div>
