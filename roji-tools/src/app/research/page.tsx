@@ -5,7 +5,7 @@ import { PageHero, MoreTools } from "@/components/PageChrome";
 import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
-  title: "Research Database — peer-reviewed peptide studies",
+  title: "Research Database — searchable PubMed for biohackers",
   description:
     "Free, ad-free search of published peptide research. Plain-English summaries, study-type tags, direct PubMed links. No signup.",
 };
