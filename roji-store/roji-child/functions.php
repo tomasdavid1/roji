@@ -27,3 +27,4 @@ require_once ROJI_CHILD_DIR . '/inc/trustpilot-afs.php';
 require_once ROJI_CHILD_DIR . '/inc/subscriptions.php';
 require_once ROJI_CHILD_DIR . '/inc/subscriptions-dunning.php';
 require_once ROJI_CHILD_DIR . '/inc/affiliates.php';
+require_once ROJI_CHILD_DIR . '/inc/cart-upsell.php';

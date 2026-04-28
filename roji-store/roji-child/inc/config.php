@@ -33,6 +33,25 @@ if ( ! defined( 'ROJI_FULL_PRODUCT_ID' ) ) {
 }
 
 /* -----------------------------------------------------------------------------
+ * Supplies — used by the cart-upsell module to suggest the consumables a
+ * researcher needs to actually use the protocol stacks (bac water for
+ * reconstitution, syringes, swabs).
+ *
+ * Default IDs match the WP-CLI seed in scripts/seed-products.sh; SKU-based
+ * fallback in roji_supply_id_by_sku() handles installs with shifted IDs.
+ * -------------------------------------------------------------------------- */
+
+if ( ! defined( 'ROJI_BAC_WATER_PRODUCT_ID' ) ) {
+	define( 'ROJI_BAC_WATER_PRODUCT_ID', 15 );
+}
+if ( ! defined( 'ROJI_SYRINGES_PRODUCT_ID' ) ) {
+	define( 'ROJI_SYRINGES_PRODUCT_ID', 16 );
+}
+if ( ! defined( 'ROJI_SWABS_PRODUCT_ID' ) ) {
+	define( 'ROJI_SWABS_PRODUCT_ID', 17 );
+}
+
+/* -----------------------------------------------------------------------------
  * Google Ads / Analytics
  *
  * AW-XXXXXXXXXX  — Google Ads account ID
@@ -312,4 +331,62 @@ function roji_product_id_for_stack( $slug ) {
 		}
 	}
 	return 0;
+}
+
+/**
+ * Resolve a supply key to a published product ID.
+ *
+ * Same fast-path-then-SKU-fallback strategy as roji_product_id_for_stack,
+ * scoped to the consumables we recommend at checkout.
+ *
+ * @param string $key One of: bac_water | syringes | swabs.
+ * @return int Product ID, or 0 if unresolved.
+ */
+function roji_supply_product_id( $key ) {
+	static $map = null;
+	if ( null === $map ) {
+		$map = array(
+			'bac_water' => array( ROJI_BAC_WATER_PRODUCT_ID, 'ROJI-BAC-30' ),
+			'syringes'  => array( ROJI_SYRINGES_PRODUCT_ID, 'ROJI-SYR-100' ),
+			'swabs'     => array( ROJI_SWABS_PRODUCT_ID, 'ROJI-SWAB-200' ),
+		);
+	}
+	if ( ! isset( $map[ $key ] ) ) {
+		return 0;
+	}
+	list( $id, $sku ) = $map[ $key ];
+	if ( $id > 0 && get_post_status( $id ) === 'publish' ) {
+		return (int) $id;
+	}
+	if ( function_exists( 'wc_get_product_id_by_sku' ) ) {
+		$found = wc_get_product_id_by_sku( $sku );
+		if ( $found > 0 ) {
+			return (int) $found;
+		}
+	}
+	return 0;
+}
+
+/**
+ * Set of product IDs that count as "stacks" for upsell triggering. Includes
+ * one-time bundles + their autoship siblings.
+ *
+ * @return int[]
+ */
+function roji_stack_product_ids() {
+	$ids = array(
+		ROJI_WOLVERINE_PRODUCT_ID,
+		ROJI_RECOMP_PRODUCT_ID,
+		ROJI_FULL_PRODUCT_ID,
+	);
+	if ( defined( 'ROJI_WOLVERINE_AUTOSHIP_PRODUCT_ID' ) ) {
+		$ids[] = ROJI_WOLVERINE_AUTOSHIP_PRODUCT_ID;
+	}
+	if ( defined( 'ROJI_RECOMP_AUTOSHIP_PRODUCT_ID' ) ) {
+		$ids[] = ROJI_RECOMP_AUTOSHIP_PRODUCT_ID;
+	}
+	if ( defined( 'ROJI_FULL_AUTOSHIP_PRODUCT_ID' ) ) {
+		$ids[] = ROJI_FULL_AUTOSHIP_PRODUCT_ID;
+	}
+	return array_values( array_unique( array_filter( array_map( 'intval', $ids ) ) ) );
 }
