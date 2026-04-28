@@ -47,7 +47,10 @@ if (!CLIENT_ID || !CLIENT_SECRET) {
   process.exit(1);
 }
 
-const REDIRECT = "http://localhost:8765/";
+// IMPORTANT: Google Desktop OAuth clients require the loopback IP
+// (http://127.0.0.1), NOT http://localhost. Any port works.
+const PORT = 8765;
+const REDIRECT = `http://127.0.0.1:${PORT}/`;
 const SCOPE = "https://www.googleapis.com/auth/adwords";
 
 const authUrl =
@@ -61,12 +64,13 @@ const authUrl =
     prompt: "consent",
   }).toString();
 
-console.log("\nOpen this URL in your browser:\n");
+console.log("\nOpen this URL in your browser (sign in with the Google account that owns the Ads MCC):\n");
 console.log(authUrl + "\n");
-console.log("Waiting for redirect on http://localhost:8765/ ...\n");
+console.log(`Waiting for redirect on ${REDIRECT} ...\n`);
+console.log("If the browser shows 'redirect_uri_mismatch', see the troubleshooting section in DEPLOY.md.\n");
 
 const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url, "http://localhost:8765");
+  const url = new URL(req.url, REDIRECT);
   const code = url.searchParams.get("code");
   const err = url.searchParams.get("error");
 
@@ -133,4 +137,18 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(8765, "127.0.0.1");
+server.listen(PORT, "127.0.0.1");
+
+// Friendly error if the port is busy.
+server.on("error", (err) => {
+  if (err && err.code === "EADDRINUSE") {
+    console.error(
+      `\nPort ${PORT} is already in use. Either:\n` +
+        `  - Kill the process using it: lsof -ti tcp:${PORT} | xargs kill\n` +
+        `  - Or edit PORT in scripts/get-refresh-token.js to a free port (and restart)\n`,
+    );
+    process.exit(1);
+  }
+  console.error("Server error:", err);
+  process.exit(1);
+});

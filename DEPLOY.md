@@ -44,6 +44,39 @@ GOOGLE_ADS_REFRESH_TOKEN=1//0g...
 
 > If `gcloud auth application-default login` is your preferred path, that produces ADC credentials, not the format `google-ads-api` (the npm client) expects. Use the script above instead — it does the same OAuth flow but produces a refresh token in the right format.
 
+#### Troubleshooting the OAuth flow
+
+**Browser shows `Error 400: redirect_uri_mismatch`**
+The OAuth client wasn't created as a Desktop app. Two fixes:
+
+1. (Easiest) Go to [Google Cloud → Credentials](https://console.cloud.google.com/apis/credentials), click your OAuth client, and check **Application type**. If it's **Web application**, you need to either:
+   - Add `http://127.0.0.1:8765` to **Authorized redirect URIs** and save, or
+   - Create a new OAuth client of type **Desktop app**, download the new JSON, and update `GOOGLE_ADS_CLIENT_ID` + `GOOGLE_ADS_CLIENT_SECRET` in `.env.local`.
+2. The script uses `http://127.0.0.1:8765` (not `localhost`) because Google Desktop OAuth clients only accept the loopback IP.
+
+**Browser shows `Error 403: access_denied` or "This app is blocked"**
+Your OAuth Consent Screen needs to have your test user added (if in Testing mode) or be Published.
+
+1. Go to [OAuth consent screen → Audience](https://console.cloud.google.com/apis/credentials/consent).
+2. If **Publishing status** is "Testing", add `tomasdaavid@gmail.com` to **Test users**.
+3. Or click **Publish App** to move it to "In production" (no review required for internal use with the `adwords` scope; review IS required to remove the unverified-app warning for external users).
+
+**Terminal shows `No refresh_token in response`**
+This happens when you've already authorized the app with this Google account. Google only returns a refresh token on first consent.
+
+1. Go to [myaccount.google.com/permissions](https://myaccount.google.com/permissions).
+2. Find the OAuth client (probably named after your Google Cloud project).
+3. Click **Remove access**.
+4. Re-run the script.
+
+The script already passes `prompt=consent` to force re-consent, but Google sometimes still skips the refresh token if access was previously granted.
+
+**Port 8765 is already in use**
+Either kill whatever's using it (`lsof -ti tcp:8765 | xargs kill`) or edit `PORT` near the top of [`scripts/get-refresh-token.js`](./roji-ads-dashboard/scripts/get-refresh-token.js).
+
+**Browser hangs after clicking Allow**
+Make sure the script is still running in the terminal. The browser redirects to `http://127.0.0.1:8765/?code=...` and the script's local server has to be listening to catch it. Don't close the terminal.
+
 ### Google Ads developer token + Basic Access
 
 You have a developer token (`UWqlm9Z...`, currently in **Test Account Access** mode), wired into [`roji-ads-dashboard/.env.local`](./roji-ads-dashboard/.env.local).
