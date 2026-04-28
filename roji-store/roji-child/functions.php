@@ -31,3 +31,4 @@ require_once ROJI_CHILD_DIR . '/inc/affiliates.php';
 require_once ROJI_CHILD_DIR . '/inc/affiliates-ui.php';
 require_once ROJI_CHILD_DIR . '/inc/affiliates-admin.php';
 require_once ROJI_CHILD_DIR . '/inc/cart-upsell.php';
+require_once ROJI_CHILD_DIR . '/inc/gateway-reserve-order.php';

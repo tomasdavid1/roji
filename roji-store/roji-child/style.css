@@ -544,3 +544,249 @@ input[type="radio"] {
   color: #fff;
   border: none;
 }
+
+/* --------------------------------------------------------------------------
+ * Single Product (PDP) — dark-theme refinements.
+ *
+ * Hello Elementor + WooCommerce ship a generic two-column PDP. The form
+ * inputs are already dark via the base styles above, but the gallery,
+ * price, summary, tabs, and add-to-cart need explicit treatment so the
+ * page stops looking like default WC.
+ * -------------------------------------------------------------------------- */
+
+.woocommerce.single-product .product,
+.woocommerce-page.single-product .product {
+  margin: 32px 0;
+}
+
+/* Image gallery — soften the white borders WC injects */
+.woocommerce.single-product .woocommerce-product-gallery {
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  background: var(--roji-card);
+  padding: 16px;
+}
+.woocommerce.single-product .woocommerce-product-gallery__image img {
+  border-radius: var(--roji-radius);
+  background: var(--roji-darker);
+}
+.woocommerce.single-product .flex-control-thumbs {
+  margin-top: 12px;
+}
+.woocommerce.single-product .flex-control-thumbs li img {
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  opacity: 0.6;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+.woocommerce.single-product .flex-control-thumbs li img.flex-active,
+.woocommerce.single-product .flex-control-thumbs li img:hover {
+  opacity: 1;
+  border-color: var(--roji-accent);
+}
+
+/* Summary column */
+.woocommerce.single-product .summary .product_title,
+.woocommerce.single-product div.product .product_title {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+  color: var(--roji-text-primary);
+}
+.woocommerce.single-product .summary .price,
+.woocommerce.single-product div.product p.price,
+.woocommerce.single-product div.product span.price {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--roji-text-primary);
+  margin: 4px 0 16px;
+}
+.woocommerce.single-product .summary .price del {
+  color: var(--roji-text-muted);
+  font-weight: 400;
+  margin-right: 8px;
+}
+.woocommerce.single-product .summary .price ins {
+  text-decoration: none;
+  color: var(--roji-accent);
+}
+.woocommerce.single-product .woocommerce-product-details__short-description {
+  color: var(--roji-text-secondary);
+  font-size: 15px;
+  line-height: 1.65;
+  padding: 16px 20px;
+  border-left: 3px solid var(--roji-accent);
+  background: var(--roji-card);
+  border-radius: 0 var(--roji-radius) var(--roji-radius) 0;
+  margin: 0 0 24px;
+}
+
+/* Quantity + add-to-cart row */
+.woocommerce.single-product .summary form.cart {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  background: var(--roji-card);
+}
+.woocommerce.single-product .summary form.cart .quantity {
+  margin: 0;
+}
+.woocommerce.single-product .summary form.cart .single_add_to_cart_button {
+  flex: 1;
+  min-width: 200px;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  background: var(--roji-accent);
+  color: #fff;
+  border: 1px solid var(--roji-accent);
+  border-radius: var(--roji-radius);
+  letter-spacing: 0.01em;
+  transition: background 0.15s, transform 0.15s;
+}
+.woocommerce.single-product .summary form.cart .single_add_to_cart_button:hover {
+  background: var(--roji-accent-hover);
+  transform: translateY(-1px);
+}
+
+/* SKU + meta row */
+.woocommerce.single-product .product_meta {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--roji-border);
+  font-size: 13px;
+  color: var(--roji-text-muted);
+}
+.woocommerce.single-product .product_meta > span {
+  display: block;
+  margin-bottom: 6px;
+}
+.woocommerce.single-product .product_meta a {
+  color: var(--roji-text-secondary);
+}
+.woocommerce.single-product .product_meta a:hover {
+  color: var(--roji-accent);
+}
+
+/* Tabs (Description / Additional info / COA / Research) */
+.woocommerce.single-product .woocommerce-tabs {
+  margin-top: 48px;
+}
+.woocommerce.single-product .woocommerce-tabs ul.tabs {
+  border-bottom: 1px solid var(--roji-border);
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
+}
+.woocommerce.single-product .woocommerce-tabs ul.tabs::before {
+  display: none;
+}
+.woocommerce.single-product .woocommerce-tabs ul.tabs li {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin: 0 24px 0 0;
+  padding: 0;
+}
+.woocommerce.single-product .woocommerce-tabs ul.tabs li::before,
+.woocommerce.single-product .woocommerce-tabs ul.tabs li::after {
+  display: none;
+}
+.woocommerce.single-product .woocommerce-tabs ul.tabs li a {
+  color: var(--roji-text-muted);
+  font-size: 13px;
+  font-family: var(--roji-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 14px 0;
+  display: inline-block;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.woocommerce.single-product .woocommerce-tabs ul.tabs li a:hover {
+  color: var(--roji-text-secondary);
+}
+.woocommerce.single-product .woocommerce-tabs ul.tabs li.active a {
+  color: var(--roji-text-primary);
+  border-bottom-color: var(--roji-accent);
+}
+.woocommerce.single-product .woocommerce-tabs .panel {
+  background: transparent;
+  border: none;
+  margin-top: 24px;
+  padding: 0;
+  color: var(--roji-text-secondary);
+  line-height: 1.7;
+}
+.woocommerce.single-product .woocommerce-tabs .panel h2 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--roji-text-primary);
+  margin-bottom: 12px;
+}
+
+/* Related / upsell rows */
+.woocommerce.single-product .related,
+.woocommerce.single-product .upsells {
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--roji-border);
+}
+.woocommerce.single-product .related > h2,
+.woocommerce.single-product .upsells > h2 {
+  font-size: 13px;
+  font-family: var(--roji-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--roji-accent);
+  margin-bottom: 24px;
+}
+
+/* Stock status pill */
+.woocommerce.single-product .stock {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-family: var(--roji-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+.woocommerce.single-product .stock.in-stock {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--roji-success);
+}
+.woocommerce.single-product .stock.out-of-stock {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--roji-danger);
+}
+
+/* Variation form (if Subscriptions plugin adds an autoship variant) */
+.woocommerce.single-product .variations {
+  width: 100%;
+  margin: 0 0 16px;
+}
+.woocommerce.single-product .variations td.label label {
+  color: var(--roji-text-secondary);
+  font-size: 13px;
+  font-family: var(--roji-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* On mobile, stack the gallery + summary cleanly */
+@media (max-width: 768px) {
+  .woocommerce.single-product .product .images,
+  .woocommerce.single-product .product .summary {
+    width: 100% !important;
+    float: none !important;
+    margin-bottom: 24px;
+  }
+}

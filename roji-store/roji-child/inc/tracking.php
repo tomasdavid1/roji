@@ -123,6 +123,84 @@ add_action(
 );
 
 /**
+ * Fire generic funnel-step events on shop / cart / checkout pages so we
+ * can build a clean funnel report in GA4 without relying solely on
+ * `page_view` URL matching (which is fragile across WC versions).
+ *
+ *   - `shop_view`     — anywhere on the WC shop archive or a single-product page
+ *   - `cart_view`     — anywhere on the cart page (any source, not just deep-link)
+ *   - `checkout_view` — anywhere on the checkout page, regardless of payment method
+ *
+ * Combined with `roji-tools` events (`tool_view`, `directory_card_click`,
+ * `store_outbound_click`) and the `reserve_order_submitted` from the
+ * Reserve gateway, this gives us the complete cross-domain funnel:
+ *
+ *   tool_view (tools.) → store_outbound_click → shop_view → add_to_cart
+ *   → cart_view → checkout_view → reserve_order_submitted (or purchase)
+ */
+add_action(
+	'wp_footer',
+	function () {
+		if ( empty( ROJI_GADS_ID ) && empty( ROJI_GA4_ID ) ) {
+			return;
+		}
+		if ( ! function_exists( 'is_shop' ) ) {
+			return; // WC not loaded yet.
+		}
+
+		$event = '';
+		$extra = array();
+
+		if ( is_shop() || is_product_category() || is_product_tag() ) {
+			$event = 'shop_view';
+			$extra = array( 'shop_section' => is_shop() ? 'all' : ( is_product_category() ? 'category' : 'tag' ) );
+		} elseif ( is_product() ) {
+			global $post;
+			$product = $post ? wc_get_product( $post->ID ) : null;
+			$event   = 'product_view';
+			$extra   = array(
+				'item_id'   => $product ? (string) $product->get_sku() : '',
+				'item_name' => $product ? (string) $product->get_name() : '',
+				'price'     => $product ? (float) $product->get_price() : 0,
+			);
+		} elseif ( is_cart() ) {
+			$event = 'cart_view';
+			$cart  = WC()->cart;
+			if ( $cart ) {
+				$extra = array(
+					'value'       => (float) $cart->get_total( 'edit' ),
+					'currency'    => get_woocommerce_currency(),
+					'items_count' => (int) $cart->get_cart_contents_count(),
+				);
+			}
+		} elseif ( is_checkout() && ! is_wc_endpoint_url( 'order-received' ) ) {
+			$event = 'checkout_view';
+			$cart  = WC()->cart;
+			if ( $cart ) {
+				$extra = array(
+					'value'       => (float) $cart->get_total( 'edit' ),
+					'currency'    => get_woocommerce_currency(),
+					'items_count' => (int) $cart->get_cart_contents_count(),
+				);
+			}
+		}
+
+		if ( empty( $event ) ) {
+			return;
+		}
+		?>
+<script>
+(function () {
+  if (typeof gtag !== 'function') return;
+  gtag('event', <?php echo wp_json_encode( $event ); ?>, <?php echo wp_json_encode( $extra ); ?>);
+})();
+</script>
+		<?php
+	},
+	35
+);
+
+/**
  * Fire purchase conversion + ecommerce on the WooCommerce thank-you page.
  *
  * @param int $order_id Order ID.
