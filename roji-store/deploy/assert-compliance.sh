@@ -149,27 +149,26 @@ else
     echo "::warning::Lowercase 'roji' wordmark text not found in homepage markup - check the header rendering"
   fi
 
-  # DEBUG: dump the first <header>...</header> block so we can see
-  # what Hello Elementor (or Elementor Pro header builder) is actually
-  # rendering. Limited to 3000 chars so the log doesn't explode.
+  # DEBUG: dump the .site-branding block specifically so we see the
+  # exact text + tags around the logo/title.
   echo ""
-  echo "  --- header block dump (debug) ---"
-  python3 - <<PY 2>/dev/null || echo "$home_html" | grep -i -m1 -A40 '<header' | head -60
-import re, sys, os
+  echo "  --- site-branding block dump (debug) ---"
+  python3 - <<PY 2>/dev/null
+import re
 html = """$home_html"""
-# Find first <header...>...</header>
-m = re.search(r'<header[^>]*>.*?</header>', html, re.DOTALL | re.IGNORECASE)
+m = re.search(r'<div[^>]*class="[^"]*site-branding[^"]*"[^>]*>(.*?)</header>', html, re.DOTALL | re.IGNORECASE)
 if m:
-    chunk = m.group(0)
-    print(chunk[:3000])
+    print(m.group(0)[:2500])
 else:
-    # No <header> tag - look for anything with 'logo' or 'site-title'
-    candidates = re.findall(r'<(?:a|span|div|h1|p)[^>]*(?:site-title|custom-logo|site-branding|logo)[^>]*>.*?</(?:a|span|div|h1|p)>', html, re.DOTALL | re.IGNORECASE)
-    for c in candidates[:5]:
-        print(c[:500])
-        print('---')
+    print("(no site-branding block found)")
 PY
-  echo "  --- end header dump ---"
+  echo "  --- end dump ---"
+
+  # Also report active theme
+  echo "  --- active theme + has_custom_logo state ---"
+  remote "wp theme list --status=active --format=csv" || true
+  remote "wp eval 'var_export(has_custom_logo()); echo \" / blogname: \"; echo get_bloginfo(\"name\");'" || true
+  echo ""
 fi
 
 if [[ "$fail" -ne 0 ]]; then
