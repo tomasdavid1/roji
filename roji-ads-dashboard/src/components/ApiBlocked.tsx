@@ -1,4 +1,5 @@
 import { apiMode } from "@/lib/google-ads";
+import { TrustpilotSummaryCard } from "@/components/TrustpilotSummaryCard";
 
 /**
  * Shown on dashboard pages when the Google Ads API call throws.
@@ -11,9 +12,13 @@ import { apiMode } from "@/lib/google-ads";
 export function ApiBlocked({
   pageLabel,
   error,
+  showAuxiliary = false,
 }: {
   pageLabel: string;
   error: unknown;
+  /** When true, also render auxiliary cards (Trustpilot etc.) that don't
+   *  depend on Google Ads. Use on /performance specifically. */
+  showAuxiliary?: boolean;
 }) {
   const message =
     error instanceof Error ? error.message : "Unknown error from Google Ads API.";
@@ -38,6 +43,12 @@ export function ApiBlocked({
           request. No code changes needed.
         </p>
       </div>
+
+      {showAuxiliary && (
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-3 mt-6">
+          <TrustpilotSummaryCard />
+        </section>
+      )}
     </div>
   );
 }

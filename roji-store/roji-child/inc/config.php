@@ -77,6 +77,78 @@ if ( ! defined( 'ROJI_PROTOCOL_URL' ) ) {
 	define( 'ROJI_PROTOCOL_URL', 'https://protocol.rojipeptides.com' );
 }
 
+/* -----------------------------------------------------------------------------
+ * Trustpilot
+ *
+ * Wired up but inert until the four secrets are supplied via wp-config.php
+ * or the environment. To populate them, add to wp-config.php (preferred):
+ *
+ *     define( 'ROJI_TRUSTPILOT_BUSINESS_UNIT_ID', 'xxxxxxxxxxxxxxxxxxxxxxxx' );
+ *     define( 'ROJI_TRUSTPILOT_API_KEY',          'xxxxxxxxxxxxxxxxxxxxxxxx' );
+ *     define( 'ROJI_TRUSTPILOT_API_SECRET',       'xxxxxxxxxxxxxxxxxxxxxxxx' );
+ *     define( 'ROJI_TRUSTPILOT_BUSINESS_USER_ID', 'xxxxxxxxxxxxxxxxxxxxxxxx' );
+ *
+ * Business Unit ID is public (it appears in widget HTML). The other three
+ * are server-side secrets used by the AFS invitation API. Never commit them.
+ * -------------------------------------------------------------------------- */
+
+if ( ! defined( 'ROJI_TRUSTPILOT_BUSINESS_UNIT_ID' ) ) {
+	define( 'ROJI_TRUSTPILOT_BUSINESS_UNIT_ID', '' );
+}
+if ( ! defined( 'ROJI_TRUSTPILOT_API_KEY' ) ) {
+	define( 'ROJI_TRUSTPILOT_API_KEY', '' );
+}
+if ( ! defined( 'ROJI_TRUSTPILOT_API_SECRET' ) ) {
+	define( 'ROJI_TRUSTPILOT_API_SECRET', '' );
+}
+// User ID is required as the `x-business-user-id` header when authenticating
+// via client_credentials (per Trustpilot OAuth docs). Find it in your
+// Trustpilot Business app's user profile page.
+if ( ! defined( 'ROJI_TRUSTPILOT_BUSINESS_USER_ID' ) ) {
+	define( 'ROJI_TRUSTPILOT_BUSINESS_USER_ID', '' );
+}
+// Domain Trustpilot reviews are tied to. Used as the `referenceId` host
+// segment and as a sanity check.
+if ( ! defined( 'ROJI_TRUSTPILOT_DOMAIN' ) ) {
+	define( 'ROJI_TRUSTPILOT_DOMAIN', 'rojipeptides.com' );
+}
+// Locale + sender for invitation emails.
+if ( ! defined( 'ROJI_TRUSTPILOT_LOCALE' ) ) {
+	define( 'ROJI_TRUSTPILOT_LOCALE', 'en-US' );
+}
+if ( ! defined( 'ROJI_TRUSTPILOT_SENDER_NAME' ) ) {
+	define( 'ROJI_TRUSTPILOT_SENDER_NAME', ROJI_BRAND_NAME );
+}
+// Optional: a custom invitation template ID created in Trustpilot Business.
+// If empty, Trustpilot uses your default AFS template.
+if ( ! defined( 'ROJI_TRUSTPILOT_TEMPLATE_ID' ) ) {
+	define( 'ROJI_TRUSTPILOT_TEMPLATE_ID', '' );
+}
+// Days to wait between order completion and the invitation email being sent.
+// 7 days is the Trustpilot default and gives time for the package to arrive.
+if ( ! defined( 'ROJI_TRUSTPILOT_INVITATION_DELAY_DAYS' ) ) {
+	define( 'ROJI_TRUSTPILOT_INVITATION_DELAY_DAYS', 7 );
+}
+
+/**
+ * True when all required Trustpilot secrets are present (so we can short-circuit
+ * widget rendering / AFS calls without wiring complex feature flags).
+ */
+function roji_trustpilot_enabled() {
+	return ROJI_TRUSTPILOT_BUSINESS_UNIT_ID !== ''
+		&& ROJI_TRUSTPILOT_API_KEY !== ''
+		&& ROJI_TRUSTPILOT_API_SECRET !== ''
+		&& ROJI_TRUSTPILOT_BUSINESS_USER_ID !== '';
+}
+
+/**
+ * True when the public Business Unit ID is set — enough to render TrustBox
+ * widgets even if AFS isn't configured.
+ */
+function roji_trustpilot_widgets_enabled() {
+	return ROJI_TRUSTPILOT_BUSINESS_UNIT_ID !== '';
+}
+
 /**
  * Map a protocol_stack slug to a WooCommerce product ID.
  *

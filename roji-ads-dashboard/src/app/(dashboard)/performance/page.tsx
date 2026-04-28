@@ -1,6 +1,7 @@
 import { getCampaignPerformance } from "@/lib/google-ads";
 import { MetricCard } from "@/components/MetricCard";
 import { ApiBlocked } from "@/components/ApiBlocked";
+import { TrustpilotSummaryCard } from "@/components/TrustpilotSummaryCard";
 import { fmtInt, fmtPct, fmtUsd } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +11,7 @@ export default async function PerformancePage() {
   try {
     rows = await getCampaignPerformance("LAST_30_DAYS");
   } catch (err) {
-    return <ApiBlocked pageLabel="Performance" error={err} />;
+    return <ApiBlocked pageLabel="Performance" error={err} showAuxiliary />;
   }
 
   const totals = rows.reduce(
@@ -36,12 +37,16 @@ export default async function PerformancePage() {
         </p>
       </header>
 
-      <section className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-10">
+      <section className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
         <MetricCard label="Impressions" value={fmtInt(totals.impressions)} />
         <MetricCard label="Clicks" value={fmtInt(totals.clicks)} hint={`${fmtPct(ctr)} CTR`} />
         <MetricCard label="Spend" value={fmtUsd(totals.cost_usd)} />
         <MetricCard label="Conversions" value={fmtInt(totals.conversions)} />
         <MetricCard label="CPA" value={fmtUsd(cpa)} />
+      </section>
+
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-10">
+        <TrustpilotSummaryCard />
       </section>
 
       <section>
