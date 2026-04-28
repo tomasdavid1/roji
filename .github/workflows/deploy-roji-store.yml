@@ -161,6 +161,20 @@ jobs:
           sshpass -e ssh -o StrictHostKeyChecking=accept-new -p "$PORT" "$USER@$HOST" \
             "cd '$WP_PATH' && wp eval-file wp-content/mu-plugins/roji-elementor-templates/import.php $arg"
 
+      - name: Wire product featured images (idempotent)
+        if: github.event.inputs.dry_run != 'true'
+        env:
+          SSHPASS: ${{ secrets.KINSTA_SSH_PASSWORD }}
+          HOST: ${{ secrets.KINSTA_SSH_HOST }}
+          PORT: ${{ secrets.KINSTA_SSH_PORT }}
+          USER: ${{ secrets.KINSTA_SSH_USER }}
+          WP_PATH: ${{ secrets.KINSTA_WP_PATH }}
+        run: |
+          # No-op for products that already have the matching featured image.
+          # Skips silently if the product is missing (script tolerates that).
+          sshpass -e ssh -o StrictHostKeyChecking=accept-new -p "$PORT" "$USER@$HOST" \
+            "cd '$WP_PATH' && wp eval-file wp-content/mu-plugins/roji-scripts/wire-product-images.php"
+
       - name: Activate child theme + flush caches
         if: github.event.inputs.dry_run != 'true'
         env:
@@ -171,7 +185,7 @@ jobs:
           WP_PATH: ${{ secrets.KINSTA_WP_PATH }}
         run: |
           sshpass -e ssh -o StrictHostKeyChecking=accept-new -p "$PORT" "$USER@$HOST" \
-            "cd '$WP_PATH' && wp theme activate roji-child --quiet 2>/dev/null || true && wp cache flush --quiet 2>/dev/null || true"
+            "cd '$WP_PATH' && wp theme activate roji-child --quiet 2>/dev/null || true && wp cache flush --quiet 2>/dev/null || true && wp transient delete --all --quiet 2>/dev/null || true"
 
       - name: Smoke test homepage
         if: github.event.inputs.dry_run != 'true'
