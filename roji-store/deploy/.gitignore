@@ -1,0 +1,5 @@
+.env
+*.sql
+*.sql.gz
+uploads.tar.gz
+known_hosts

@@ -1,0 +1,142 @@
+name: Deploy roji-store to Kinsta
+
+# Auto-deploys the WordPress child theme + Elementor template scripts
+# to the Kinsta production environment whenever roji-store/ changes
+# on main. The DB and uploads are NOT touched — those are handled by
+# scripts in roji-store/deploy/ run manually from a developer's machine.
+#
+# Required GitHub repo secrets (Settings → Secrets → Actions):
+#   KINSTA_SSH_HOST       - e.g. NN.NN.NN.NN or kinsta.cloud
+#   KINSTA_SSH_PORT       - e.g. 12345
+#   KINSTA_SSH_USER       - your Kinsta SFTP username
+#   KINSTA_SSH_PASSWORD   - your Kinsta SFTP password
+#   KINSTA_WP_PATH        - e.g. /www/rojipeptides_123/public
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'roji-store/**'
+      - '.github/workflows/deploy-roji-store.yml'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no writes)'
+        required: false
+        default: 'false'
+
+concurrency:
+  group: deploy-roji-store
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP for linting
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: none
+          coverage: none
+
+      - name: Lint PHP files
+        run: |
+          set -euo pipefail
+          fail=0
+          while IFS= read -r -d '' f; do
+            php -l "$f" >/dev/null || { php -l "$f" >&2; fail=$((fail+1)); }
+          done < <(find roji-store -type f -name '*.php' -print0)
+          if [ "$fail" -gt 0 ]; then
+            echo "::error::$fail PHP file(s) failed lint."
+            exit 1
+          fi
+
+      - name: Install sshpass + rsync
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq sshpass rsync
+
+      - name: Configure SSH known_hosts
+        env:
+          HOST: ${{ secrets.KINSTA_SSH_HOST }}
+          PORT: ${{ secrets.KINSTA_SSH_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "$PORT" -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Verify Kinsta SSH connection
+        env:
+          SSHPASS: ${{ secrets.KINSTA_SSH_PASSWORD }}
+          HOST: ${{ secrets.KINSTA_SSH_HOST }}
+          PORT: ${{ secrets.KINSTA_SSH_PORT }}
+          USER: ${{ secrets.KINSTA_SSH_USER }}
+          WP_PATH: ${{ secrets.KINSTA_WP_PATH }}
+        run: |
+          sshpass -e ssh -o StrictHostKeyChecking=accept-new -p "$PORT" "$USER@$HOST" \
+            "cd '$WP_PATH' && wp core version --skip-themes --skip-plugins"
+
+      - name: Rsync roji-child theme
+        env:
+          SSHPASS: ${{ secrets.KINSTA_SSH_PASSWORD }}
+          HOST: ${{ secrets.KINSTA_SSH_HOST }}
+          PORT: ${{ secrets.KINSTA_SSH_PORT }}
+          USER: ${{ secrets.KINSTA_SSH_USER }}
+          WP_PATH: ${{ secrets.KINSTA_WP_PATH }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          flags="-avz --delete --exclude=.DS_Store --exclude=node_modules --exclude='*.log'"
+          if [ "$DRY_RUN" = "true" ]; then flags="$flags --dry-run"; fi
+          sshpass -e rsync $flags \
+            -e "ssh -o StrictHostKeyChecking=accept-new -p $PORT" \
+            roji-store/roji-child/ \
+            "$USER@$HOST:$WP_PATH/wp-content/themes/roji-child/"
+
+      - name: Rsync Elementor template scripts (mu-plugin)
+        env:
+          SSHPASS: ${{ secrets.KINSTA_SSH_PASSWORD }}
+          HOST: ${{ secrets.KINSTA_SSH_HOST }}
+          PORT: ${{ secrets.KINSTA_SSH_PORT }}
+          USER: ${{ secrets.KINSTA_SSH_USER }}
+          WP_PATH: ${{ secrets.KINSTA_WP_PATH }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          sshpass -e ssh -o StrictHostKeyChecking=accept-new -p "$PORT" "$USER@$HOST" \
+            "mkdir -p '$WP_PATH/wp-content/mu-plugins/roji-elementor-templates' '$WP_PATH/wp-content/mu-plugins/roji-scripts'"
+          flags="-avz --delete --exclude=.DS_Store"
+          if [ "$DRY_RUN" = "true" ]; then flags="$flags --dry-run"; fi
+          sshpass -e rsync $flags \
+            -e "ssh -o StrictHostKeyChecking=accept-new -p $PORT" \
+            roji-store/elementor-templates/ \
+            "$USER@$HOST:$WP_PATH/wp-content/mu-plugins/roji-elementor-templates/"
+          sshpass -e rsync $flags \
+            -e "ssh -o StrictHostKeyChecking=accept-new -p $PORT" \
+            roji-store/scripts/ \
+            "$USER@$HOST:$WP_PATH/wp-content/mu-plugins/roji-scripts/"
+
+      - name: Activate child theme + flush caches
+        if: github.event.inputs.dry_run != 'true'
+        env:
+          SSHPASS: ${{ secrets.KINSTA_SSH_PASSWORD }}
+          HOST: ${{ secrets.KINSTA_SSH_HOST }}
+          PORT: ${{ secrets.KINSTA_SSH_PORT }}
+          USER: ${{ secrets.KINSTA_SSH_USER }}
+          WP_PATH: ${{ secrets.KINSTA_WP_PATH }}
+        run: |
+          sshpass -e ssh -o StrictHostKeyChecking=accept-new -p "$PORT" "$USER@$HOST" \
+            "cd '$WP_PATH' && wp theme activate roji-child --quiet 2>/dev/null || true && wp cache flush --quiet 2>/dev/null || true"
+
+      - name: Smoke test homepage
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          rc=$(curl -s -o /dev/null -w '%{http_code}' -L https://rojipeptides.com/)
+          echo "rojipeptides.com → HTTP $rc"
+          if [ "$rc" != "200" ] && [ "$rc" != "301" ] && [ "$rc" != "302" ]; then
+            echo "::warning::Homepage did not return 200/301/302 (got $rc) — investigate"
+          fi

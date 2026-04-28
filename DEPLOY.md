@@ -226,19 +226,42 @@ CNAME  admin-ads   cname.vercel-dns.com
 
 ---
 
-## 5. WordPress storefront
+## 5. WordPress storefront — Kinsta deploy
 
-The `roji-store/` directory in this repo is **not** a deploy target for Vercel — it's a child theme + a product seeder script that you drop into a real WordPress install. See [`roji-store/README.md`](./roji-store/README.md) for the full setup walkthrough (LocalWP / Docker / Kinsta / Cloudways).
+The `roji-store/` directory is the source of truth. It deploys to Kinsta in three layers:
 
-After WP is up:
+| Layer | Tool | Frequency |
+|---|---|---|
+| Theme + Elementor template scripts | `roji-store/deploy/deploy-theme.sh` **or** GitHub Action `.github/workflows/deploy-roji-store.yml` (auto on push to main) | every code change |
+| Initial DB + uploads + plugin set | `roji-store/deploy/migrate-to-kinsta.sh` | once |
+| Occasional DB pushes | `roji-store/deploy/db-push.sh` | as needed |
 
-1. Activate `roji-child` theme.
-2. Run the seeder: `wp eval-file scripts/import-products.php`.
-3. Copy the printed product IDs into `roji-child/inc/config.php`.
-4. Add tracking IDs (`ROJI_GADS_ID`, `ROJI_GA4_ID`, `ROJI_GADS_PURCHASE_LABEL`) to the same file.
-5. Install your high-risk payment gateway plugin and configure it.
+**Full walkthrough:** [`roji-store/deploy/README.md`](./roji-store/deploy/README.md).
 
-The protocol engine deep-link (`/cart/?protocol_stack=wolverine`) only works once those product IDs are filled in.
+Quick path:
+
+1. **YOU**: in MyKinsta, **Add site** → **Install WordPress (PHP 8.2 + WP 6.9.4)**. Attach `rojipeptides.com`.
+2. **YOU**: copy SFTP/SSH creds from MyKinsta → Info → SFTP/SSH.
+3. Configure the local `.env`:
+   ```bash
+   cd roji-store/deploy
+   cp .env.example .env
+   chmod 600 .env
+   $EDITOR .env
+   ```
+4. Run the one-shot migration:
+   ```bash
+   ./migrate-to-kinsta.sh
+   ```
+   This dumps the LocalWP database, uploads it, runs `wp search-replace`, syncs `wp-content/uploads/`, pushes the child theme + Elementor templates, installs WooCommerce/Elementor/etc., and activates `roji-child`.
+5. **YOU**: add the same five Kinsta credentials as **GitHub repo secrets** so future pushes auto-deploy:
+   `KINSTA_SSH_HOST`, `KINSTA_SSH_PORT`, `KINSTA_SSH_USER`, `KINSTA_SSH_PASSWORD`, `KINSTA_WP_PATH`.
+6. **YOU**: SSH into Kinsta and add to `wp-config.php` (above `require_once ABSPATH . 'wp-settings.php';`):
+   ```php
+   define( 'ROJI_INTERNAL_API_TOKEN', '<value from your password manager>' );
+   ```
+
+The protocol-engine deep-link (`/cart/?protocol_stack=wolverine`) only works once products are seeded. The migration script handles that — the LocalWP DB already contains the products.
 
 ---
 
