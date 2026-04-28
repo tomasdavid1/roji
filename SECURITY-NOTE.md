@@ -4,10 +4,11 @@
 
 During setup, the following credentials were shared in plain chat:
 
-- **Google OAuth Client ID**: `455608725935-...` (not secret)
-- **Google OAuth Client Secret**: `GOCSPX-F3-...` (**SECRET — rotate**)
+- **Google OAuth Client ID** (not secret)
+- **Google OAuth Client Secret** (**SECRET — rotate**)
 - **Google Ads Customer ID**: `667-978-0942` (not secret)
-- **Google Ads Developer Token**: `UWqlm9Z...` (**SECRET — rotate**)
+- **Google Ads Developer Token** (**SECRET — rotate**)
+- **Google Ads OAuth Refresh Token** (**SECRET — rotate**)
 
 Two values are sensitive and need to be rotated: the OAuth client secret and the developer token. Client IDs and Customer IDs are not secrets — they show up in OAuth redirect URLs and in Google's UI.
 
@@ -16,7 +17,7 @@ Two values are sensitive and need to be rotated: the OAuth client secret and the
 ### Rotate the OAuth client secret
 
 1. Go to [Google Cloud Console → APIs & Services → Credentials](https://console.cloud.google.com/apis/credentials).
-2. Click your **OAuth 2.0 Client ID** (matching `455608725935-...`).
+2. Click your **OAuth 2.0 Client ID**.
 3. Click **Reset secret** (top right). Copy the new value.
 4. Update [`roji-ads-dashboard/.env.local`](./roji-ads-dashboard/.env.local) → `GOOGLE_ADS_CLIENT_SECRET`.
 5. Re-run [`scripts/get-refresh-token.js`](./roji-ads-dashboard/scripts/get-refresh-token.js) to mint a fresh refresh token under the new secret.
@@ -30,7 +31,17 @@ Two values are sensitive and need to be rotated: the OAuth client secret and the
 4. Update [`roji-ads-dashboard/.env.local`](./roji-ads-dashboard/.env.local) → `GOOGLE_ADS_DEVELOPER_TOKEN`.
 5. If deployed to Vercel: update the same env var and redeploy.
 
-> Tip: do both rotations in one sitting — refresh tokens are tied to the client secret, but the developer token is independent.
+### Rotate the refresh token
+
+The refresh token was also pasted in chat, so it should be revoked.
+
+1. Go to <https://myaccount.google.com/permissions>.
+2. Find your OAuth client (named after the Google Cloud project), click it, then **Remove access**.
+3. Re-run [`scripts/get-refresh-token.js`](./roji-ads-dashboard/scripts/get-refresh-token.js) to mint a new one.
+4. Update [`roji-ads-dashboard/.env.local`](./roji-ads-dashboard/.env.local) → `GOOGLE_ADS_REFRESH_TOKEN`.
+5. If deployed to Vercel: update the same env var and redeploy.
+
+> Tip: do all rotations in one sitting. The refresh token is tied to the client secret — if you rotate the secret, the existing refresh token stops working anyway, so you'd be re-running the script either way.
 
 ## Going forward
 

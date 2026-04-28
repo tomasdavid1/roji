@@ -8,7 +8,7 @@ End-to-end checklist for getting the three projects live.
 
 ## 0. Before you do anything
 
-**Rotate the leaked OAuth client secret.** The current `GOOGLE_ADS_CLIENT_SECRET` (`GOCSPX-F3-...`) was shared in chat and should be considered compromised.
+**Rotate the leaked OAuth client secret.** The current `GOOGLE_ADS_CLIENT_SECRET` was shared in chat and should be considered compromised.
 
 1. Open Google Cloud Console → **APIs & Services → Credentials**.
 2. Click your OAuth 2.0 Client ID.
@@ -79,7 +79,7 @@ Make sure the script is still running in the terminal. The browser redirects to 
 
 ### Google Ads developer token + Basic Access
 
-You have a developer token (`UWqlm9Z...`, currently in **Test Account Access** mode), wired into [`roji-ads-dashboard/.env.local`](./roji-ads-dashboard/.env.local).
+You have a developer token (currently in **Test Account Access** mode), wired into [`roji-ads-dashboard/.env.local`](./roji-ads-dashboard/.env.local).
 
 **Account topology:**
 
@@ -97,7 +97,7 @@ A test-mode token can only call the API against [Google Ads test accounts](https
    | Field | Suggested answer |
    | --- | --- |
    | Tool name | Roji Ads Dashboard |
-   | Tool URL | `https://admin-ads.rojipeptides.com` (or `https://github.com/<you>/roji-platform` if not yet deployed) |
+   | Tool URL | `https://admin-ads.rojipeptides.com` (or `https://github.com/tomasdavid1/roji` if not yet deployed) |
    | Tool description | Internal admin dashboard for managing Google Ads search campaigns for Roji Peptides. Read-only metrics views (campaigns, keywords, performance) plus a server-validated campaign creation flow that runs an internal ad-copy safety check before submitting. Single user (the business owner). No third-party data sharing. |
    | Tool's primary purpose | Reporting + campaign management |
    | Estimated monthly API calls | < 5,000 (single-user internal admin) |
@@ -129,41 +129,20 @@ If all four `GOOGLE_ADS_*` values are set, the nav pill flips to `Live API`. If 
 
 ## 2. GitHub repo
 
-The repo is already initialized locally with `user.email = tomasdaavid@gmail.com`. Verify:
+Local repo:
+
+- Identity: `Tomas David <tomasdaavid@gmail.com>`
+- Remote: `git@github.com:tomasdavid1/roji.git` (already configured)
+- Branch: `main`
+
+To push:
 
 ```bash
 cd /Users/tomas/Roji
-git config --get user.email   # should print tomasdaavid@gmail.com
-git log --oneline -1
+git push -u origin main
 ```
 
-### Create the GitHub repo
-
-Two options:
-
-**Option A — `gh` CLI (fastest):**
-
-```bash
-# YOU: install + auth gh first
-brew install gh
-gh auth login   # follow the prompts; pick your personal GitHub account
-# Then:
-cd /Users/tomas/Roji
-gh repo create roji-platform --private --source=. --push
-```
-
-**Option B — Web:**
-
-1. **YOU**: <https://github.com/new>, create `roji-platform` (private).
-2. Run:
-
-   ```bash
-   cd /Users/tomas/Roji
-   git remote add origin git@github.com:<your-username>/roji-platform.git
-   git push -u origin main
-   ```
-
-> Either way: confirm the commit author shows `tomasdaavid@gmail.com` on GitHub, not your work email.
+> The first push uses your existing GitHub SSH key. Verify with `ssh -T git@github.com` (should print `Hi tomasdavid1! ...`).
 
 ---
 
@@ -172,7 +151,7 @@ gh repo create roji-platform --private --source=. --push
 Each Next.js project becomes its own Vercel project so they can be deployed and updated independently.
 
 1. **YOU**: <https://vercel.com/new>, sign in with your personal GitHub.
-2. Import the `roji-platform` repo.
+2. Import the `tomasdavid1/roji` repo.
 3. **Root Directory**: `roji-protocol`
 4. **Framework Preset**: Next.js (auto-detected)
 5. **Environment variables** (Production + Preview):
@@ -202,7 +181,7 @@ Or use the exact records Vercel shows you.
 
 ## 4. Vercel — Ads Dashboard
 
-1. **YOU**: <https://vercel.com/new>, import `roji-platform` again as a **second** Vercel project.
+1. **YOU**: <https://vercel.com/new>, import `tomasdavid1/roji` again as a **second** Vercel project.
 2. **Root Directory**: `roji-ads-dashboard`
 3. **Environment variables**:
 
