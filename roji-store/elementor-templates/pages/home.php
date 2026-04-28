@@ -178,22 +178,22 @@ return array(
 			roji_el_spacer( 32 ),
 			roji_el_grid( array(
 				roji_el_card( array(
-					roji_el_html( '<div style="font-size:36px;line-height:1;">🧪</div>' ),
+					roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.15em;text-transform:uppercase;">01 / Lab tested</div>' ),
 					roji_el_heading( 'Independent COA per batch', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 18, 'sizes' => array() ) ) ),
 					roji_el_text( '<p>HPLC + MS via Janoshik Analytical. PDFs published with batch numbers. <a href="/coa/">View library →</a></p>' ),
 				) ),
 				roji_el_card( array(
-					roji_el_html( '<div style="font-size:36px;line-height:1;">📚</div>' ),
+					roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.15em;text-transform:uppercase;">02 / Cited</div>' ),
 					roji_el_heading( 'PubMed-cited products', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 18, 'sizes' => array() ) ) ),
 					roji_el_text( '<p>Every compound page links to the foundational peer-reviewed literature. No anecdotes. <a href="/research-library/">Read the library →</a></p>' ),
 				) ),
 				roji_el_card( array(
-					roji_el_html( '<div style="font-size:36px;line-height:1;">🚚</div>' ),
+					roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.15em;text-transform:uppercase;">03 / Shipping</div>' ),
 					roji_el_heading( 'Discreet · USPS Priority', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 18, 'sizes' => array() ) ) ),
 					roji_el_text( '<p>Plain unmarked packaging. Free over $200, always free on autoship. <a href="/shipping/">Shipping policy →</a></p>' ),
 				) ),
 				roji_el_card( array(
-					roji_el_html( '<div style="font-size:36px;line-height:1;">💳</div>' ),
+					roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.15em;text-transform:uppercase;">04 / Payments</div>' ),
 					roji_el_heading( 'Card or crypto', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 18, 'sizes' => array() ) ) ),
 					roji_el_text( '<p>Multiple high-risk-friendly card processors with crypto fallback if a card declines. No drama.</p>' ),
 				) ),
