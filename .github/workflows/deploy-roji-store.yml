@@ -37,6 +37,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Set up PHP for linting
         uses: shivammathur/setup-php@v2
@@ -119,6 +121,45 @@ jobs:
             -e "ssh -o StrictHostKeyChecking=accept-new -p $PORT" \
             roji-store/scripts/ \
             "$USER@$HOST:$WP_PATH/wp-content/mu-plugins/roji-scripts/"
+
+      - name: Detect changed Elementor pages
+        id: changed_pages
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          # Compare against the previous commit. On first push of a workflow
+          # change there's no prior commit, in which case we rebuild all pages.
+          if git rev-parse HEAD~1 >/dev/null 2>&1; then
+            changed=$(git diff --name-only HEAD~1 HEAD -- 'roji-store/elementor-templates/pages/' | sed 's|.*/||;s|\.php$||' | tr '\n' ',' | sed 's/,$//')
+          else
+            changed=""
+          fi
+          # If any shared lib (lib/builder.php, header/footer chrome, etc.)
+          # changed, all pages need to rebuild because their output depends on it.
+          if git diff --name-only HEAD~1 HEAD -- 'roji-store/elementor-templates/lib/' 'roji-store/elementor-templates/import.php' | grep -q .; then
+            changed="ALL"
+          fi
+          echo "Changed page slugs: ${changed:-none}"
+          echo "slugs=$changed" >> "$GITHUB_OUTPUT"
+
+      - name: Rebuild changed Elementor pages
+        if: github.event.inputs.dry_run != 'true' && steps.changed_pages.outputs.slugs != ''
+        env:
+          SSHPASS: ${{ secrets.KINSTA_SSH_PASSWORD }}
+          HOST: ${{ secrets.KINSTA_SSH_HOST }}
+          PORT: ${{ secrets.KINSTA_SSH_PORT }}
+          USER: ${{ secrets.KINSTA_SSH_USER }}
+          WP_PATH: ${{ secrets.KINSTA_WP_PATH }}
+          SLUGS: ${{ steps.changed_pages.outputs.slugs }}
+        run: |
+          if [ "$SLUGS" = "ALL" ]; then
+            arg=""
+            echo "Rebuilding all Elementor pages..."
+          else
+            arg="$SLUGS"
+            echo "Rebuilding: $SLUGS"
+          fi
+          sshpass -e ssh -o StrictHostKeyChecking=accept-new -p "$PORT" "$USER@$HOST" \
+            "cd '$WP_PATH' && wp eval-file wp-content/mu-plugins/roji-elementor-templates/import.php $arg"
 
       - name: Activate child theme + flush caches
         if: github.event.inputs.dry_run != 'true'

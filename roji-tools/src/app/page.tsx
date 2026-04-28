@@ -57,7 +57,9 @@ export default function HomePage() {
           </span>
 
           <h1 className="text-[44px] sm:text-[60px] lg:text-[68px] font-semibold mt-5 leading-[1.05] tracking-tightest">
-            Free tools for{" "}
+            Free research tools,
+            <br />
+            built for{" "}
             <TypewriterRotator
               words={["researchers", "biohackers", "the curious", "your lab"]}
               className="text-roji-accent"
