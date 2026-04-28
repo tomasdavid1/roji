@@ -44,6 +44,7 @@ export const metadata: Metadata = {
     title: "Free Research Tools — Roji Peptides",
     description:
       "Calculators, analyzers, and databases for the research community. Free, no signup, open references.",
+    images: ["/opengraph-image.png"],
   },
   alternates: { canonical: SITE_URL },
 };

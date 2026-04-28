@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Roji R monogram - master mark.
+
+  Coordinate system: 0..256, viewBox is square.
+  Color: #4f6df5 (Roji accent).
+
+  Construction notes:
+    - Outer boundary is a square minus a notch - gives the R its
+      modern monolithic feel rather than a traditional letterform.
+    - The bowl (the curved top half) is a rounded rectangle hole.
+    - The leg (the diagonal) is two straight cuts joining at the base.
+    - All radii are exactly 24 (~9% of the 256 box) so the corners
+      read consistent at every scale from 16px to 1024px.
+
+  Use the gradient/glow variants below the base mark for the OG card
+  and large hero contexts. The base mark (#r-mark) is what the
+  favicon set is rasterized from.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <title>Roji</title>
+
+  <defs>
+    <symbol id="r-mark" viewBox="0 0 256 256">
+      <path
+        d="
+          M 56 48
+          L 56 208
+          L 88 208
+          L 88 152
+          L 124 152
+          L 168 208
+          L 208 208
+          L 208 200
+          L 158 142
+          C 184 132 196 116 196 92
+          C 196 64 174 48 142 48
+          Z
+          M 88 80
+          L 138 80
+          C 154 80 164 86 164 100
+          C 164 116 152 124 138 124
+          L 88 124
+          Z
+        "
+        fill="currentColor"
+        fill-rule="evenodd"
+      />
+    </symbol>
+
+    <radialGradient id="bottom-glow" cx="50%" cy="100%" r="65%" fx="50%" fy="100%">
+      <stop offset="0%" stop-color="#4f6df5" stop-opacity="0.85" />
+      <stop offset="40%" stop-color="#4f6df5" stop-opacity="0.30" />
+      <stop offset="100%" stop-color="#4f6df5" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <use href="#r-mark" color="#4f6df5" />
+</svg>

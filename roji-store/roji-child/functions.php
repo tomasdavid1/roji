@@ -17,6 +17,7 @@ define( 'ROJI_CHILD_URI', get_stylesheet_directory_uri() );
 
 require_once ROJI_CHILD_DIR . '/inc/config.php';
 require_once ROJI_CHILD_DIR . '/inc/enqueue.php';
+require_once ROJI_CHILD_DIR . '/inc/branding.php';
 require_once ROJI_CHILD_DIR . '/inc/disclaimers.php';
 require_once ROJI_CHILD_DIR . '/inc/woocommerce.php';
 require_once ROJI_CHILD_DIR . '/inc/tracking.php';
