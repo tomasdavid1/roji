@@ -20,10 +20,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_filter( 'woocommerce_enqueue_styles', '__return_empty_array' );
 
 /**
- * Deep-link handler: ?protocol_stack=wolverine|recomp|full
+ * Deep-link handler: ?protocol_stack=wolverine|recomp|full&qty=N&weeks=W
  *
- * Empties the cart, adds the mapped product, and redirects to checkout.
- * Triggered by the protocol-engine "Get this stack" button.
+ * Empties the cart, adds the mapped product at the requested quantity, and
+ * redirects to the cart so the customer sees the upsell + autoship banner
+ * before checkout.
+ *
+ * The protocol engine sells by the week (e.g. "$50/week") and reveals the
+ * total at the cart. `qty` is the number of supply periods needed to cover
+ * the calibrated cycle (e.g. recomp = 2 four-week supplies for an 8wk
+ * cycle = $398 total). `weeks` is the calibrated cycle length so we can
+ * print "~$50/week for 8 weeks of protocol" under the line item.
  */
 add_action(
 	'template_redirect',
@@ -39,11 +46,79 @@ add_action(
 		if ( $product_id <= 0 ) {
 			return;
 		}
+		$qty   = isset( $_GET['qty'] ) ? max( 1, min( 12, absint( $_GET['qty'] ) ) ) : 1;
+		$weeks = isset( $_GET['weeks'] ) ? max( 1, min( 24, absint( $_GET['weeks'] ) ) ) : 0;
+
+		$item_data = array();
+		if ( $weeks > 0 ) {
+			$item_data['roji_cycle_weeks']    = $weeks;
+			$item_data['roji_supply_periods'] = $qty;
+		}
+
 		WC()->cart->empty_cart();
-		WC()->cart->add_to_cart( $product_id );
-		wp_safe_redirect( wc_get_checkout_url() );
+		WC()->cart->add_to_cart( $product_id, $qty, 0, array(), $item_data );
+		wp_safe_redirect( wc_get_cart_url() );
 		exit;
 	}
+);
+
+/**
+ * Persist roji_cycle_weeks / roji_supply_periods on the cart line item so
+ * we can print a per-week breakdown caption under the stack title.
+ *
+ * The same cart_item_data hash (returned here untouched) is what carries
+ * cycle metadata across page loads via WC()->cart serialization.
+ */
+add_filter(
+	'woocommerce_add_cart_item_data',
+	function ( $cart_item_data, $product_id, $variation_id ) {
+		// Already populated by the deep-link handler — just preserve it.
+		return $cart_item_data;
+	},
+	10,
+	3
+);
+
+/**
+ * Print a subtle per-week breakdown caption under stack line items in
+ * the cart and checkout. Reads the protocol-engine cycle metadata that
+ * the deep-link handler stamped onto the cart item.
+ */
+add_filter(
+	'woocommerce_cart_item_name',
+	function ( $name, $cart_item, $cart_item_key ) {
+		$weeks   = isset( $cart_item['roji_cycle_weeks'] ) ? (int) $cart_item['roji_cycle_weeks'] : 0;
+		$periods = isset( $cart_item['roji_supply_periods'] ) ? (int) $cart_item['roji_supply_periods'] : 0;
+		if ( $weeks <= 0 || $periods <= 0 ) {
+			return $name;
+		}
+		$product = isset( $cart_item['data'] ) ? $cart_item['data'] : null;
+		if ( ! $product || ! is_callable( array( $product, 'get_price' ) ) ) {
+			return $name;
+		}
+		$unit_price = (float) $product->get_price();
+		$total      = $unit_price * max( 1, (int) $cart_item['quantity'] );
+		if ( $total <= 0 || $weeks <= 0 ) {
+			return $name;
+		}
+		$weekly       = (int) round( $total / $weeks );
+		$weekly_price = wc_price(
+			$weekly,
+			array(
+				'decimals' => 0,
+			)
+		);
+		$caption = sprintf(
+			/* translators: 1: total one-time price, 2: weekly equivalent, 3: cycle length in weeks */
+			__( 'One-time payment of %1$s (~%2$s/week for %3$d weeks of protocol)', 'roji-child' ),
+			wc_price( $total ),
+			$weekly_price,
+			$weeks
+		);
+		return $name . '<div class="roji-cart-item-caption" style="margin-top:6px;font-size:12px;color:#888;font-style:italic;line-height:1.4;">' . $caption . '</div>';
+	},
+	10,
+	3
 );
 
 /**

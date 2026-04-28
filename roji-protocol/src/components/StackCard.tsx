@@ -32,6 +32,11 @@ declare global {
 const TEST_MODE = process.env.NEXT_PUBLIC_PROTOCOL_TEST_MODE === "1";
 
 export function StackCard({ recommendation, onGetStack }: Props) {
+  // Round per-week price to nearest dollar — we sell the weekly framing as
+  // the headline number. Anything tighter than $1 reads as fake-precise.
+  const weeklyRounded = Math.round(recommendation.weekly_price);
+  const totalRounded = recommendation.stack_price.toFixed(2);
+  const weeks = recommendation.cycle_length_weeks;
   return (
     <div className="roji-card !p-7">
       <div className="flex items-start justify-between gap-4 mb-4">
@@ -41,21 +46,30 @@ export function StackCard({ recommendation, onGetStack }: Props) {
             {recommendation.stack_name}
           </h3>
           <p className="text-sm text-roji-muted mt-1">
-            {recommendation.cycle_length_weeks}-week research cycle · SKU{" "}
-            {recommendation.stack_sku}
+            {weeks}-week research cycle · SKU {recommendation.stack_sku}
           </p>
         </div>
         <div className="text-right shrink-0">
-          <div className="font-mono text-2xl text-roji-text">
-            {TEST_MODE ? (
-              <span className="text-roji-muted text-base">Coming soon</span>
-            ) : (
-              `$${recommendation.stack_price.toFixed(2)}`
-            )}
-          </div>
-          <div className="text-xs text-roji-dim mt-1">
-            {TEST_MODE ? "Stack" : "USD"}
-          </div>
+          {TEST_MODE ? (
+            <>
+              <div className="font-mono text-2xl text-roji-text">
+                <span className="text-roji-muted text-base">Coming soon</span>
+              </div>
+              <div className="text-xs text-roji-dim mt-1">Stack</div>
+            </>
+          ) : (
+            <>
+              <div className="font-mono text-3xl text-roji-text leading-none">
+                ${weeklyRounded}
+                <span className="text-base text-roji-muted font-normal">
+                  /week
+                </span>
+              </div>
+              <div className="text-[11px] text-roji-dim mt-2 leading-snug max-w-[180px]">
+                Billed once · ${totalRounded} for {weeks} weeks of protocol
+              </div>
+            </>
+          )}
         </div>
       </div>
 

@@ -79,10 +79,13 @@ export function ProtocolOutput() {
     window.location.href = target;
   };
 
-  const autoshipPrice = (
-    recommendation.stack_price *
-    (1 - recommendation.autoshipDiscountPct / 100)
-  ).toFixed(0);
+  // Per-week autoship price after the recurring-billing discount. Keeps
+  // framing consistent with the StackCard headline (we sell by the week,
+  // reveal the total at checkout).
+  const autoshipWeekly = Math.round(
+    recommendation.weekly_price *
+      (1 - recommendation.autoshipDiscountPct / 100),
+  );
 
   return (
     <div className="space-y-8">
@@ -126,7 +129,7 @@ export function ProtocolOutput() {
               Save {recommendation.autoshipDiscountPct}% with monthly autoship
             </div>
             <div className="text-xs text-roji-muted mt-0.5">
-              ${autoshipPrice}/mo · free shipping · cancel anytime in your account
+              ${autoshipWeekly}/week · free shipping · cancel anytime in your account
             </div>
           </div>
         </label>

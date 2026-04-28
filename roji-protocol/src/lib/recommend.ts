@@ -59,7 +59,14 @@ export interface CompoundProtocol {
 export interface ProtocolRecommendation {
   stack: StackSlug;
   stack_name: string;
+  /** Total billed once at checkout. */
   stack_price: number;
+  /** Headline price we lead with on the results page. We sell the protocol
+   *  by the week (much smaller, more digestible number) and reveal the
+   *  full one-time charge in the cart, with a clarifying caption. */
+  weekly_price: number;
+  /** Number of supply periods the protocol requires (qty added to cart). */
+  supply_periods: number;
   stack_sku: string;
   compounds: CompoundProtocol[];
   cycle_length_weeks: number;
@@ -309,9 +316,16 @@ function buildReferences(stackSlug: StackSlug): Reference[] {
   return refs;
 }
 
-function buildShopUrl(stackSlug: StackSlug, autoship = false): string {
+function buildShopUrl(
+  stackSlug: StackSlug,
+  qty: number,
+  weeks: number,
+  autoship = false,
+): string {
   const params = new URLSearchParams({
     protocol_stack: stackSlug,
+    qty: String(qty),
+    weeks: String(weeks),
     utm_source: "protocol_engine",
     utm_medium: "referral",
     utm_campaign: "protocol_builder",
@@ -332,27 +346,30 @@ export function generateProtocol(input: UserInput): ProtocolRecommendation {
   const stack = STACKS[stackSlug];
   const compounds = buildCompoundProtocols(input, weightKg, cycleWeeks);
 
-  // Full-protocol pricing scales by months when cycle exceeds the base supply.
-  const monthsBilled = Math.max(
-    1,
-    Math.ceil(cycleWeeks / stack.supplyDurationWeeks),
-  );
-  const totalPrice =
+  // Number of supply periods (= qty added to cart). Full-protocol's base
+  // supply is 4wk months; standard stacks are 4wk supply. Either way:
+  // ceil(cycleWeeks / supplyDurationWeeks) gives the count we need to
+  // ship to cover the entire cycle.
+  const supplyPeriods =
     stack.slug === "full"
-      ? stack.priceUsd * Math.max(1, Math.ceil(cycleWeeks / 4))
-      : stack.priceUsd * monthsBilled;
+      ? Math.max(1, Math.ceil(cycleWeeks / 4))
+      : Math.max(1, Math.ceil(cycleWeeks / stack.supplyDurationWeeks));
+  const totalPrice = stack.priceUsd * supplyPeriods;
+  const weeklyPrice = totalPrice / cycleWeeks;
 
   return {
     stack: stack.slug,
     stack_name: stack.name,
     stack_price: totalPrice,
+    weekly_price: weeklyPrice,
+    supply_periods: supplyPeriods,
     stack_sku: stack.sku,
     compounds,
     cycle_length_weeks: cycleWeeks,
     rationale: buildRationale(input, cycleWeeks),
     references: buildReferences(stack.slug),
-    shopUrl: buildShopUrl(stack.slug),
-    shopUrlAutoship: buildShopUrl(stack.slug, true),
+    shopUrl: buildShopUrl(stack.slug, supplyPeriods, cycleWeeks),
+    shopUrlAutoship: buildShopUrl(stack.slug, supplyPeriods, cycleWeeks, true),
     autoshipDiscountPct: AUTOSHIP_DISCOUNT_PCT,
   };
 }
