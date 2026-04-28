@@ -1,123 +1,79 @@
 import Link from "next/link";
 
-import { TOOLS, STORE_URL, PROTOCOL_URL } from "@/lib/tools";
+import { DIRECTORY_TOOLS } from "@/lib/directory";
+import { STORE_URL } from "@/lib/tools";
 
+/**
+ * Site-wide footer.
+ *
+ * Three rows per the Google-Ads compliance brief:
+ *   1. Tool name links (horizontal on desktop)
+ *   2. Store link · Privacy · Terms
+ *   3. Disclaimer copy (centered, 11px, muted, with top border)
+ *
+ * Intentionally small / quiet. The store link is allowed in the
+ * footer + once in the about section on the homepage; that is the
+ * only commerce surface on this entire app.
+ */
 export function SiteFooter() {
   const year = new Date().getFullYear();
   return (
-    <footer className="mt-16 border-t border-roji-border bg-roji-darker">
-      <div className="mx-auto max-w-6xl px-6 py-12">
-        <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr]">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-semibold text-roji-accent">Roji</span>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-roji-muted">
-                Tools
-              </span>
-            </div>
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-roji-muted">
-              Free, ad-free, research-grade tools for the peptide and biohacker
-              community. No paywalls, no upsells in your face — built and
-              maintained by{" "}
-              <a
-                href={STORE_URL}
-                className="text-roji-accent hover:text-roji-accent-hover"
+    <footer className="mt-20 px-5 pb-12">
+      <div className="mx-auto max-w-3xl">
+        <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-[13px] text-roji-muted">
+          {DIRECTORY_TOOLS.map((tool) => (
+            <li key={tool.slug}>
+              <Link
+                href={tool.href}
+                className="hover:text-roji-text transition-colors"
               >
-                Roji Peptides
-              </a>
-              .
-            </p>
-            <p className="mt-4 text-xs leading-relaxed text-roji-dim">
-              These tools are provided for informational and research purposes
-              only. Nothing here is medical advice. Always consult a qualified
-              healthcare provider for medical decisions.
-            </p>
-          </div>
+                {tool.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
 
-          <div>
-            <div className="text-[11px] font-mono uppercase tracking-wider text-roji-muted">
-              Tools
-            </div>
-            <ul className="mt-3 grid gap-2 text-sm">
-              {TOOLS.slice(0, 6).map((t) => (
-                <li key={t.slug}>
-                  <Link
-                    href={t.href}
-                    className="text-roji-text/80 hover:text-roji-text transition-colors"
-                  >
-                    {t.shortTitle}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <div className="text-[11px] font-mono uppercase tracking-wider text-roji-muted">
-              Roji
-            </div>
-            <ul className="mt-3 grid gap-2 text-sm">
-              <li>
-                <a
-                  href={PROTOCOL_URL}
-                  className="text-roji-text/80 hover:text-roji-text transition-colors"
-                >
-                  Protocol Engine
-                </a>
-              </li>
-              <li>
-                <a
-                  href={STORE_URL}
-                  className="text-roji-text/80 hover:text-roji-text transition-colors"
-                >
-                  Shop
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`${STORE_URL}/research-library/`}
-                  className="text-roji-text/80 hover:text-roji-text transition-colors"
-                >
-                  Research Library
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`${STORE_URL}/coa/`}
-                  className="text-roji-text/80 hover:text-roji-text transition-colors"
-                >
-                  COA Library
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`${STORE_URL}/become-an-affiliate/`}
-                  className="text-roji-text/80 hover:text-roji-text transition-colors"
-                >
-                  Affiliate Program
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="mt-10 flex flex-col gap-3 border-t border-roji-border pt-6 text-xs text-roji-dim md:flex-row md:items-center md:justify-between">
-          <div>© {year} Bonetti Software LLC d/b/a Roji Peptides.</div>
-          <div className="flex gap-4">
+        <ul className="mt-5 flex flex-wrap justify-center gap-x-4 gap-y-2 text-[13px] text-roji-muted">
+          <li>
             <a
-              href={`${STORE_URL}/terms/`}
+              href={STORE_URL}
               className="hover:text-roji-text transition-colors"
             >
-              Terms
+              rojipeptides.com
             </a>
+          </li>
+          <li className="text-roji-dim" aria-hidden="true">
+            ·
+          </li>
+          <li>
             <a
               href={`${STORE_URL}/privacy/`}
               className="hover:text-roji-text transition-colors"
             >
               Privacy
             </a>
-          </div>
-        </div>
+          </li>
+          <li className="text-roji-dim" aria-hidden="true">
+            ·
+          </li>
+          <li>
+            <a
+              href={`${STORE_URL}/terms/`}
+              className="hover:text-roji-text transition-colors"
+            >
+              Terms
+            </a>
+          </li>
+        </ul>
+
+        <p className="mt-6 mx-auto max-w-[700px] border-t border-white/[0.04] pt-6 text-center text-[11px] leading-relaxed text-roji-dim">
+          All tools are for educational and informational purposes only.
+          These tools do not provide medical advice, diagnosis, or
+          treatment recommendations. Products available on rojipeptides.com
+          are intended for research and laboratory use only. Not intended
+          for human dosing, injection, or ingestion. Must be 21+ to
+          purchase. © {year} Roji Peptides. All rights reserved.
+        </p>
       </div>
     </footer>
   );

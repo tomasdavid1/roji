@@ -1,116 +1,132 @@
-import Link from "next/link";
-
-import { TOOLS, STORE_URL, PROTOCOL_URL } from "@/lib/tools";
+import { ToolCard } from "@/components/ToolCard";
+import { TrustSignals } from "@/components/TrustSignals";
+import { TypewriterRotator } from "@/components/TypewriterRotator";
+import { DIRECTORY_TOOLS } from "@/lib/directory";
+import { STORE_URL } from "@/lib/tools";
 
 export default function HomePage() {
-  const grouped = TOOLS.reduce<Record<string, typeof TOOLS[number][]>>(
-    (acc, t) => {
-      (acc[t.category] = acc[t.category] || []).push(t);
-      return acc;
-    },
-    {},
-  );
-
   return (
-    <>
-      <section className="relative overflow-hidden border-b border-roji-border">
-        <div className="roji-orb" aria-hidden="true" />
-        <div className="relative mx-auto max-w-4xl px-6 pt-20 pb-16 text-center">
-          <div className="roji-pill mb-5">Free · No accounts · No ads</div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl tracking-tight">
-            Tools we wish someone else had built.
+    <main className="relative min-h-screen overflow-hidden">
+      {/* Ambient depth: dotted grid + indigo orb behind the hero. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "radial-gradient(rgba(255,255,255,0.045) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+          backgroundPosition: "center top",
+          maskImage:
+            "radial-gradient(ellipse 70% 60% at 50% 35%, #000 40%, transparent 80%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 70% 60% at 50% 35%, #000 40%, transparent 80%)",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-32 h-[640px] w-[1100px] rounded-full blur-[120px] opacity-60 animate-roji-orb-drift"
+        style={{
+          background:
+            "radial-gradient(circle at 50% 50%, rgba(79,109,245,0.32) 0%, rgba(79,109,245,0.08) 35%, transparent 70%)",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent 0%, rgba(79,109,245,0.4) 50%, transparent 100%)",
+        }}
+      />
+
+      <div className="relative px-5 pt-24 pb-12 sm:pt-28 lg:pt-32">
+        {/* ── HERO ────────────────────────────────────────────────── */}
+        <section className="max-w-3xl mx-auto text-center">
+          <span
+            className="inline-flex items-center gap-2 font-mono uppercase text-roji-accent"
+            style={{
+              fontSize: "11px",
+              letterSpacing: "0.2em",
+            }}
+          >
+            <span
+              className="h-1.5 w-1.5 rounded-full bg-roji-accent shadow-[0_0_12px_rgba(79,109,245,0.8)]"
+              aria-hidden="true"
+            />
+            Roji Peptides · Research Tools
+          </span>
+
+          <h1 className="text-[40px] sm:text-[56px] lg:text-[64px] font-semibold mt-5 leading-[1.05] tracking-tightest">
+            Free tools for{" "}
+            <TypewriterRotator
+              words={["researchers", "biohackers", "the curious", "your lab"]}
+              className="text-roji-accent"
+            />
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-roji-muted sm:text-lg">
-            A working set of calculators, databases, and verifiers for the peptide research community. Built by{" "}
-            <a
-              href={STORE_URL}
-              className="text-roji-accent hover:text-roji-accent-hover"
-            >
-              Roji Peptides
-            </a>
-            . Free because you shouldn't have to dig through Reddit threads to do reconstitution math.
+
+          <p
+            className="mt-7 text-roji-muted text-base sm:text-lg leading-relaxed mx-auto"
+            style={{ maxWidth: "520px" }}
+          >
+            Calculators, analyzers, and databases. No signup. No cost. Built by
+            researchers who understand the science.
           </p>
+        </section>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3 text-sm">
-            <Link href="/reconstitution" className="roji-btn-primary">
-              Reconstitution Calculator →
-            </Link>
-            <a href={PROTOCOL_URL} className="roji-btn">
-              Protocol Engine →
-            </a>
+        {/* ── TOOL GRID ───────────────────────────────────────────── */}
+        <section
+          className="mt-20 max-w-4xl mx-auto"
+          aria-labelledby="tools-heading"
+        >
+          <h2
+            id="tools-heading"
+            className="font-mono uppercase text-roji-accent mb-5"
+            style={{ fontSize: "11px", letterSpacing: "0.2em" }}
+          >
+            Tools
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {DIRECTORY_TOOLS.map((tool) => (
+              <ToolCard key={tool.slug} tool={tool} />
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      <div className="mx-auto max-w-6xl px-6 py-14">
-        {Object.entries(grouped).map(([cat, tools]) => (
-          <div key={cat} className="mb-12 last:mb-0">
-            <div className="mb-5 flex items-end justify-between">
-              <h2 className="text-lg font-semibold">{cat}</h2>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-roji-muted">
-                {tools.length} {tools.length === 1 ? "tool" : "tools"}
-              </span>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {tools.map((t) => (
-                <Link
-                  key={t.slug}
-                  href={t.href}
-                  className="roji-card-interactive group flex flex-col gap-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono uppercase tracking-wider text-roji-accent">
-                      {t.category}
-                    </span>
-                    {t.status === "beta" && (
-                      <span className="rounded-full bg-roji-warning/10 px-2 py-[2px] text-[10px] font-mono uppercase tracking-wider text-roji-warning">
-                        Beta
-                      </span>
-                    )}
-                    {t.status === "soon" && (
-                      <span className="rounded-full bg-roji-dim/10 px-2 py-[2px] text-[10px] font-mono uppercase tracking-wider text-roji-dim">
-                        Soon
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-lg font-semibold">{t.shortTitle}</div>
-                  <p className="flex-1 text-sm leading-relaxed text-roji-muted">
-                    {t.tagline}
-                  </p>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-roji-dim">Open</span>
-                    <span className="text-roji-accent transition-transform group-hover:translate-x-1">
-                      →
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        ))}
+        {/* ── TRUST SIGNALS ───────────────────────────────────────── */}
+        <section
+          className="mt-12 max-w-4xl mx-auto"
+          aria-label="Trust signals"
+        >
+          <TrustSignals />
+        </section>
+
+        {/* ── ABOUT ──────────────────────────────────────────────── */}
+        <section
+          className="mt-20 max-w-2xl mx-auto text-center"
+          aria-labelledby="about-heading"
+        >
+          <h2
+            id="about-heading"
+            className="text-2xl sm:text-3xl font-semibold text-roji-text"
+          >
+            Built by Roji Peptides
+          </h2>
+          <p className="mt-4 text-roji-muted leading-relaxed">
+            We build tools for the research community because we are the
+            research community. Every tool is free, every data point is
+            referenced, and every calculation is transparent. Our research
+            compound stacks are held to the same standard — third-party tested,
+            independently verified, 99%+ purity guaranteed.
+          </p>
+          <a
+            href={`${STORE_URL}/shop/?utm_source=tools_landing&utm_medium=referral&utm_campaign=tools_directory`}
+            className="mt-6 inline-flex items-center gap-1.5 text-roji-accent hover:text-roji-accent-hover transition-colors text-sm font-medium"
+          >
+            Explore research stacks
+            <span aria-hidden="true">→</span>
+          </a>
+        </section>
       </div>
-
-      <section className="border-t border-roji-border bg-roji-darker">
-        <div className="mx-auto max-w-3xl px-6 py-14 text-center">
-          <h3 className="text-2xl font-semibold">
-            Why we ship these for free.
-          </h3>
-          <p className="mt-4 text-sm leading-relaxed text-roji-muted">
-            Roji Peptides exists for serious researchers. Most of the math, reading, and verification you do before buying anything in this category is unnecessarily painful. Building these tools costs us a few weekends. The trust and goodwill it builds is worth a thousand banner ads.
-          </p>
-          <p className="mt-3 text-sm leading-relaxed text-roji-muted">
-            If you find one of these tools useful and you happen to need research-grade peptides, we'd love your business. If not — keep using the tools. They'll always be free.
-          </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <a href={`${STORE_URL}/shop/`} className="roji-btn-primary">
-              Browse research stacks →
-            </a>
-            <a href={`${STORE_URL}/research-library/`} className="roji-btn">
-              Read our research library
-            </a>
-          </div>
-        </div>
-      </section>
-    </>
+    </main>
   );
 }

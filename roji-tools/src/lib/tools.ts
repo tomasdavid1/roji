@@ -203,5 +203,3 @@ export function otherTools(currentSlug: string, n = 3): Tool[] {
 
 export const STORE_URL =
   process.env.NEXT_PUBLIC_STORE_URL ?? "https://rojipeptides.com";
-export const PROTOCOL_URL =
-  process.env.NEXT_PUBLIC_PROTOCOL_URL ?? "https://protocol.rojipeptides.com";

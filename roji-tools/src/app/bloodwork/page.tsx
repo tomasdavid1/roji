@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { BloodworkInterpreter } from "@/components/BloodworkInterpreter";
-import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { PageHero, MoreTools } from "@/components/PageChrome";
 
 export const metadata: Metadata = {
   title: "Bloodwork Interpreter — free blood panel analyzer",
@@ -21,13 +21,6 @@ export default function BloodworkPage() {
       <p className="mx-auto max-w-3xl px-6 pb-10 text-center text-xs text-roji-dim">
         This tool is for informational purposes only. It does not diagnose, treat, or interpret your health. Always consult a qualified healthcare provider for medical decisions.
       </p>
-      <StoreCTA
-        source="bloodwork"
-        title="Optimizing? Stop guessing."
-        body="Bloodwork tells you where you are. The Roji Protocol Engine helps you build a research framework around your data. Both tools are free."
-        buttonLabel="Open the Protocol Engine →"
-        href={process.env.NEXT_PUBLIC_PROTOCOL_URL ?? "https://protocol.rojipeptides.com"}
-      />
       <MoreTools currentSlug="bloodwork" />
     </>
   );
