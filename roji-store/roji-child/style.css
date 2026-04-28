@@ -949,7 +949,6 @@ nav.elementor-nav-menu--dropdown {
 
 .elementor-nav-menu--dropdown .elementor-item,
 .elementor-nav-menu--dropdown a.elementor-item {
-  color: var(--roji-text-secondary) !important;
   background: transparent !important;
   border-bottom: 1px solid var(--roji-border) !important;
   padding: 16px 24px !important;
@@ -962,7 +961,6 @@ nav.elementor-nav-menu--dropdown {
 .elementor-nav-menu--dropdown .elementor-item:focus,
 .elementor-nav-menu--dropdown .elementor-item.elementor-item-active {
   background: rgba(79, 109, 245, 0.06) !important;
-  color: var(--roji-text-primary) !important;
 }
 .elementor-nav-menu--dropdown li:last-child .elementor-item {
   border-bottom: 0 !important;
@@ -971,27 +969,65 @@ nav.elementor-nav-menu--dropdown {
 /* Hamburger toggle button - keep the icon white on the dark bar */
 .elementor-menu-toggle,
 .elementor-menu-toggle.elementor-active {
-  color: var(--roji-text-primary) !important;
   background: transparent !important;
 }
 .elementor-menu-toggle svg,
 .elementor-menu-toggle i {
-  color: var(--roji-text-primary) !important;
   fill: currentColor !important;
 }
 
-/* Hello Elementor's fallback nav (when Pro nav widget isn't used) */
-#site-navigation .menu,
-.main-navigation ul.menu {
-  background-color: var(--roji-darker);
+/* Catch-all: every menu link inside any header / site navigation
+   widget renders in white. This deliberately covers many themes
+   (OceanWP, Astra, Hello Elementor, Generate Press, Hello Biz, etc.)
+   so we don't have to chase per-theme selectors. */
+.site-header .menu a,
+.site-header .menu li a,
+.site-header nav a,
+.site-header ul.menu a,
+.site-header #menu-roji-header a,
+.site-header #menu-roji-header-1 a,
+.site-header .navigation a,
+.site-header .main-navigation a,
+.site-header .site-navigation a,
+.site-header .header-menu a,
+.site-header .nav-menu a,
+.elementor-location-header .menu a,
+.elementor-location-header nav a,
+.elementor-location-header .elementor-item,
+.site-navigation-toggle-holder .menu a,
+.site-navigation-toggle-holder a,
+nav#site-navigation a,
+nav.main-navigation a,
+.menu-roji-header-container a,
+.menu-roji-header-1-container a,
+header .menu a,
+header nav a,
+header ul.menu a {
+  color: var(--roji-text-primary) !important;
+  text-decoration: none !important;
+  font-weight: 500;
+  letter-spacing: 0;
+  transition: color 0.12s ease, background 0.12s ease;
 }
-#site-navigation .menu a,
-.main-navigation ul.menu a {
-  color: var(--roji-text-secondary);
+
+.site-header .menu a:hover,
+.site-header nav a:hover,
+.site-header ul.menu a:hover,
+.elementor-location-header .menu a:hover,
+.elementor-location-header .elementor-item:hover,
+.site-navigation-toggle-holder a:hover,
+header .menu a:hover,
+header nav a:hover {
+  color: var(--roji-accent) !important;
 }
-#site-navigation .menu a:hover,
-.main-navigation ul.menu a:hover {
-  color: var(--roji-text-primary);
+
+/* Active / current menu item gets a subtle accent treatment */
+.site-header .current-menu-item > a,
+.site-header .current_page_item > a,
+.elementor-location-header .elementor-item.elementor-item-active,
+header .current-menu-item > a {
+  color: var(--roji-text-primary) !important;
+  font-weight: 600 !important;
 }
 
 /* ============================================================
