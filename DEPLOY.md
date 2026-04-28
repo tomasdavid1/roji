@@ -440,6 +440,73 @@ The cookie name (`roji_aff_ref`) is non-conflicting with AffiliateWP's (`affwp_r
 
 ---
 
+## 5e. Elementor pages + menus
+
+The storefront ships with a **programmatic Elementor build** under `roji-store/elementor-templates/`. Nine pages and two nav menus live in version control as PHP files. An importer writes them straight into Elementor's data structures.
+
+### What's wired
+
+| Page | URL | Notes |
+| --- | --- | --- |
+| Home | `/` | Hero + Protocol Engine teaser + 3-stack grid (one-time/autoship buttons) + trust pillars + Trustpilot widget + FAQ tease + CTA |
+| About | `/about/` | Three commitments + sourcing/test/store/ship process |
+| FAQ | `/faq/` | 18 Q/A across compliance, quality, Protocol Engine, shipping, payment, subscriptions, refunds, affiliates |
+| Research Library | `/research-library/` | Per-compound cards with peer-reviewed PubMed citations (kept in sync manually with `roji-protocol/src/lib/constants.ts`) |
+| COA Library | `/coa/` | 3-step process strip + table of recent batches with download links (placeholder PDFs — replace with real ones) |
+| Terms of Service | `/terms/` | 15 sections, FL governing law |
+| Privacy Policy | `/privacy/` | 12 sections incl. CCPA, GA4, Google Ads disclosures |
+| Refund & Return Policy | `/refunds/` | 9 sections incl. 14-day window, 15% restocking fee, COA-driven quality returns |
+| Shipping Policy | `/shipping/` | 12 sections incl. discreet packaging, $200 free threshold, autoship-always-free |
+
+Plus two menus:
+- **Header (`menu-1`)**: Shop · Protocol Engine · Research Library · COA · About · FAQ
+- **Footer (`menu-2`)**: Shop · About · Research Library · COA · FAQ · Affiliates · Shipping · Refunds · Privacy · Terms
+
+### Run the importer
+
+From the WordPress root (LocalWP, Kinsta SSH, etc.):
+
+```bash
+# All pages (idempotent — re-run anytime)
+wp eval-file /path/to/roji-store/elementor-templates/import.php
+
+# Single page
+wp eval-file /path/to/roji-store/elementor-templates/import.php -- home
+wp eval-file /path/to/roji-store/elementor-templates/import.php -- terms,privacy,refunds
+
+# Header + footer menus (run after pages exist)
+wp eval-file /path/to/roji-store/elementor-templates/menus.php
+```
+
+The importer is **idempotent** — it looks pages up by slug and rewrites `_elementor_data` in place. Element IDs are deterministic per `(slug, counter)` so Elementor's compiled CSS doesn't get orphaned.
+
+### Editor compatibility
+
+After import, every page is fully editable in the Elementor visual editor. **Be aware:** the importer overwrites `_elementor_data` wholesale, so if you customize a page in the editor and then re-run the importer for that slug, your changes are lost. Two safe workflows:
+
+- **Code-first**: edit the PHP file → re-run the importer. (Recommended for content-heavy pages like legal/FAQ.)
+- **Editor-first**: do an initial import → polish in the editor → stop importing that slug. (Recommended for marketing pages where designers want full control.)
+
+### Adding new pages later
+
+1. Drop a `pages/<slug>.php` returning `['title' => ..., 'content' => [...]]`.
+2. Use the helpers in `lib/builder.php` (containers, headings, text, buttons, cards, grids, FAQ items, legal-page template).
+3. Add the slug to `$ALL_PAGES` in `import.php`.
+4. Re-run.
+
+See `roji-store/elementor-templates/README.md` for full helper reference.
+
+### Required plugins
+
+- Elementor (free) — version 4.0+ verified.
+- Hello Elementor parent theme + `roji-child` active.
+
+### Trustpilot widget on Home
+
+Home renders `[trustpilot_hero]`. The shortcode is a no-op until `ROJI_TRUSTPILOT_BUSINESS_UNIT_ID` is set (see section 5b). The page renders fine without it.
+
+---
+
 ## 6. Smoke tests after everything is live
 
 - [ ] `https://protocol.rojipeptides.com` → wizard works, "Get this stack" redirects to `https://rojipeptides.com/cart/?protocol_stack=wolverine&utm_source=protocol_engine&...`
@@ -459,6 +526,10 @@ The cookie name (`roji_aff_ref`) is non-conflicting with AffiliateWP's (`affwp_r
 - [ ] Visit `https://rojipeptides.com/?ref=TEST` (after creating a test affiliate) → cookie `roji_aff_ref` is set.
 - [ ] Place a test order → order notes show "Affiliate commission recorded: $X to affiliate #Y".
 - [ ] `/affiliates` dashboard page shows the test commission and click count.
+- [ ] After running the Elementor importer: `/`, `/about/`, `/faq/`, `/research-library/`, `/coa/`, `/terms/`, `/privacy/`, `/refunds/`, `/shipping/` all return HTTP 200 with the expected content.
+- [ ] Header menu shows: Shop · Protocol Engine · Research Library · COA · About · FAQ.
+- [ ] Footer menu shows the four legal pages and the affiliate signup link.
+- [ ] Home → click any "Autoship −15%" stack button → cart contains the autoship variant (requires Subscriptions plugin).
 
 ---
 
