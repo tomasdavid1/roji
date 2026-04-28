@@ -148,6 +148,30 @@ add_filter(
 add_filter( 'has_custom_logo', '__return_true' );
 
 /**
+ * Belt-and-suspenders for Hello Elementor's mobile header path: some
+ * Hello variants ignore get_custom_logo() and render the site title
+ * directly via bloginfo('name'), which produces the capitalized
+ * 'Roji' in the default link color (brand blue) on mobile. Filter
+ * `bloginfo` so the in-frontend display is always our lowercase
+ * wordmark; admin/email contexts still see the real blogname because
+ * we only override when it's the displayed copy variant.
+ */
+add_filter(
+	'bloginfo',
+	function ( $output, $show ) {
+		if ( is_admin() ) {
+			return $output;
+		}
+		if ( in_array( $show, array( 'name', 'title', 'sitename' ), true ) ) {
+			return 'roji';
+		}
+		return $output;
+	},
+	20,
+	2
+);
+
+/**
  * Tiny CSS for the wordmark lockup - kept here next to the markup
  * so it's easy to maintain together. Hooked at high priority so it
  * sits after the rest of the theme's styles and wins specificity.

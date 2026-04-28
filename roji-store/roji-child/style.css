@@ -906,6 +906,38 @@ header.site-header img,
   color: #f0f0f5 !important;
 }
 
+/* Hello Elementor's fallback site-title path on mobile renders an
+   <h1 class="site-title"><a href="...">Roji</a></h1>, which inherits
+   the brand-blue link color and capitalizes the bloginfo name. Force
+   it to look like our wordmark: lowercase-ready, off-white, modest
+   size, no underline. The bloginfo filter in inc/branding.php also
+   replaces the literal text with 'roji' (lowercase). */
+.site-title,
+.site-title a,
+.site-title a:link,
+.site-title a:visited,
+.site-title a:hover,
+header .site-title,
+header .site-title a,
+.elementor-location-header .site-title,
+.elementor-location-header .site-title a {
+  color: #f0f0f5 !important;
+  font-family: Inter, system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 22px !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+}
+
+/* Some Hello variants wrap the title in <p class="site-description">
+   right under the title - hide it on mobile so we don't get a tagline
+   that we never set (or that defaults to "Just another WordPress site"). */
+.site-description {
+  display: none !important;
+}
+
 /* Mobile nav dropdown panel - Elementor's default Pro/Hello widget */
 .elementor-nav-menu--dropdown,
 .elementor-nav-menu__container.elementor-nav-menu--dropdown,
