@@ -1,9 +1,15 @@
 /**
  * GET/POST /api/cron/check-disapprovals
  *
- * Hourly job that pulls all currently-disapproved ads and (per the
- * strategy doc) auto-pauses them to prevent account contamination
- * from a disapproval cascade.
+ * Daily job (Vercel Hobby plan caps cron frequency at once/day) that
+ * pulls all currently-disapproved ads and (per the strategy doc)
+ * auto-pauses them to prevent account contamination from a
+ * disapproval cascade.
+ *
+ * If you upgrade Vercel to Pro, you can switch the schedule in
+ * `vercel.json` back to hourly (`0 * * * *`) for tighter SLA on
+ * disapproval response. Until then the manual "Run now" trigger on
+ * the campaigns page is your fast path.
  *
  * The response includes the list of paused ads so a downstream
  * notification step (Slack/email) can surface them; that's wired

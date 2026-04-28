@@ -16,10 +16,11 @@ export default async function DisapprovalsPage() {
       <header className="mb-8">
         <h1 className="text-2xl font-semibold">Ad disapprovals</h1>
         <p className="text-roji-muted text-sm mt-1 max-w-2xl">
-          Ads currently disapproved or limited by Google. The hourly cron
+          Ads currently disapproved or limited by Google. A daily cron
           auto-pauses these to prevent account-level review (per the
           strategy doc: &quot;multiple disapprovals can trigger account-level
-          review&quot;).
+          review&quot;). You can also trigger a check manually from the
+          campaigns page if you need an immediate sweep.
         </p>
       </header>
 
