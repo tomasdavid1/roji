@@ -16,19 +16,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 /* -----------------------------------------------------------------------------
  * WooCommerce product IDs
  *
- * Set after running `scripts/import-products.php` (the WP-CLI seeder will
- * print the IDs to stdout). These are referenced by the protocol-engine
- * deep-link handler in `inc/woocommerce.php`.
+ * Defaults below match a fresh seed via `scripts/import-products.php` on a
+ * clean WP install (where products start at ID 12). If your install assigned
+ * different IDs, override them here OR rely on the SKU-based fallback in
+ * roji_product_id_for_stack() below.
  * -------------------------------------------------------------------------- */
 
 if ( ! defined( 'ROJI_WOLVERINE_PRODUCT_ID' ) ) {
-	define( 'ROJI_WOLVERINE_PRODUCT_ID', 0 );
+	define( 'ROJI_WOLVERINE_PRODUCT_ID', 12 );
 }
 if ( ! defined( 'ROJI_RECOMP_PRODUCT_ID' ) ) {
-	define( 'ROJI_RECOMP_PRODUCT_ID', 0 );
+	define( 'ROJI_RECOMP_PRODUCT_ID', 13 );
 }
 if ( ! defined( 'ROJI_FULL_PRODUCT_ID' ) ) {
-	define( 'ROJI_FULL_PRODUCT_ID', 0 );
+	define( 'ROJI_FULL_PRODUCT_ID', 14 );
 }
 
 /* -----------------------------------------------------------------------------
@@ -79,14 +80,34 @@ if ( ! defined( 'ROJI_PROTOCOL_URL' ) ) {
 /**
  * Map a protocol_stack slug to a WooCommerce product ID.
  *
+ * Tries the constants first (fast path), then falls back to a SKU lookup
+ * if the constant points at a non-existent post — covers the case where
+ * the install used different IDs than the defaults.
+ *
  * @param string $slug Slug from the protocol engine (wolverine|recomp|full).
  * @return int Product ID, or 0 if unmapped.
  */
 function roji_product_id_for_stack( $slug ) {
-	$map = array(
-		'wolverine' => ROJI_WOLVERINE_PRODUCT_ID,
-		'recomp'    => ROJI_RECOMP_PRODUCT_ID,
-		'full'      => ROJI_FULL_PRODUCT_ID,
-	);
-	return isset( $map[ $slug ] ) ? (int) $map[ $slug ] : 0;
+	static $map = null;
+	if ( null === $map ) {
+		$map = array(
+			'wolverine' => array( ROJI_WOLVERINE_PRODUCT_ID, 'ROJI-WOLF-001' ),
+			'recomp'    => array( ROJI_RECOMP_PRODUCT_ID, 'ROJI-RECOMP-001' ),
+			'full'      => array( ROJI_FULL_PRODUCT_ID, 'ROJI-FULL-001' ),
+		);
+	}
+	if ( ! isset( $map[ $slug ] ) ) {
+		return 0;
+	}
+	list( $id, $sku ) = $map[ $slug ];
+	if ( $id > 0 && get_post_status( $id ) === 'publish' ) {
+		return (int) $id;
+	}
+	if ( function_exists( 'wc_get_product_id_by_sku' ) ) {
+		$found = wc_get_product_id_by_sku( $sku );
+		if ( $found > 0 ) {
+			return (int) $found;
+		}
+	}
+	return 0;
 }
