@@ -870,3 +870,135 @@ input[type="radio"] {
     margin-bottom: 24px;
   }
 }
+
+/* ============================================================
+   Site header + mobile nav
+   ============================================================
+   Hello Elementor ships a header with a transparent/inherited
+   background and a white slide-down panel for the mobile menu.
+   Force the whole thing to live in our dark palette so the
+   wordmark stays legible and the dropdown matches the rest of
+   the site.
+   ============================================================ */
+
+/* Header bar background */
+.site-header,
+header.site-header,
+.elementor-location-header,
+.elementor-location-header > .elementor {
+  background-color: var(--roji-black) !important;
+  border-bottom: 1px solid var(--roji-border);
+}
+
+/* Wordmark lockup: hide ANY image (Customizer site-icon, leftover
+   uploaded logos, the "Bluum" relic) anywhere inside the header,
+   so only the filtered <span>roji</span> wordmark renders. */
+.site-header img.custom-logo,
+.site-header .custom-logo-link img,
+header.site-header img,
+.elementor-location-header .custom-logo-link img,
+.elementor-location-header img.custom-logo {
+  display: none !important;
+}
+
+/* Make sure the wordmark span is fully visible against the dark bar. */
+.roji-wordmark__text {
+  color: #f0f0f5 !important;
+}
+
+/* Mobile nav dropdown panel - Elementor's default Pro/Hello widget */
+.elementor-nav-menu--dropdown,
+.elementor-nav-menu__container.elementor-nav-menu--dropdown,
+nav.elementor-nav-menu--dropdown {
+  background-color: var(--roji-darker) !important;
+  border-top: 1px solid var(--roji-border);
+  padding: 8px 0 !important;
+}
+
+.elementor-nav-menu--dropdown .elementor-item,
+.elementor-nav-menu--dropdown a.elementor-item {
+  color: var(--roji-text-secondary) !important;
+  background: transparent !important;
+  border-bottom: 1px solid var(--roji-border) !important;
+  padding: 16px 24px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.elementor-nav-menu--dropdown .elementor-item:hover,
+.elementor-nav-menu--dropdown .elementor-item:focus,
+.elementor-nav-menu--dropdown .elementor-item.elementor-item-active {
+  background: rgba(79, 109, 245, 0.06) !important;
+  color: var(--roji-text-primary) !important;
+}
+.elementor-nav-menu--dropdown li:last-child .elementor-item {
+  border-bottom: 0 !important;
+}
+
+/* Hamburger toggle button - keep the icon white on the dark bar */
+.elementor-menu-toggle,
+.elementor-menu-toggle.elementor-active {
+  color: var(--roji-text-primary) !important;
+  background: transparent !important;
+}
+.elementor-menu-toggle svg,
+.elementor-menu-toggle i {
+  color: var(--roji-text-primary) !important;
+  fill: currentColor !important;
+}
+
+/* Hello Elementor's fallback nav (when Pro nav widget isn't used) */
+#site-navigation .menu,
+.main-navigation ul.menu {
+  background-color: var(--roji-darker);
+}
+#site-navigation .menu a,
+.main-navigation ul.menu a {
+  color: var(--roji-text-secondary);
+}
+#site-navigation .menu a:hover,
+.main-navigation ul.menu a:hover {
+  color: var(--roji-text-primary);
+}
+
+/* ============================================================
+   Responsive H1 / hero typography
+   ============================================================
+   Elementor templates set a fixed 56-72px hero size that's
+   correct on desktop but cramped on phones. Override at the CSS
+   layer so we don't have to retrofit every page template with
+   per-breakpoint overrides.
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .elementor-widget-heading h1.elementor-heading-title,
+  .elementor-section h1.elementor-heading-title,
+  .elementor-widget-heading .elementor-heading-title[class*="h1"] {
+    font-size: clamp(34px, 8vw, 48px) !important;
+    line-height: 1.05 !important;
+    letter-spacing: -1px !important;
+  }
+
+  /* Hero sub-paragraph (the 22px lede under the H1) */
+  .elementor-section .elementor-widget-text-editor p {
+    font-size: 17px !important;
+    line-height: 1.55 !important;
+  }
+
+  /* Hero CTA buttons: full-width on mobile so they don't collide */
+  .elementor-section .elementor-button-wrapper,
+  .elementor-section .elementor-button-link {
+    width: 100%;
+  }
+  .elementor-section .elementor-button-wrapper .elementor-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .elementor-widget-heading h1.elementor-heading-title {
+    font-size: clamp(30px, 8.5vw, 40px) !important;
+  }
+}

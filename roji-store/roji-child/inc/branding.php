@@ -86,6 +86,18 @@ add_filter(
 remove_action( 'wp_head', 'wp_site_icon', 99 );
 
 /**
+ * Hard-kill the Customizer site icon at the data layer. Any leftover
+ * `cropped-*.png` from the previous (Bluum-era) icon, if not overwritten
+ * by the theme assets, will otherwise resurface on:
+ *  - mobile theme headers that render <img class="custom-logo">
+ *  - any plugin/widget that calls get_site_icon_url() directly
+ * Returning a falsy URL forces those surfaces to fall back to either
+ * our custom-logo filter (header lockup) or our wp_head favicon tags.
+ */
+add_filter( 'get_site_icon_url', '__return_empty_string', 100 );
+add_filter( 'site_icon_meta_tags', '__return_empty_array', 100 );
+
+/**
  * Inline SVG of the Roji R monogram. Single source of truth for the
  * header wordmark - keep in sync with /brand/src/r-mark.svg.
  *
