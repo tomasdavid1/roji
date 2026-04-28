@@ -195,9 +195,23 @@ Or use the exact records Vercel shows you.
    | `GOOGLE_ADS_LOGIN_CUSTOMER_ID` | `2637832527` (manager / MCC) |
    | `ADMIN_USER` | a username you choose |
    | `ADMIN_PASS` | a long random password |
+   | `CRON_SECRET` | a long random string (used by Vercel Cron to authenticate to `/api/cron/*` endpoints) |
 
 4. Click **Deploy**.
 5. Add domain `admin-ads.rojipeptides.com`.
+
+#### Vercel Cron jobs
+
+`vercel.json` declares two cron jobs that Vercel will schedule automatically:
+
+| Path | Schedule | What it does |
+| --- | --- | --- |
+| `/api/cron/mine-search-terms` | daily, 14:00 UTC | Pulls last-7-days search terms, auto-adds risky ones (matching the master negative-keyword list) as campaign negatives |
+| `/api/cron/check-disapprovals` | hourly | Pulls all disapproved ads and auto-pauses them (per the strategy doc: prevents account-level review cascade) |
+
+Both endpoints require `Authorization: Bearer ${CRON_SECRET}` — Vercel injects this header automatically when invoking your declared crons. Manual triggers via the dashboard UI use a different route (`/api/ads/search-terms`) that's gated by the basic-auth middleware.
+
+Generate a CRON_SECRET with: `openssl rand -hex 32`
 
 ### DNS for `admin-ads.rojipeptides.com`
 
@@ -226,6 +240,66 @@ The protocol engine deep-link (`/cart/?protocol_stack=wolverine`) only works onc
 
 ---
 
+## 5b. Trustpilot
+
+Wired up across both apps. Inert until you give us the four credentials from <https://businessapp.b2b.trustpilot.com/> → **Integrations → API access**.
+
+### What's wired
+
+| Surface | Behavior | Requires |
+| --- | --- | --- |
+| **TrustBox widgets on storefront** (homepage hero, cart top, checkout top, footer) | Auto-rendered when `ROJI_TRUSTPILOT_BUSINESS_UNIT_ID` is set | BU id only |
+| **AFS review invitations** (sent 7 days after `order-completed`) | Server-side cron job dispatches via Trustpilot Invitations API | All four secrets |
+| **Reviews summary card** in `/performance` (admin dashboard) | Fetches trust score + review count via Business API | All four secrets |
+
+Until at least the BU id is set, every Trustpilot surface renders nothing — the rest of the site behaves identically.
+
+### WordPress side — set in `wp-config.php`
+
+```php
+define( 'ROJI_TRUSTPILOT_BUSINESS_UNIT_ID', '<24-char hex from Trustpilot>' );
+define( 'ROJI_TRUSTPILOT_API_KEY',          '<api key>' );
+define( 'ROJI_TRUSTPILOT_API_SECRET',       '<api secret>' );
+define( 'ROJI_TRUSTPILOT_BUSINESS_USER_ID', '<user id>' );
+// Optional:
+// define( 'ROJI_TRUSTPILOT_TEMPLATE_ID', '<custom invite template id>' );
+// define( 'ROJI_TRUSTPILOT_INVITATION_DELAY_DAYS', 7 );
+```
+
+> Add these to `wp-config.php` (above `require_once ABSPATH . 'wp-settings.php';`), not to the theme — that way they survive theme updates and aren't tracked in git.
+
+### Ads dashboard side — set in Vercel env vars
+
+| Key | Value |
+| --- | --- |
+| `TRUSTPILOT_BUSINESS_UNIT_ID` | same as above |
+| `TRUSTPILOT_API_KEY` | same |
+| `TRUSTPILOT_API_SECRET` | same |
+| `TRUSTPILOT_BUSINESS_USER_ID` | same |
+
+### Where to find each value in Trustpilot Business
+
+1. **Business Unit ID** — Settings → Integrations → API access → BU id (or in the URL of any TrustBox widget on `businessapp.b2b.trustpilot.com`).
+2. **API Key + API Secret** — Settings → Integrations → API access → Create new application → copy the credentials shown (you won't see the secret again).
+3. **Business User ID** — Click your profile avatar (top right) → User profile → the URL contains `/users/<id>`. Required by Trustpilot when authenticating via `client_credentials` (per their OAuth docs).
+
+### Verifying it works
+
+After adding the BU id (no API creds needed):
+
+```bash
+curl -s http://roji.local/ | grep -c "trustpilot-widget"   # should print >= 1
+curl -s http://roji.local/ | grep "tp.widget.bootstrap"     # should match
+```
+
+After adding all four (and setting them in Vercel for the dashboard):
+
+- Reviews summary card on `/performance` shows trust score + count instead of "Not configured".
+- New WC orders create a `wp_cron` event 7 days out (visible in `wp cron event list`).
+- After 7d, you'll see `Trustpilot review invitation sent.` in the order notes (or an error message if something failed).
+
+---
+
 ## 6. Smoke tests after everything is live
 
 - [ ] `https://protocol.rojipeptides.com` → wizard works, "Get this stack" redirects to `https://rojipeptides.com/cart/?protocol_stack=wolverine&utm_source=protocol_engine&...`
@@ -235,6 +309,9 @@ The protocol engine deep-link (`/cart/?protocol_stack=wolverine`) only works onc
 - [ ] Age gate shows on first visit, persists 30 days.
 - [ ] `https://admin-ads.rojipeptides.com` → basic-auth challenge, then nav shows `Live API` pill.
 - [ ] GA4 + Google Ads conversion events fire (check DebugView in GA4).
+- [ ] (If Trustpilot configured) TrustBox widgets render on homepage hero, cart, checkout, footer.
+- [ ] (If Trustpilot configured) Place a test order; after 7 days, order notes show "Trustpilot review invitation sent."
+- [ ] (If Trustpilot configured) `/performance` reviews card shows real trust score + count.
 
 ---
 

@@ -14,6 +14,10 @@ import {
   enums,
   ResourceNames,
 } from "google-ads-api";
+import {
+  classifySearchTerm,
+  type NegativeKeywordSpec,
+} from "./negative-keywords";
 
 const REQUIRED_ENV = [
   "GOOGLE_ADS_DEVELOPER_TOKEN",
@@ -452,4 +456,350 @@ export async function createCampaign(
     campaign_id: campaignResource.split("/").pop(),
     budget_id: budgetResource.split("/").pop(),
   };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Search-terms mining                                                        */
+/* -------------------------------------------------------------------------- */
+
+export interface SearchTermRow {
+  search_term: string;
+  campaign_id: string;
+  campaign_name: string;
+  ad_group_id: string;
+  ad_group_name: string;
+  impressions: number;
+  clicks: number;
+  cost_usd: number;
+  conversions: number;
+  /** Search-term match status: ADDED (became a keyword), EXCLUDED (already
+   *  a negative), NONE (matched a broad/phrase keyword but not added). */
+  status: "ADDED" | "EXCLUDED" | "NONE" | "UNKNOWN";
+}
+
+export interface RiskySearchTerm extends SearchTermRow {
+  matched_negatives: NegativeKeywordSpec[];
+  /** Already added as a campaign-level negative? Set true after adding. */
+  already_negated: boolean;
+}
+
+const MOCK_SEARCH_TERMS: SearchTermRow[] = [
+  // Safe terms — should NOT be flagged
+  {
+    search_term: "free research protocol builder",
+    campaign_id: "11111111111",
+    campaign_name: "Protocol Engine — Search (US)",
+    ad_group_id: "ag1",
+    ad_group_name: "Calculator",
+    impressions: 432, clicks: 38, cost_usd: 24.18, conversions: 6, status: "NONE",
+  },
+  {
+    search_term: "biohacking calculator online",
+    campaign_id: "11111111111",
+    campaign_name: "Protocol Engine — Search (US)",
+    ad_group_id: "ag1",
+    ad_group_name: "Calculator",
+    impressions: 318, clicks: 21, cost_usd: 17.03, conversions: 3, status: "NONE",
+  },
+  // Risky terms — SHOULD be flagged
+  {
+    search_term: "buy bpc 157 online cheap",
+    campaign_id: "11111111111",
+    campaign_name: "Protocol Engine — Search (US)",
+    ad_group_id: "ag1",
+    ad_group_name: "Calculator",
+    impressions: 89, clicks: 12, cost_usd: 18.40, conversions: 0, status: "NONE",
+  },
+  {
+    search_term: "ozempic vs peptide stack",
+    campaign_id: "11111111111",
+    campaign_name: "Protocol Engine — Search (US)",
+    ad_group_id: "ag1",
+    ad_group_name: "Calculator",
+    impressions: 142, clicks: 8, cost_usd: 11.20, conversions: 0, status: "NONE",
+  },
+  {
+    search_term: "tb 500 injection dosing for humans",
+    campaign_id: "11111111111",
+    campaign_name: "Protocol Engine — Search (US)",
+    ad_group_id: "ag2",
+    ad_group_name: "Compound Education",
+    impressions: 67, clicks: 4, cost_usd: 6.18, conversions: 0, status: "NONE",
+  },
+  {
+    search_term: "research compound steroid stack",
+    campaign_id: "11111111111",
+    campaign_name: "Protocol Engine — Search (US)",
+    ad_group_id: "ag2",
+    ad_group_name: "Compound Education",
+    impressions: 41, clicks: 2, cost_usd: 3.10, conversions: 0, status: "NONE",
+  },
+];
+
+/**
+ * Pull the search-terms report (what users actually typed that triggered
+ * one of our keywords) for the given date range.
+ *
+ * Note: search_term_view excludes data older than 30 days per Google Ads policy.
+ */
+export async function getSearchTermsReport(
+  dateRange: DateRange = "LAST_30_DAYS",
+): Promise<SearchTermRow[]> {
+  if (!isLive()) return MOCK_SEARCH_TERMS;
+  const c = customer();
+  const rows = await wrapApiCall("getSearchTermsReport", () => c.report({
+    entity: "search_term_view",
+    attributes: [
+      "search_term_view.search_term",
+      "search_term_view.status",
+      "campaign.id",
+      "campaign.name",
+      "ad_group.id",
+      "ad_group.name",
+    ],
+    metrics: [
+      "metrics.impressions",
+      "metrics.clicks",
+      "metrics.cost_micros",
+      "metrics.conversions",
+    ],
+    date_constant: dateRange,
+  } as never));
+
+  return rows.map((rawRow): SearchTermRow => {
+    const row = rawRow as unknown as Record<string, Record<string, unknown>>;
+    const stv = row.search_term_view ?? {};
+    const camp = row.campaign ?? {};
+    const ag = row.ad_group ?? {};
+    const m = row.metrics ?? {};
+    return {
+      search_term: String(stv.search_term ?? ""),
+      campaign_id: String(camp.id ?? ""),
+      campaign_name: String(camp.name ?? ""),
+      ad_group_id: String(ag.id ?? ""),
+      ad_group_name: String(ag.name ?? ""),
+      impressions: Number(m.impressions ?? 0),
+      clicks: Number(m.clicks ?? 0),
+      cost_usd: microsToUsd(m.cost_micros as number),
+      conversions: Number(m.conversions ?? 0),
+      status: (String(stv.status ?? "UNKNOWN").toUpperCase() as SearchTermRow["status"]),
+    };
+  });
+}
+
+/**
+ * Pull every campaign-level negative keyword currently on the account.
+ * Used to dedupe before adding new negatives.
+ */
+export async function getCampaignNegativeKeywords(): Promise<
+  Array<{ campaign_id: string; text: string; match_type: string }>
+> {
+  if (!isLive()) {
+    return [
+      { campaign_id: "11111111111", text: "weight loss", match_type: "PHRASE" },
+    ];
+  }
+  const c = customer();
+  const rows = await wrapApiCall("getCampaignNegativeKeywords", () => c.query(`
+    SELECT
+      campaign.id,
+      campaign_criterion.keyword.text,
+      campaign_criterion.keyword.match_type
+    FROM campaign_criterion
+    WHERE campaign_criterion.negative = TRUE
+      AND campaign_criterion.type = KEYWORD
+  `));
+  return (rows as unknown as Array<Record<string, Record<string, unknown>>>).map(
+    (row) => {
+      const camp = row.campaign ?? {};
+      const crit = (row.campaign_criterion ?? {}) as Record<string, Record<string, unknown>>;
+      const kw = (crit.keyword ?? {}) as Record<string, unknown>;
+      return {
+        campaign_id: String(camp.id ?? ""),
+        text: String(kw.text ?? ""),
+        match_type: String(kw.match_type ?? ""),
+      };
+    },
+  );
+}
+
+/**
+ * Cross the search-terms report against the master negative-keyword list
+ * and return only the risky ones, marked with whether they're already
+ * negated on the matched campaign.
+ */
+export async function identifyRiskySearchTerms(
+  dateRange: DateRange = "LAST_30_DAYS",
+): Promise<RiskySearchTerm[]> {
+  const [terms, existingNegatives] = await Promise.all([
+    getSearchTermsReport(dateRange),
+    getCampaignNegativeKeywords(),
+  ]);
+  // Build a quick lookup: campaign -> set of normalized negated terms
+  const negByCampaign = new Map<string, Set<string>>();
+  for (const n of existingNegatives) {
+    const key = n.campaign_id;
+    if (!negByCampaign.has(key)) negByCampaign.set(key, new Set());
+    negByCampaign.get(key)!.add(n.text.toLowerCase().trim());
+  }
+
+  const out: RiskySearchTerm[] = [];
+  for (const t of terms) {
+    const { risky, matches } = classifySearchTerm(t.search_term);
+    if (!risky) continue;
+    const negated = negByCampaign.get(t.campaign_id);
+    const alreadyNegated = matches.some(
+      (m) => negated?.has(m.term.toLowerCase().trim()) ?? false,
+    );
+    out.push({
+      ...t,
+      matched_negatives: matches,
+      already_negated: alreadyNegated,
+    });
+  }
+  return out;
+}
+
+/**
+ * Add the given negative keywords to a campaign as campaign-level
+ * negative criteria. Idempotent: silently skips terms that already exist
+ * on the campaign.
+ *
+ * Returns the number of negatives actually added.
+ */
+export async function addCampaignNegativeKeywords(
+  campaignId: string,
+  negatives: NegativeKeywordSpec[],
+): Promise<{ added: number; skipped: number }> {
+  if (negatives.length === 0) return { added: 0, skipped: 0 };
+  if (!isLive()) {
+    return { added: negatives.length, skipped: 0 };
+  }
+  const c = customer();
+  const customerId = process.env.GOOGLE_ADS_CUSTOMER_ID!;
+
+  // Pull existing negatives for this campaign so we can dedupe.
+  const existing = await getCampaignNegativeKeywords();
+  const existingForCampaign = new Set(
+    existing
+      .filter((e) => e.campaign_id === campaignId)
+      .map((e) => `${e.text.toLowerCase().trim()}|${e.match_type}`),
+  );
+
+  const matchTypeMap: Record<NegativeKeywordSpec["match"], number> = {
+    broad: enums.KeywordMatchType.BROAD,
+    phrase: enums.KeywordMatchType.PHRASE,
+    exact: enums.KeywordMatchType.EXACT,
+  };
+
+  const operations: Array<Record<string, unknown>> = [];
+  let skipped = 0;
+  const campaignResource = ResourceNames.campaign(customerId, campaignId);
+
+  for (const n of negatives) {
+    const key = `${n.term.toLowerCase().trim()}|${n.match.toUpperCase()}`;
+    if (existingForCampaign.has(key)) {
+      skipped++;
+      continue;
+    }
+    operations.push({
+      campaign: campaignResource,
+      negative: true,
+      keyword: {
+        text: n.term,
+        match_type: matchTypeMap[n.match],
+      },
+    });
+  }
+
+  if (operations.length === 0) return { added: 0, skipped };
+
+  await wrapApiCall("addCampaignNegativeKeywords", () =>
+    c.campaignCriteria.create(operations as never),
+  );
+  return { added: operations.length, skipped };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Ad disapproval scan                                                        */
+/* -------------------------------------------------------------------------- */
+
+export interface DisapprovedAd {
+  ad_id: string;
+  ad_group_id: string;
+  ad_group_name: string;
+  campaign_id: string;
+  campaign_name: string;
+  approval_status: string;
+  policy_topics: string[];
+  ad_strength: string;
+  type: string;
+}
+
+const MOCK_DISAPPROVED: DisapprovedAd[] = [
+  // Empty by default — disapprovals are an alert state, not a steady state.
+];
+
+export async function getDisapprovedAds(): Promise<DisapprovedAd[]> {
+  if (!isLive()) return MOCK_DISAPPROVED;
+  const c = customer();
+  const rows = await wrapApiCall("getDisapprovedAds", () => c.query(`
+    SELECT
+      ad_group_ad.ad.id,
+      ad_group_ad.ad.type,
+      ad_group_ad.policy_summary.approval_status,
+      ad_group_ad.policy_summary.policy_topic_entries,
+      ad_group_ad.ad_strength,
+      ad_group.id,
+      ad_group.name,
+      campaign.id,
+      campaign.name
+    FROM ad_group_ad
+    WHERE ad_group_ad.policy_summary.approval_status IN (DISAPPROVED, AREA_OF_INTEREST_ONLY)
+      AND ad_group_ad.status != REMOVED
+  `));
+
+  return (rows as unknown as Array<Record<string, Record<string, unknown>>>).map(
+    (row) => {
+      const adGroupAd = (row.ad_group_ad ?? {}) as Record<string, Record<string, unknown>>;
+      const ad = (adGroupAd.ad ?? {}) as Record<string, unknown>;
+      const policy = (adGroupAd.policy_summary ?? {}) as Record<string, unknown>;
+      const ag = row.ad_group ?? {};
+      const camp = row.campaign ?? {};
+      const topics = (policy.policy_topic_entries as Array<Record<string, unknown>> | undefined) ?? [];
+      return {
+        ad_id: String(ad.id ?? ""),
+        ad_group_id: String(ag.id ?? ""),
+        ad_group_name: String(ag.name ?? ""),
+        campaign_id: String(camp.id ?? ""),
+        campaign_name: String(camp.name ?? ""),
+        approval_status: String(policy.approval_status ?? "UNKNOWN"),
+        policy_topics: topics.map((t) => String(t.topic ?? "unknown")),
+        ad_strength: String(adGroupAd.ad_strength ?? ""),
+        type: String(ad.type ?? ""),
+      };
+    },
+  );
+}
+
+/**
+ * Pause every disapproved ad. Per the strategy doc:
+ *   "auto-pause disapproved ad to prevent account contamination"
+ *
+ * Returns how many were paused.
+ */
+export async function pauseDisapprovedAds(): Promise<{ paused: number }> {
+  const disapproved = await getDisapprovedAds();
+  if (disapproved.length === 0) return { paused: 0 };
+  if (!isLive()) return { paused: disapproved.length };
+  const c = customer();
+  const customerId = process.env.GOOGLE_ADS_CUSTOMER_ID!;
+  const operations = disapproved.map((d) => ({
+    resource_name: ResourceNames.adGroupAd(customerId, d.ad_group_id, d.ad_id),
+    status: enums.AdGroupAdStatus.PAUSED,
+  }));
+  await wrapApiCall("pauseDisapprovedAds", () =>
+    c.adGroupAds.update(operations as never),
+  );
+  return { paused: operations.length };
 }

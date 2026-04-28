@@ -7,6 +7,8 @@ const LINKS = [
   { href: "/performance", label: "Performance" },
   { href: "/campaigns", label: "Campaigns" },
   { href: "/keywords", label: "Keywords" },
+  { href: "/search-terms", label: "Search terms" },
+  { href: "/disapprovals", label: "Disapprovals" },
 ];
 
 export type NavMode = "mock" | "test" | "live";

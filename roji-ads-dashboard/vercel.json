@@ -3,6 +3,16 @@
   "framework": "nextjs",
   "buildCommand": "next build",
   "installCommand": "npm install",
+  "crons": [
+    {
+      "path": "/api/cron/mine-search-terms",
+      "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/cron/check-disapprovals",
+      "schedule": "0 * * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
