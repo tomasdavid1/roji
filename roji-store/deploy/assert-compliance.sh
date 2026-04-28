@@ -123,6 +123,8 @@ home_html=$(fetch_origin "/")
 if [[ -z "$home_html" ]]; then
   echo "::warning::Could not fetch homepage HTML for wordmark check"
 else
+  echo "  homepage HTML bytes: $(wc -c <<<"$home_html")"
+
   # 4a. The custom-logo lockup must render the lowercase wordmark span.
   if grep -Fq 'roji-wordmark__text' <<<"$home_html"; then
     echo "  OK custom-logo lockup is rendering (.roji-wordmark__text present)"
@@ -146,6 +148,28 @@ else
   else
     echo "::warning::Lowercase 'roji' wordmark text not found in homepage markup - check the header rendering"
   fi
+
+  # DEBUG: dump the first <header>...</header> block so we can see
+  # what Hello Elementor (or Elementor Pro header builder) is actually
+  # rendering. Limited to 3000 chars so the log doesn't explode.
+  echo ""
+  echo "  --- header block dump (debug) ---"
+  python3 - <<PY 2>/dev/null || echo "$home_html" | grep -i -m1 -A40 '<header' | head -60
+import re, sys, os
+html = """$home_html"""
+# Find first <header...>...</header>
+m = re.search(r'<header[^>]*>.*?</header>', html, re.DOTALL | re.IGNORECASE)
+if m:
+    chunk = m.group(0)
+    print(chunk[:3000])
+else:
+    # No <header> tag - look for anything with 'logo' or 'site-title'
+    candidates = re.findall(r'<(?:a|span|div|h1|p)[^>]*(?:site-title|custom-logo|site-branding|logo)[^>]*>.*?</(?:a|span|div|h1|p)>', html, re.DOTALL | re.IGNORECASE)
+    for c in candidates[:5]:
+        print(c[:500])
+        print('---')
+PY
+  echo "  --- end header dump ---"
 fi
 
 if [[ "$fail" -ne 0 ]]; then
