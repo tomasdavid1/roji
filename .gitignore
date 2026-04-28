@@ -36,3 +36,4 @@ roji-store/wp-content/
 roji-store/wordpress/
 roji-store/wp-config.php
 roji-store/wp-*.php
+.vercel
