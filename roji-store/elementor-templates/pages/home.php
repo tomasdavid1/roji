@@ -59,47 +59,14 @@ return array(
 			'content_width' => 'boxed',
 		), array(
 			roji_el_card( array(
-				roji_el_inner( array(
-					'flex_direction' => 'row',
-					'flex_wrap' => 'wrap',
-					'flex_gap' => array( 'column' => '32', 'row' => '32', 'unit' => 'px', 'isLinked' => true ),
-					'flex_align_items' => 'center',
-					'padding' => array( 'top' => '0', 'right' => '0', 'bottom' => '0', 'left' => '0', 'unit' => 'px', 'isLinked' => true ),
-				), array(
-					roji_el_inner( array(
-						'_inline_size' => 60,
-						'flex_gap' => array( 'column' => '12', 'row' => '12', 'unit' => 'px', 'isLinked' => true ),
-						'padding' => array( 'top' => '0', 'right' => '0', 'bottom' => '0', 'left' => '0', 'unit' => 'px', 'isLinked' => true ),
-					), array(
-						roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.15em;text-transform:uppercase;">Research Tools</div>' ),
-						roji_el_heading( 'Calculators, databases, and analyzers — all free.', array(
-							'header_size' => 'h2',
-							'typography_font_size' => array( 'unit' => 'px', 'size' => 32, 'sizes' => array() ),
-							'typography_line_height' => array( 'unit' => 'em', 'size' => 1.15, 'sizes' => array() ),
-						) ),
-						roji_el_text( '<p style="font-size:16px;color:#a8a8b8;">Reconstitution math, half-life databases, COA analyzers, and more. Open references. Open math. Skip the forum spelunking.</p>' ),
-						roji_el_button( 'Explore the tools →', 'https://tools.rojipeptides.com' ),
-					) ),
-					roji_el_inner( array(
-						'_inline_size' => 35,
-						'padding' => array( 'top' => '20', 'right' => '20', 'bottom' => '20', 'left' => '20', 'unit' => 'px', 'isLinked' => true ),
-						'background_background' => 'classic',
-						'background_color' => '#0d0d14',
-						'border_border' => 'solid',
-						'border_width' => array( 'top' => '1', 'right' => '1', 'bottom' => '1', 'left' => '1', 'unit' => 'px', 'isLinked' => true ),
-						'border_color' => 'rgba(255,255,255,0.06)',
-						'border_radius' => array( 'top' => '8', 'right' => '8', 'bottom' => '8', 'left' => '8', 'unit' => 'px', 'isLinked' => true ),
-					), array(
-						roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:12px;line-height:1.7;color:#a8a8b8;">
-<span style="color:#4f6df5;">// example output</span><br>
-<span style="color:#55556a;">stack:</span> wolverine<br>
-<span style="color:#55556a;">bpc-157:</span> <span style="color:#22c55e;">250mcg</span> <span style="color:#55556a;">2x daily SC</span><br>
-<span style="color:#55556a;">tb-500:</span>&nbsp;&nbsp;<span style="color:#22c55e;">2.5mg</span> <span style="color:#55556a;">2x weekly SC</span><br>
-<span style="color:#55556a;">cycle:</span>&nbsp;&nbsp;&nbsp;<span style="color:#22c55e;">4 weeks</span><br>
-<span style="color:#55556a;">cited:</span>&nbsp;&nbsp;&nbsp;<span style="color:#4f6df5;">3 papers</span> <span style="color:#22c55e;">↗</span>
-</div>' ),
-					) ),
+				roji_el_html( '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.15em;text-transform:uppercase;">Research Tools</div>' ),
+				roji_el_heading( 'Calculators, databases, and analyzers — all free.', array(
+					'header_size' => 'h2',
+					'typography_font_size' => array( 'unit' => 'px', 'size' => 32, 'sizes' => array() ),
+					'typography_line_height' => array( 'unit' => 'em', 'size' => 1.15, 'sizes' => array() ),
 				) ),
+				roji_el_text( '<p style="font-size:16px;color:#a8a8b8;max-width:680px;">Reconstitution math, half-life databases, COA analyzers, and more. Open references. Open math. Skip the forum spelunking.</p>' ),
+				roji_el_button( 'Explore the tools →', 'https://tools.rojipeptides.com' ),
 			), array( 'padding' => array( 'top' => '48', 'right' => '40', 'bottom' => '48', 'left' => '40', 'unit' => 'px', 'isLinked' => false ) ) ),
 		) ),
 
