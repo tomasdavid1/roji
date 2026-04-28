@@ -79,8 +79,9 @@ h4 {
   }
   .roji-btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-roji
-      bg-roji-accent text-white hover:bg-roji-accent-hover transition-colors text-sm font-semibold
-      disabled:opacity-50 disabled:cursor-not-allowed;
+      bg-roji-accent text-white shadow-roji-glow hover:bg-roji-accent-hover hover:shadow-roji-glow-strong
+      transition-[colors,box-shadow] duration-200 text-sm font-semibold
+      disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none;
   }
   .roji-label {
     @apply block text-xs uppercase tracking-widest text-roji-muted mb-2 font-mono;
