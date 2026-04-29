@@ -26,6 +26,15 @@ if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 $desired = array(
 	'blogname'        => 'roji',
 	'blogdescription' => '',
+
+	// WooCommerce image sizes - these are read every loop render and
+	// override add_theme_support('woocommerce', [...]). Pinning them
+	// here means a Customizer change can never silently shrink the
+	// shop tiles back down. 600x600 1:1 keeps our square packshots
+	// crisp on retina displays.
+	'woocommerce_thumbnail_image_width' => '600',
+	'woocommerce_thumbnail_cropping'    => '1:1',
+	'woocommerce_single_image_width'    => '1200',
 );
 
 $updated = 0;
