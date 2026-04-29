@@ -23,9 +23,9 @@ interface ToolData {
 const TOOL_MAP: Record<string, React.FC<{ data: ToolData }>> = {
   reconstitution_calculator: ReconWidget,
   cost_per_dose: CostPerDoseWidget,
-  body_recomp_calculator: RecompWidget,
+  recomp_calculator: RecompWidget,
   supplement_interactions: InteractionsWidget,
-  half_life_database: HalfLifeWidget,
+  half_life_lookup: HalfLifeWidget,
 };
 
 function Footer() {
