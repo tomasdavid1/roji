@@ -212,7 +212,20 @@ add_filter(
 		}
 		$brand = 'Roji Peptides';
 		if ( is_front_page() || is_home() ) {
-			return $brand . ' - Research-grade peptides';
+			// Wider, intent-rich homepage title for SEO. Brand on the
+			// LEFT (Google trims long titles from the right), key
+			// claims after the pipe.
+			return $brand . ' | Research-Grade Peptide Stacks with Third-Party COA';
+		}
+		if ( function_exists( 'is_shop' ) && is_shop() ) {
+			return 'Shop Research-Grade Peptide Stacks | ' . $brand;
+		}
+		if ( function_exists( 'is_product' ) && is_product() ) {
+			$pid = get_queried_object_id();
+			$p   = $pid ? wc_get_product( $pid ) : null;
+			if ( $p ) {
+				return $p->get_name() . ' — Research-Grade · Third-Party COA | ' . $brand;
+			}
 		}
 		if ( is_singular() ) {
 			$page_title = wp_get_document_title_for_post( get_queried_object_id() );
