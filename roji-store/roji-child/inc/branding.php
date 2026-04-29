@@ -181,6 +181,22 @@ add_filter(
 );
 
 /**
+ * Elementor Site Title / dynamic tags often call get_option( 'blogname' )
+ * directly, bypassing bloginfo(). Keep the public site name lowercase
+ * 'roji' without affecting WP-CLI or wp-admin screens.
+ */
+add_filter(
+	'option_blogname',
+	function ( $value ) {
+		if ( ( defined( 'WP_CLI' ) && WP_CLI ) || is_admin() ) {
+			return $value;
+		}
+		return 'roji';
+	},
+	20
+);
+
+/**
  * Override the document title (the <title> tag) so search engines,
  * social previews, and browser tabs see the full brand even though
  * the in-page wordmark is lowercase.

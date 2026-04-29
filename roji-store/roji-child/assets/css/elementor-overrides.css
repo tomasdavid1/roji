@@ -85,17 +85,81 @@
   outline: none;
 }
 
-/* Header / nav. */
-.elementor-nav-menu a,
-.elementor-nav-menu .elementor-item {
-  color: var(--roji-text-secondary) !important;
+/* Header / nav — horizontal bar only. Dropdown panels are styled separately
+   (next block): they need their own rules because some Elementor layouts move
+   the `<nav>` outside `.elementor-location-header`, and kit defaults paint them
+   white with link-blue text. */
+.elementor-location-header .elementor-nav-menu--layout-horizontal a.elementor-item,
+.elementor-location-header .elementor-nav-menu--layout-horizontal .elementor-item {
+  color: rgba(240, 240, 245, 0.92) !important;
   font-weight: 500;
   letter-spacing: 0;
   transition: color 0.15s ease;
 }
-.elementor-nav-menu a:hover,
-.elementor-nav-menu .elementor-item.elementor-item-active {
-  color: var(--roji-text-primary) !important;
+.elementor-location-header .elementor-nav-menu--layout-horizontal a.elementor-item:hover,
+.elementor-location-header .elementor-nav-menu--layout-horizontal .elementor-item.elementor-item-active {
+  color: var(--roji-accent-hover) !important;
+}
+
+/* Fallback when the horizontal layout class is absent (some kit exports). */
+.elementor-location-header .elementor-widget-nav-menu .elementor-nav-menu__container:not(.elementor-nav-menu--dropdown) a.elementor-item {
+  color: rgba(240, 240, 245, 0.92) !important;
+}
+
+/* Mobile / tablet slide-down or full-width menu — works even when the
+   dropdown `<nav>` is moved to the end of `<body>`. */
+.elementor-nav-menu--dropdown,
+.elementor-nav-menu__container.elementor-nav-menu--dropdown,
+nav.elementor-nav-menu--dropdown {
+  background-color: var(--roji-darker) !important;
+  border-color: var(--roji-border, rgba(255, 255, 255, 0.06)) !important;
+}
+
+.elementor-nav-menu--dropdown .elementor-item,
+.elementor-nav-menu--dropdown a.elementor-item {
+  color: rgba(240, 240, 245, 0.95) !important;
+  background: transparent !important;
+  border-color: var(--roji-border, rgba(255, 255, 255, 0.06)) !important;
+}
+
+.elementor-nav-menu--dropdown .elementor-item:hover,
+.elementor-nav-menu--dropdown .elementor-item:focus,
+.elementor-nav-menu--dropdown .elementor-item.elementor-item-active {
+  background: rgba(79, 109, 245, 0.1) !important;
+  color: #fff !important;
+}
+
+/* Hamburger / close control — kill default orange focus ring; keep a11y with :focus-visible */
+.elementor-location-header .elementor-menu-toggle {
+  color: rgba(240, 240, 245, 0.92) !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.elementor-location-header .elementor-menu-toggle:focus:not(:focus-visible) {
+  outline: none !important;
+}
+.elementor-location-header .elementor-menu-toggle:focus-visible {
+  outline: 2px solid var(--roji-accent) !important;
+  outline-offset: 3px;
+}
+
+/* Site Title widget in header (when not using filtered custom-logo HTML) */
+.elementor-location-header .elementor-widget-theme-site-title .elementor-heading-title,
+.elementor-location-header .elementor-widget-theme-site-title .elementor-heading-title a,
+.elementor-location-header .elementor-widget-site-title .elementor-heading-title,
+.elementor-location-header .elementor-widget-site-title .elementor-heading-title a {
+  color: rgba(240, 240, 245, 0.96) !important;
+  text-decoration: none !important;
+  text-transform: lowercase !important;
+  font-weight: 600 !important;
+}
+
+.elementor-location-header .elementor-widget-theme-site-logo a,
+.elementor-location-header .elementor-widget-site-logo a {
+  color: rgba(240, 240, 245, 0.96) !important;
+  text-decoration: none !important;
 }
 
 /* Section dividers. */
