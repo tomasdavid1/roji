@@ -9,9 +9,16 @@ interface ToolStats {
   avgMs: number;
 }
 
+interface PlatformStats {
+  calls: number;
+  sessions: number;
+}
+
 interface RecentEvent {
   timestamp: string;
   toolName: string;
+  sessionId?: string;
+  platform?: string;
   argsSummary: Record<string, unknown>;
   durationMs: number;
   hasWidget: boolean;
@@ -24,11 +31,14 @@ interface AnalyticsData {
     totalCalls: number;
     totalErrors: number;
     uniqueSessions: number;
+    multiToolSessions: number;
+    avgToolsPerSession: number;
     last24h: number;
     lastHour: number;
     eventsBuffered: number;
   };
   byTool: Record<string, ToolStats>;
+  byPlatform?: Record<string, PlatformStats>;
   recentEvents: RecentEvent[];
 }
 
@@ -56,6 +66,15 @@ const TOOL_DISPLAY: Record<string, string> = {
   recomp_calculator: "Body Recomp",
   supplement_interactions: "Interactions",
   pubmed_search: "PubMed",
+};
+
+const PLATFORM_DISPLAY: Record<string, { label: string; color: string }> = {
+  chatgpt: { label: "ChatGPT", color: "bg-emerald-500" },
+  claude: { label: "Claude", color: "bg-orange-400" },
+  cursor: { label: "Cursor", color: "bg-blue-400" },
+  gemini: { label: "Gemini", color: "bg-purple-400" },
+  grok: { label: "Grok", color: "bg-red-400" },
+  unknown: { label: "Other", color: "bg-roji-dim" },
 };
 
 export default function McpToolsPage() {
@@ -117,10 +136,14 @@ export default function McpToolsPage() {
 
   if (!data) return null;
 
-  const { server, byTool, recentEvents } = data;
+  const { server, byTool, byPlatform, recentEvents } = data;
   const toolEntries = Object.entries(byTool).sort((a, b) => b[1].calls - a[1].calls);
+  const platformEntries = Object.entries(byPlatform ?? {}).sort((a, b) => b[1].calls - a[1].calls);
   const errorRate = server.totalCalls > 0
     ? ((server.totalErrors / server.totalCalls) * 100).toFixed(1)
+    : "0";
+  const engagementRate = server.uniqueSessions > 0
+    ? ((server.multiToolSessions / server.uniqueSessions) * 100).toFixed(0)
     : "0";
 
   return (
@@ -130,7 +153,7 @@ export default function McpToolsPage() {
           <div>
             <h1 className="text-2xl font-semibold">MCP Tools</h1>
             <p className="text-roji-muted text-sm mt-1">
-              ChatGPT &middot; Claude &middot; Cursor &middot; Live usage
+              ChatGPT &middot; Claude &middot; Cursor &middot; Conversion analytics
             </p>
           </div>
           <button
@@ -142,14 +165,61 @@ export default function McpToolsPage() {
         </div>
       </header>
 
-      <section className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+      {/* Primary metrics */}
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <MetricCard label="Total calls" value={fmtInt(server.totalCalls)} />
-        <MetricCard label="Last hour" value={fmtInt(server.lastHour)} />
-        <MetricCard label="Last 24h" value={fmtInt(server.last24h)} />
         <MetricCard label="Sessions" value={fmtInt(server.uniqueSessions)} />
-        <MetricCard label="Error rate" value={`${errorRate}%`} hint={`${server.totalErrors} errors`} />
+        <MetricCard
+          label="Engagement"
+          value={`${engagementRate}%`}
+          hint={`${server.multiToolSessions} multi-tool sessions`}
+        />
+        <MetricCard
+          label="Avg tools/session"
+          value={String(server.avgToolsPerSession)}
+        />
       </section>
 
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+        <MetricCard label="Last hour" value={fmtInt(server.lastHour)} />
+        <MetricCard label="Last 24h" value={fmtInt(server.last24h)} />
+        <MetricCard label="Error rate" value={`${errorRate}%`} hint={`${server.totalErrors} errors`} />
+        <MetricCard label="Events buffered" value={fmtInt(server.eventsBuffered)} />
+      </section>
+
+      {/* Platform breakdown */}
+      {platformEntries.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-sm font-mono uppercase tracking-widest text-roji-muted mb-3">
+            By platform
+          </h2>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+            {platformEntries.map(([platform, stats]) => {
+              const display = PLATFORM_DISPLAY[platform] ?? PLATFORM_DISPLAY.unknown;
+              return (
+                <div key={platform} className="roji-card flex items-center gap-3">
+                  <span className={`w-2.5 h-2.5 rounded-full ${display.color} flex-shrink-0`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-roji-text">{display.label}</div>
+                    <div className="text-xs text-roji-muted">
+                      {fmtInt(stats.calls)} calls &middot; {fmtInt(stats.sessions)} sessions
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-mono text-roji-text">
+                      {server.totalCalls > 0
+                        ? `${((stats.calls / server.totalCalls) * 100).toFixed(0)}%`
+                        : "—"}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Per-tool breakdown */}
       <section className="mb-10">
         <h2 className="text-sm font-mono uppercase tracking-widest text-roji-muted mb-3">
           Per tool
@@ -204,6 +274,7 @@ export default function McpToolsPage() {
         </div>
       </section>
 
+      {/* Recent activity */}
       <section>
         <h2 className="text-sm font-mono uppercase tracking-widest text-roji-muted mb-3">
           Recent activity
@@ -213,6 +284,7 @@ export default function McpToolsPage() {
             <thead>
               <tr className="text-left text-[10px] font-mono uppercase tracking-widest text-roji-dim border-b border-roji-border">
                 <th className="px-4 py-3">When</th>
+                <th className="px-4 py-3">Platform</th>
                 <th className="px-4 py-3">Tool</th>
                 <th className="px-4 py-3">Args</th>
                 <th className="px-4 py-3 text-right">Time</th>
@@ -221,41 +293,50 @@ export default function McpToolsPage() {
               </tr>
             </thead>
             <tbody>
-              {recentEvents.map((e, i) => (
-                <tr key={i} className="border-b border-roji-border last:border-0">
-                  <td className="px-4 py-2 text-roji-dim text-xs font-mono whitespace-nowrap">
-                    {relativeTime(e.timestamp)}
-                  </td>
-                  <td className="px-4 py-2 text-roji-text">
-                    {TOOL_DISPLAY[e.toolName] ?? e.toolName}
-                  </td>
-                  <td className="px-4 py-2 text-roji-muted text-xs font-mono max-w-[200px] truncate">
-                    {Object.entries(e.argsSummary)
-                      .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
-                      .join(", ")}
-                  </td>
-                  <td className="px-4 py-2 text-right font-mono text-roji-muted">
-                    {fmtMs(e.durationMs)}
-                  </td>
-                  <td className="px-4 py-2 text-center">
-                    {e.hasWidget ? (
-                      <span className="inline-block w-2 h-2 rounded-full bg-roji-success" title="Widget rendered" />
-                    ) : (
-                      <span className="inline-block w-2 h-2 rounded-full bg-roji-dim" title="Text only" />
-                    )}
-                  </td>
-                  <td className="px-4 py-2">
-                    {e.error ? (
-                      <span className="text-xs text-roji-danger" title={e.error}>Error</span>
-                    ) : (
-                      <span className="text-xs text-roji-success">OK</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {recentEvents.map((e, i) => {
+                const platformInfo = PLATFORM_DISPLAY[e.platform ?? "unknown"] ?? PLATFORM_DISPLAY.unknown;
+                return (
+                  <tr key={i} className="border-b border-roji-border last:border-0">
+                    <td className="px-4 py-2 text-roji-dim text-xs font-mono whitespace-nowrap">
+                      {relativeTime(e.timestamp)}
+                    </td>
+                    <td className="px-4 py-2">
+                      <span className="inline-flex items-center gap-1.5 text-xs">
+                        <span className={`w-1.5 h-1.5 rounded-full ${platformInfo.color}`} />
+                        {platformInfo.label}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2 text-roji-text">
+                      {TOOL_DISPLAY[e.toolName] ?? e.toolName}
+                    </td>
+                    <td className="px-4 py-2 text-roji-muted text-xs font-mono max-w-[200px] truncate">
+                      {Object.entries(e.argsSummary)
+                        .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+                        .join(", ")}
+                    </td>
+                    <td className="px-4 py-2 text-right font-mono text-roji-muted">
+                      {fmtMs(e.durationMs)}
+                    </td>
+                    <td className="px-4 py-2 text-center">
+                      {e.hasWidget ? (
+                        <span className="inline-block w-2 h-2 rounded-full bg-roji-success" title="Widget rendered" />
+                      ) : (
+                        <span className="inline-block w-2 h-2 rounded-full bg-roji-dim" title="Text only" />
+                      )}
+                    </td>
+                    <td className="px-4 py-2">
+                      {e.error ? (
+                        <span className="text-xs text-roji-danger" title={e.error}>Error</span>
+                      ) : (
+                        <span className="text-xs text-roji-success">OK</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
               {recentEvents.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-roji-muted text-sm">
+                  <td colSpan={7} className="px-4 py-8 text-center text-roji-muted text-sm">
                     No recent activity. Tool calls will appear here in real-time.
                   </td>
                 </tr>
@@ -268,6 +349,7 @@ export default function McpToolsPage() {
       <footer className="mt-6 text-xs text-roji-dim">
         Server up since {new Date(server.upSince).toLocaleString()} &middot;{" "}
         {server.eventsBuffered} events buffered &middot; Auto-refreshes every 30s
+        &middot; UTM attribution: <code className="text-roji-muted">?utm_source=mcp&utm_medium=ai</code>
       </footer>
     </div>
   );
