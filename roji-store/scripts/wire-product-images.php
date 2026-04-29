@@ -73,6 +73,30 @@ foreach ( $map as $sku => $filename ) {
 			$cur_hash = md5_file( $current_path );
 			if ( $src_hash && $src_hash === $cur_hash ) {
 				++$skipped;
+
+				// Even on the skip path, make sure any autoship siblings
+				// are pointed at the parent's current attachment - they
+				// were created with whatever image_id the parent had at
+				// sibling-creation time, which may now be stale.
+				$siblings = get_posts(
+					array(
+						'post_type'      => 'product',
+						'post_status'    => 'any',
+						'meta_key'       => '_roji_autoship_for',
+						'meta_value'     => $product_id,
+						'posts_per_page' => -1,
+						'fields'         => 'ids',
+						'no_found_rows'  => true,
+					)
+				);
+				foreach ( $siblings as $sibling_id ) {
+					$sibling_thumb_id = (int) get_post_thumbnail_id( (int) $sibling_id );
+					if ( $sibling_thumb_id !== $current_thumb_id ) {
+						set_post_thumbnail( (int) $sibling_id, $current_thumb_id );
+						WP_CLI::log( sprintf( '  ↳ autoship sibling %d resynced to parent attachment %d', $sibling_id, $current_thumb_id ) );
+					}
+				}
+
 				continue;
 			}
 		}
@@ -112,6 +136,26 @@ foreach ( $map as $sku => $filename ) {
 
 	++$updated;
 	WP_CLI::log( sprintf( '%s -> attachment %d (%s)', $sku, $attachment_id, $filename ) );
+
+	// Propagate to any autoship sibling product that points at this one
+	// via _roji_autoship_for postmeta. The sibling was created with the
+	// parent's old image_id, which becomes stale every time we replace
+	// the parent's artwork in place.
+	$siblings = get_posts(
+		array(
+			'post_type'      => 'product',
+			'post_status'    => 'any',
+			'meta_key'       => '_roji_autoship_for',
+			'meta_value'     => $product_id,
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+		)
+	);
+	foreach ( $siblings as $sibling_id ) {
+		set_post_thumbnail( (int) $sibling_id, $attachment_id );
+		WP_CLI::log( sprintf( '  ↳ autoship sibling %d -> attachment %d', $sibling_id, $attachment_id ) );
+	}
 }
 
 WP_CLI::success( sprintf( 'Wired %d images, skipped %d already-current', $updated, $skipped ) );
