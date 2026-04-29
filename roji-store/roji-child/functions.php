@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ROJI_CHILD_VERSION', '1.1.9' );
+define( 'ROJI_CHILD_VERSION', '1.2.0' );
 define( 'ROJI_CHILD_DIR', get_stylesheet_directory() );
 define( 'ROJI_CHILD_URI', get_stylesheet_directory_uri() );
 

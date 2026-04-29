@@ -1310,6 +1310,35 @@ input[type="radio"] {
   text-align: center;
 }
 
+/* Post-AJAX "View cart →" link that WC injects next to the add-to-cart
+   button on the shop loop after a successful add. Default WC drops it
+   inline with no spacing or styling, so it reads as a stray accent
+   link kissing the button. Style it as a clear secondary action with
+   real breathing room above. */
+.woocommerce ul.products li.product a.added_to_cart,
+.woocommerce ul.products li.product a.added_to_cart.wc-forward {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px !important;
+  padding: 6px 0 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--roji-text-secondary) !important;
+  text-decoration: none !important;
+  border-bottom: 1px dotted var(--roji-border-hover);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.woocommerce ul.products li.product a.added_to_cart::after {
+  content: "→";
+  margin-left: 2px;
+  font-family: var(--roji-font-mono);
+}
+.woocommerce ul.products li.product a.added_to_cart:hover {
+  color: var(--roji-text-primary) !important;
+  border-bottom-color: var(--roji-accent) !important;
+}
+
 /* Hide WooCommerce's default "Showing all X results" + sort dropdown.
    We replace them with branded category chips (rendered server-side
    via the `roji_shop_category_filter` shortcode/action). */
