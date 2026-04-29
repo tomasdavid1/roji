@@ -615,6 +615,93 @@ input[type="radio"] {
   line-height: 1.6;
 }
 
+/* --------------------------------------------------------------------------
+ * Site footer — Elementor + Hello often leave nav links at browser default
+ * blue on black. Normalize to readable neutrals + calmer wrap layout.
+ * -------------------------------------------------------------------------- */
+
+.site-footer,
+#site-footer,
+footer.site-footer,
+.elementor-location-footer,
+.elementor-location-footer > .elementor {
+  background-color: var(--roji-black) !important;
+  color: var(--roji-text-secondary);
+  border-top: 1px solid var(--roji-border);
+}
+
+.site-footer .site-footer-inner,
+.elementor-location-footer .elementor-section-wrap {
+  padding-top: 28px;
+  padding-bottom: 20px;
+}
+
+.site-footer a,
+.site-footer a:visited,
+#site-footer a,
+#site-footer a:visited,
+footer.site-footer a,
+footer.site-footer a:visited,
+.elementor-location-footer a,
+.elementor-location-footer a:visited {
+  color: rgba(240, 240, 245, 0.92) !important;
+  text-decoration: none !important;
+  font-weight: 500;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.site-footer a:hover,
+.site-footer a:focus,
+#site-footer a:hover,
+footer.site-footer a:hover,
+.elementor-location-footer a:hover,
+.elementor-location-footer a:focus {
+  color: var(--roji-accent-hover) !important;
+}
+
+.elementor-location-footer .elementor-nav-menu,
+.site-footer nav .menu,
+.site-footer .footer-navigation ul {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  align-items: center;
+  gap: 10px 22px !important;
+  row-gap: 14px !important;
+  list-style: none !important;
+  margin: 0 auto !important;
+  padding: 12px 16px 8px !important;
+  max-width: 1100px;
+}
+
+.elementor-location-footer .elementor-nav-menu li,
+.site-footer nav .menu li {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+.elementor-location-footer .elementor-nav-menu a,
+.elementor-location-footer .elementor-nav-menu .elementor-item {
+  color: rgba(240, 240, 245, 0.92) !important;
+}
+
+.elementor-location-footer .elementor-nav-menu a:hover,
+.elementor-location-footer .elementor-nav-menu .elementor-item:hover {
+  color: var(--roji-accent-hover) !important;
+}
+
+/* "All rights reserved" / copyright under the menu */
+.site-footer .copyright,
+.site-footer .site-info {
+  color: var(--roji-text-muted);
+  font-size: 12px;
+  text-align: center;
+  margin: 16px auto 0;
+  max-width: 720px;
+  line-height: 1.5;
+}
+
 .roji-coa-tab,
 .roji-research-tab {
   padding: 8px 0;

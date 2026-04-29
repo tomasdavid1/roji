@@ -102,3 +102,26 @@
 .elementor-divider-separator {
   border-top-color: var(--roji-border) !important;
 }
+
+/* Footer: same widget classes as header, but links must read on black
+   (header rules above would otherwise keep them muted / accent-only). */
+.elementor-location-footer .elementor-nav-menu a,
+.elementor-location-footer .elementor-nav-menu .elementor-item {
+  color: rgba(240, 240, 245, 0.92) !important;
+}
+.elementor-location-footer .elementor-nav-menu a:hover,
+.elementor-location-footer .elementor-nav-menu .elementor-item:hover,
+.elementor-location-footer .elementor-nav-menu .elementor-item.elementor-item-active {
+  color: var(--roji-accent-hover) !important;
+}
+
+.elementor-location-footer .elementor-nav-menu {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  gap: 10px 22px !important;
+  row-gap: 14px !important;
+}
+.elementor-location-footer .elementor-nav-menu li {
+  margin: 0 !important;
+}

@@ -91,10 +91,12 @@ $has_research = (bool) get_post_meta( $product->get_id(), '_research_refs', true
 		.roji-pdp-priceblock .stock { font-size: 12px; font-family: var(--roji-font-mono); margin-top: 12px; color: var(--roji-text-secondary); }
 		.roji-pdp-priceblock .stock.in-stock { color: #4ade80; }
 
-		.roji-pdp-trust { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-		.roji-pdp-trust div { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--roji-border); border-radius: var(--roji-radius); font-size: 12px; line-height: 1.4; color: var(--roji-text-secondary); }
-		.roji-pdp-trust div strong { color: var(--roji-text-primary); display: block; margin-bottom: 1px; }
-		.roji-pdp-trust div .ico { width: 18px; height: 18px; flex-shrink: 0; color: var(--roji-accent); margin-top: 1px; }
+		.roji-pdp-trust { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+		/* Only the card row gets the frame — inner text div must stay borderless (was "box in a box"). */
+		.roji-pdp-trust > .roji-pdp-trust__item { display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--roji-border); border-radius: var(--roji-radius); font-size: 12px; line-height: 1.45; color: var(--roji-text-secondary); }
+		.roji-pdp-trust__item .roji-pdp-trust__text { flex: 1; min-width: 0; margin: 0; padding: 0; border: none; background: transparent; display: block; }
+		.roji-pdp-trust__item strong { color: var(--roji-text-primary); display: block; margin: 0 0 4px; font-size: 13px; font-weight: 600; }
+		.roji-pdp-trust__item .ico { width: 20px; height: 20px; flex-shrink: 0; color: var(--roji-accent); margin-top: 2px; }
 
 		.roji-pdp-meta-list { display: grid; gap: 6px; padding: 14px 16px; border: 1px solid var(--roji-border); border-radius: var(--roji-radius); background: rgba(255,255,255,0.01); }
 		.roji-pdp-meta-list .row { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; }
@@ -173,21 +175,21 @@ $has_research = (bool) get_post_meta( $product->get_id(), '_research_refs', true
 			</div>
 
 			<div class="roji-pdp-trust">
-				<div>
+				<div class="roji-pdp-trust__item">
 					<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4z"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-					<div><strong>Third-party COA</strong>Every batch verified by independent lab</div>
+					<div class="roji-pdp-trust__text"><strong>Third-party COA</strong>Every batch verified by independent lab</div>
 				</div>
-				<div>
+				<div class="roji-pdp-trust__item">
 					<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01" stroke-linecap="round"/></svg>
-					<div><strong>21+ verified</strong>Research use only · age-gated checkout</div>
+					<div class="roji-pdp-trust__text"><strong>21+ verified</strong>Research use only · age-gated checkout</div>
 				</div>
-				<div>
+				<div class="roji-pdp-trust__item">
 					<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h13l3 5h2v6h-3a3 3 0 11-6 0H9a3 3 0 11-6 0V6z" stroke-linejoin="round"/></svg>
-					<div><strong>Ships from US</strong>Free shipping over $200 · USPS / UPS</div>
+					<div class="roji-pdp-trust__text"><strong>Ships from US</strong>Free shipping over $200 · USPS / UPS</div>
 				</div>
-				<div>
+				<div class="roji-pdp-trust__item">
 					<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1018 0 9 9 0 00-18 0z"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-					<div><strong>14-day refund</strong>Unopened · no questions asked</div>
+					<div class="roji-pdp-trust__text"><strong>14-day refund</strong>Unopened · no questions asked</div>
 				</div>
 			</div>
 
