@@ -1891,20 +1891,16 @@ header.site-header img,
 .roji-wordmark:hover .roji-wordmark__eyebrow {
   color: var(--roji-text-primary) !important;
 }
-@media (max-width: 767px) {
+/* Mobile: keep the eyebrow visible (matches tools.rojipeptides.com,
+   which shows "RESEARCH TOOLS" at every breakpoint). Just shrink it
+   slightly so it doesn't crowd the hamburger toggle on narrow phones. */
+@media (max-width: 480px) {
   .roji-wordmark__eyebrow {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    padding: 0 !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    clip: rect(0, 0, 0, 0) !important;
-    border: 0 !important;
-    white-space: nowrap !important;
+    font-size: 9px !important;
+    letter-spacing: 0.16em !important;
   }
   .roji-wordmark {
-    position: relative;
+    gap: 8px !important;
   }
 }
 
@@ -1914,6 +1910,12 @@ header.site-header img,
    it to look like our wordmark: lowercase-ready, off-white, modest
    size, no underline. The bloginfo filter in inc/branding.php also
    replaces the literal text with 'roji' (lowercase). */
+/* Hello Elementor's fallback site-title path on mobile renders an
+   <h1 class="site-title"><a href="...">Roji</a></h1>. Force the
+   anchor to look like our wordmark, AND turn the heading wrapper
+   into a baseline flex so the eyebrow we inject in
+   inc/branding.php (elementor/widget/render_content filter) sits
+   inline rather than wrapping below. */
 .site-title,
 .site-title a,
 .site-title a:link,
@@ -1922,7 +1924,11 @@ header.site-header img,
 header .site-title,
 header .site-title a,
 .elementor-location-header .site-title,
-.elementor-location-header .site-title a {
+.elementor-location-header .site-title a,
+.elementor-location-header .elementor-widget-theme-site-title .elementor-heading-title,
+.elementor-location-header .elementor-widget-theme-site-title .elementor-heading-title a,
+.elementor-location-header .elementor-widget-site-title .elementor-heading-title,
+.elementor-location-header .elementor-widget-site-title .elementor-heading-title a {
   color: #f0f0f5 !important;
   font-family: Inter, system-ui, sans-serif !important;
   font-weight: 600 !important;
@@ -1931,6 +1937,21 @@ header .site-title a,
   line-height: 1 !important;
   text-decoration: none !important;
   text-transform: none !important;
+}
+
+/* Heading wrappers around the Site Title widget — make them inline
+   flex so the eyebrow span appended via the widget filter sits next
+   to the wordmark on the same baseline. The widget renders e.g.
+   <h2 class="elementor-heading-title roji-wordmark"><a>roji</a>
+   <span class="roji-wordmark__eyebrow">…</span></h2>. */
+.elementor-location-header .elementor-widget-theme-site-title .elementor-heading-title,
+.elementor-location-header .elementor-widget-site-title .elementor-heading-title,
+.elementor-heading-title.roji-wordmark {
+  display: inline-flex !important;
+  align-items: baseline !important;
+  gap: 12px !important;
+  flex-wrap: nowrap !important;
+  margin: 0 !important;
 }
 
 /* Some Hello variants wrap the title in <p class="site-description">

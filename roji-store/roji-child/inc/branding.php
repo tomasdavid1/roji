@@ -153,6 +153,86 @@ add_filter(
 add_filter( 'has_custom_logo', '__return_true' );
 
 /**
+ * Inject the RESEARCH PEPTIDES eyebrow into Elementor's Site Title
+ * widgets in the header.
+ *
+ * Why this exists despite get_custom_logo() above:
+ *   The store's Elementor header template uses the Site Title widget
+ *   (`theme-site-title` / `site-title`), NOT the Site Logo widget.
+ *   Site Title renders `<h2 class="elementor-heading-title"><a>roji</a></h2>`
+ *   from `get_bloginfo('name')` directly — `get_custom_logo` is never
+ *   called, so our filter above never fires for that header.
+ *
+ *   Result: desktop + mobile show only the bare "roji" wordmark while
+ *   tools.rojipeptides.com shows the full "roji RESEARCH TOOLS" lockup.
+ *   We've shipped four CSS-only attempts to make this match; the
+ *   actual fix is to inject the eyebrow into the rendered widget HTML
+ *   so the markup matches the tools header.
+ *
+ * Strategy: filter `elementor/widget/render_content` for both Site
+ * Title widget IDs. If the rendered HTML contains a single anchor
+ * whose inner text is the lowercase wordmark, append the eyebrow
+ * <span> just before the closing </a>. CSS in style.css /
+ * elementor-overrides.css already lays the lockup out (baseline-
+ * aligned flex with mono uppercase eyebrow, hidden on <768px).
+ */
+add_filter(
+	'elementor/widget/render_content',
+	function ( $content, $widget ) {
+		if ( ! $widget || ! is_object( $widget ) || ! method_exists( $widget, 'get_name' ) ) {
+			return $content;
+		}
+		$name = $widget->get_name();
+		if ( 'theme-site-title' !== $name && 'site-title' !== $name ) {
+			return $content;
+		}
+		// Only patch the header surface. In_the_loop guards against
+		// random use of the widget inside post content.
+		if ( ! is_string( $content ) || '' === trim( $content ) ) {
+			return $content;
+		}
+		// Already patched (idempotent).
+		if ( false !== strpos( $content, 'roji-wordmark__eyebrow' ) ) {
+			return $content;
+		}
+
+		$eyebrow = '<span class="roji-wordmark__eyebrow" aria-hidden="true">RESEARCH PEPTIDES</span>';
+
+		// Inject just before </a> if the widget rendered an anchor
+		// (the typical Site Title path). Fall back to before </h1>/<h2>
+		// if Elementor's "link" toggle is disabled and the anchor is
+		// absent.
+		if ( false !== stripos( $content, '</a>' ) ) {
+			$patched = preg_replace( '#</a>#i', $eyebrow . '</a>', $content, 1 );
+		} else {
+			$patched = preg_replace( '#</(h1|h2|h3|h4|h5|h6)>#i', $eyebrow . '</$1>', $content, 1 );
+		}
+
+		// Add the wordmark layout class to the heading wrapper so the
+		// flex/baseline rules in CSS take effect (without touching
+		// Elementor's own classnames).
+		$patched = preg_replace(
+			'#(elementor-heading-title)#',
+			'$1 roji-wordmark roji-wordmark--inline',
+			$patched,
+			1
+		);
+
+		// And tag the inner wordmark text so the CSS grabs it.
+		$patched = preg_replace(
+			'#(<a[^>]*>)([^<]+)#i',
+			'$1<span class="roji-wordmark__text">$2</span>',
+			$patched,
+			1
+		);
+
+		return $patched ?: $content;
+	},
+	10,
+	2
+);
+
+/**
  * Belt-and-suspenders for themes whose header path bypasses
  * get_custom_logo() and prints the site name directly. We attack
  * this from THREE angles so the wordmark can't drift:
@@ -298,19 +378,14 @@ add_action(
 	.roji-wordmark:hover .roji-wordmark__eyebrow {
 		color: #f0f0f5;
 	}
-	@media (max-width: 767px) {
+	@media (max-width: 480px) {
 		.roji-wordmark__eyebrow {
-			position: absolute;
-			width: 1px;
-			height: 1px;
-			padding: 0;
-			margin: -1px;
-			overflow: hidden;
-			clip: rect(0, 0, 0, 0);
-			white-space: nowrap;
-			border: 0;
+			font-size: 9px;
+			letter-spacing: 0.16em;
 		}
-		.roji-wordmark { position: relative; }
+		.roji-wordmark {
+			gap: 8px;
+		}
 	}
 </style>
 		<?php
