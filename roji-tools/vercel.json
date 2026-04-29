@@ -5,7 +5,15 @@
   "installCommand": "npm install",
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/assets/chatgpt-widget/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/((?!assets/chatgpt-widget).*)",
       "headers": [
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
