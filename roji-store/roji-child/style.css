@@ -720,6 +720,131 @@ input[type="radio"] {
 }
 
 /* ============================================================
+   Cart page — desktop table layout
+   ============================================================
+   The default WC cart table has no column-width constraints,
+   so the product image stretches its column to whatever the
+   browser feels like. Pin the layout: tight remove + thumb +
+   qty + price columns; product name flexes; subtotal balanced.
+   Cap the thumbnail to a clean 80px square. Mobile rules below
+   collapse this same table into stacked cards.
+   ============================================================ */
+@media (min-width: 769px) {
+  /* Constrain the cart page to a centered content column so the
+     table doesn't span 1400px on wide monitors. */
+  .woocommerce-cart .woocommerce,
+  .woocommerce-cart main .entry-content > .woocommerce {
+    max-width: 1080px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 16px;
+  }
+  .woocommerce-cart table.cart {
+    table-layout: fixed;
+    width: 100%;
+  }
+  .woocommerce-cart table.cart thead th {
+    padding: 16px 18px !important;
+  }
+  .woocommerce-cart table.cart tbody td {
+    padding: 18px !important;
+    vertical-align: middle;
+  }
+  /* Column widths: remove · thumb · name · price · qty · subtotal */
+  .woocommerce-cart table.cart .product-remove    { width: 44px; text-align: center; }
+  .woocommerce-cart table.cart .product-thumbnail { width: 96px; }
+  .woocommerce-cart table.cart .product-price     { width: 110px; }
+  .woocommerce-cart table.cart .product-quantity  { width: 130px; }
+  .woocommerce-cart table.cart .product-subtotal  { width: 130px; text-align: right; }
+  .woocommerce-cart table.cart .product-name      { width: auto; }
+
+  .woocommerce-cart table.cart td.product-thumbnail img,
+  .woocommerce-cart table.cart td.product-thumbnail a img {
+    width: 72px !important;
+    height: 72px !important;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px;
+    border: 1px solid var(--roji-border);
+  }
+
+  .woocommerce-cart table.cart td.product-name a {
+    color: var(--roji-text-primary) !important;
+    text-decoration: none !important;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.3;
+  }
+  .woocommerce-cart table.cart td.product-name a:hover {
+    color: var(--roji-accent) !important;
+  }
+  .woocommerce-cart table.cart td.product-price,
+  .woocommerce-cart table.cart td.product-subtotal {
+    font-family: var(--roji-font-mono);
+    font-size: 14px;
+    color: var(--roji-text-primary);
+  }
+  .woocommerce-cart table.cart td.product-quantity input.qty {
+    width: 84px !important;
+    height: 42px;
+    text-align: center;
+  }
+
+  /* Remove × — visible on dark, square hit target, red on hover */
+  .woocommerce-cart table.cart td.product-remove a.remove,
+  .woocommerce-cart table.cart td.product-remove a.remove:link {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04) !important;
+    color: var(--roji-text-secondary) !important;
+    font-size: 16px;
+    line-height: 1;
+    text-decoration: none !important;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove:hover {
+    background: rgba(239,68,68,0.15) !important;
+    color: var(--roji-danger) !important;
+  }
+
+  /* Actions row (Update cart + coupon) — flat, no internal table chrome */
+  .woocommerce-cart table.cart tr:not(.cart_item) td.actions {
+    padding: 16px 18px !important;
+    background: rgba(255,255,255,0.015) !important;
+    border-top: 1px solid var(--roji-border) !important;
+  }
+  .woocommerce-cart table.cart td.actions .coupon {
+    display: inline-flex;
+    gap: 8px;
+    align-items: stretch;
+    margin-right: 12px;
+  }
+  .woocommerce-cart table.cart td.actions .coupon input[name="coupon_code"] {
+    width: 220px;
+  }
+  .woocommerce-cart table.cart td.actions button[name="update_cart"] {
+    float: right;
+  }
+
+  /* Two-up layout: cart on the left, totals on the right */
+  .woocommerce-cart .cart-collaterals {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-top: 28px;
+  }
+  .woocommerce-cart .cart-collaterals .cart_totals {
+    width: 100% !important;
+    max-width: 480px;
+    margin-left: auto;
+  }
+}
+
+/* ============================================================
    Cart page — mobile-first card layout
    ============================================================
    The default WC cart table is a fixed 6-column grid that
