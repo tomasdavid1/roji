@@ -134,7 +134,7 @@ add_filter(
 		// Match tools.rojipeptides.com: lowercase wordmark + mono uppercase
 		// eyebrow. Eyebrow is hidden below 768px in CSS so mobile stays tight.
 		return sprintf(
-			'<a href="%1$s" class="custom-logo-link roji-wordmark" rel="home" aria-label="%2$s">'
+			'<a href="%1$s" class="custom-logo-link roji-wordmark group" rel="home" aria-label="%2$s">'
 			. '<span class="roji-wordmark__text">roji</span>'
 			. '<span class="roji-wordmark__eyebrow" aria-hidden="true">RESEARCH PEPTIDES</span>'
 			. '</a>',
@@ -258,7 +258,7 @@ add_action(
 	.roji-wordmark {
 		display: inline-flex;
 		align-items: baseline;
-		gap: 10px;
+		gap: 12px;
 		flex-wrap: nowrap;
 		text-decoration: none;
 	}
@@ -267,19 +267,23 @@ add_action(
 		color: #f0f0f5;
 		font-family: Inter, system-ui, sans-serif;
 		font-weight: 600;
-		font-size: 22px;
-		letter-spacing: -0.01em;
+		font-size: 1.25rem;
+		letter-spacing: -0.025em;
 		line-height: 1;
 	}
 	.roji-wordmark__eyebrow {
 		font-family: "JetBrains Mono", ui-monospace, monospace;
 		font-size: 10px;
-		font-weight: 500;
+		font-weight: 400;
 		letter-spacing: 0.18em;
 		text-transform: uppercase;
 		color: #8a8a9a;
 		line-height: 1;
 		white-space: nowrap;
+		transition: color 0.15s ease;
+	}
+	.roji-wordmark:hover .roji-wordmark__eyebrow {
+		color: #f0f0f5;
 	}
 	@media (max-width: 767px) {
 		.roji-wordmark__eyebrow {

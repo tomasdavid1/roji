@@ -39,7 +39,7 @@ export default function HomePage() {
         }}
       />
 
-      <div className="relative px-5 pt-24 pb-12 sm:pt-28 lg:pt-32">
+      <div className="relative px-5 pt-10 pb-12 sm:pt-24 lg:pt-32">
         {/* ── HERO ────────────────────────────────────────────────── */}
         <section className="max-w-3xl mx-auto text-center">
           <span

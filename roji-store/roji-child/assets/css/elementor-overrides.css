@@ -107,26 +107,42 @@
 }
 
 /* Mobile / tablet slide-down or full-width menu — works even when the
-   dropdown `<nav>` is moved to the end of `<body>`. */
+   dropdown `<nav>` is moved to the end of `<body>`. We paint EVERY
+   layer (wrapper, container, ul, li) because Elementor / Hello kits
+   default the inner ul + li to white, which leaks through if we only
+   color the outer <nav>. */
 .elementor-nav-menu--dropdown,
 .elementor-nav-menu__container.elementor-nav-menu--dropdown,
-nav.elementor-nav-menu--dropdown {
-  background-color: var(--roji-darker) !important;
+nav.elementor-nav-menu--dropdown,
+.elementor-widget-nav-menu .elementor-nav-menu__container,
+.elementor-widget-nav-menu .elementor-nav-menu--dropdown,
+.elementor-widget-nav-menu ul.elementor-nav-menu,
+.elementor-widget-nav-menu ul.elementor-nav-menu--dropdown,
+.elementor-nav-menu--dropdown ul.elementor-nav-menu,
+.elementor-nav-menu--dropdown li,
+.elementor-widget-nav-menu .elementor-nav-menu li {
+  background-color: var(--roji-darker, #0d0d14) !important;
+  background-image: none !important;
   border-color: var(--roji-border, rgba(255, 255, 255, 0.06)) !important;
 }
 
 .elementor-nav-menu--dropdown .elementor-item,
-.elementor-nav-menu--dropdown a.elementor-item {
-  color: rgba(240, 240, 245, 0.95) !important;
+.elementor-nav-menu--dropdown a.elementor-item,
+.elementor-nav-menu--dropdown li a,
+.elementor-widget-nav-menu .elementor-nav-menu--dropdown li > a {
+  color: #f0f0f5 !important;
+  opacity: 1 !important;
   background: transparent !important;
+  text-decoration: none !important;
   border-color: var(--roji-border, rgba(255, 255, 255, 0.06)) !important;
 }
 
 .elementor-nav-menu--dropdown .elementor-item:hover,
 .elementor-nav-menu--dropdown .elementor-item:focus,
-.elementor-nav-menu--dropdown .elementor-item.elementor-item-active {
-  background: rgba(79, 109, 245, 0.1) !important;
-  color: #fff !important;
+.elementor-nav-menu--dropdown .elementor-item.elementor-item-active,
+.elementor-nav-menu--dropdown li a:hover {
+  background: rgba(79, 109, 245, 0.12) !important;
+  color: #ffffff !important;
 }
 
 /* Hamburger / close control — kill default orange focus ring; keep a11y with :focus-visible */

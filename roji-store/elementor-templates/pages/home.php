@@ -8,6 +8,8 @@ return array(
 		// ── HERO ─────────────────────────────────────────────────────────────
 		roji_el_container( array(
 			'padding' => array( 'top' => '120', 'right' => '20', 'bottom' => '80', 'left' => '20', 'unit' => 'px', 'isLinked' => false ),
+			'padding_mobile' => array( 'top' => '32', 'right' => '20', 'bottom' => '48', 'left' => '20', 'unit' => 'px', 'isLinked' => false ),
+			'padding_tablet' => array( 'top' => '60', 'right' => '20', 'bottom' => '60', 'left' => '20', 'unit' => 'px', 'isLinked' => false ),
 			'content_width' => 'boxed',
 			'flex_gap' => array( 'column' => '24', 'row' => '24', 'unit' => 'px', 'isLinked' => true ),
 			'background_overlay_background' => 'gradient',
@@ -38,6 +40,7 @@ return array(
 					'size' => 'lg',
 					'text_padding' => array( 'top' => '18', 'right' => '32', 'bottom' => '18', 'left' => '32', 'unit' => 'px', 'isLinked' => false ),
 					'typography_font_size' => array( 'unit' => 'px', 'size' => 16, 'sizes' => array() ),
+					'_css_classes' => 'roji-cta-link',
 				) ),
 			) ),
 
@@ -90,11 +93,12 @@ return array(
 					roji_el_html( '<ul style="list-style:none;padding:0;margin:0;font-size:13px;color:#8a8a9a;display:flex;flex-direction:column;gap:6px;"><li>↳ 2 compounds</li><li>↳ 4-week supply</li><li>↳ 3 published references</li></ul>' ),
 					roji_el_inner( array(
 						'flex_direction' => 'row',
-						'flex_gap' => array( 'column' => '8', 'row' => '8', 'unit' => 'px', 'isLinked' => true ),
+						'flex_gap' => array( 'column' => '12', 'row' => '8', 'unit' => 'px', 'isLinked' => false ),
 						'padding' => array( 'top' => '8', 'right' => '0', 'bottom' => '0', 'left' => '0', 'unit' => 'px', 'isLinked' => false ),
+						'_css_classes' => 'roji-buy-row',
 					), array(
 						roji_el_button( 'One-time', '/cart/?protocol_stack=wolverine', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ) ) ),
-						roji_el_button_secondary( 'Autoship −15%', '/cart/?protocol_stack=wolverine&autoship=1', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ) ) ),
+						roji_el_button_secondary( 'Autoship −15%', '/cart/?protocol_stack=wolverine&autoship=1', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ), '_css_classes' => 'roji-cta-link roji-cta-link--autoship' ) ),
 					) ),
 				) ),
 				// Recomp
@@ -105,11 +109,12 @@ return array(
 					roji_el_html( '<ul style="list-style:none;padding:0;margin:0;font-size:13px;color:#8a8a9a;display:flex;flex-direction:column;gap:6px;"><li>↳ 3 compounds</li><li>↳ 4-week supply</li><li>↳ 3 published references</li></ul>' ),
 					roji_el_inner( array(
 						'flex_direction' => 'row',
-						'flex_gap' => array( 'column' => '8', 'row' => '8', 'unit' => 'px', 'isLinked' => true ),
+						'flex_gap' => array( 'column' => '12', 'row' => '8', 'unit' => 'px', 'isLinked' => false ),
 						'padding' => array( 'top' => '8', 'right' => '0', 'bottom' => '0', 'left' => '0', 'unit' => 'px', 'isLinked' => false ),
+						'_css_classes' => 'roji-buy-row',
 					), array(
 						roji_el_button( 'One-time', '/cart/?protocol_stack=recomp', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ) ) ),
-						roji_el_button_secondary( 'Autoship −15%', '/cart/?protocol_stack=recomp&autoship=1', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ) ) ),
+						roji_el_button_secondary( 'Autoship −15%', '/cart/?protocol_stack=recomp&autoship=1', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ), '_css_classes' => 'roji-cta-link roji-cta-link--autoship' ) ),
 					) ),
 				) ),
 				// Full
@@ -120,11 +125,12 @@ return array(
 					roji_el_html( '<ul style="list-style:none;padding:0;margin:0;font-size:13px;color:#8a8a9a;display:flex;flex-direction:column;gap:6px;"><li>↳ 5 compounds</li><li>↳ 12-week protocol</li><li>↳ Printed dosing card</li></ul>' ),
 					roji_el_inner( array(
 						'flex_direction' => 'row',
-						'flex_gap' => array( 'column' => '8', 'row' => '8', 'unit' => 'px', 'isLinked' => true ),
+						'flex_gap' => array( 'column' => '12', 'row' => '8', 'unit' => 'px', 'isLinked' => false ),
 						'padding' => array( 'top' => '8', 'right' => '0', 'bottom' => '0', 'left' => '0', 'unit' => 'px', 'isLinked' => false ),
+						'_css_classes' => 'roji-buy-row',
 					), array(
 						roji_el_button( 'One-time', '/cart/?protocol_stack=full', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ) ) ),
-						roji_el_button_secondary( 'Autoship −15%', '/cart/?protocol_stack=full&autoship=1', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ) ) ),
+						roji_el_button_secondary( 'Autoship −15%', '/cart/?protocol_stack=full&autoship=1', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ), '_css_classes' => 'roji-cta-link roji-cta-link--autoship' ) ),
 					) ),
 				) ),
 			), 3 ),
