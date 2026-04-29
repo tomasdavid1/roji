@@ -129,12 +129,17 @@ function roji_r_mark_svg( $size = 28 ) {
 add_filter(
 	'get_custom_logo',
 	function ( $html ) {
-		$home = esc_url( home_url( '/' ) );
+		$home  = esc_url( home_url( '/' ) );
+		$label = esc_attr__( 'Roji Peptides home', 'roji-child' );
+		// Match tools.rojipeptides.com: lowercase wordmark + mono uppercase
+		// eyebrow. Eyebrow is hidden below 768px in CSS so mobile stays tight.
 		return sprintf(
-			'<a href="%s" class="custom-logo-link roji-wordmark" rel="home" aria-label="Roji Peptides home">'
-				. '<span class="roji-wordmark__text" style="color:#f0f0f5;font-family:Inter,system-ui,sans-serif;font-weight:600;font-size:22px;letter-spacing:-0.01em;line-height:1;">roji</span>'
+			'<a href="%1$s" class="custom-logo-link roji-wordmark" rel="home" aria-label="%2$s">'
+			. '<span class="roji-wordmark__text">roji</span>'
+			. '<span class="roji-wordmark__eyebrow" aria-hidden="true">RESEARCH PEPTIDES</span>'
 			. '</a>',
-			$home
+			$home,
+			$label
 		);
 	},
 	20
@@ -234,8 +239,46 @@ add_action(
 	function () {
 		?>
 <style>
-	.roji-wordmark { display: inline-flex; align-items: baseline; text-decoration: none; }
+	.roji-wordmark {
+		display: inline-flex;
+		align-items: baseline;
+		gap: 10px;
+		flex-wrap: nowrap;
+		text-decoration: none;
+	}
 	.roji-wordmark img { display: none !important; } /* hide any Customizer-uploaded image */
+	.roji-wordmark__text {
+		color: #f0f0f5;
+		font-family: Inter, system-ui, sans-serif;
+		font-weight: 600;
+		font-size: 22px;
+		letter-spacing: -0.01em;
+		line-height: 1;
+	}
+	.roji-wordmark__eyebrow {
+		font-family: "JetBrains Mono", ui-monospace, monospace;
+		font-size: 10px;
+		font-weight: 500;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		color: #8a8a9a;
+		line-height: 1;
+		white-space: nowrap;
+	}
+	@media (max-width: 767px) {
+		.roji-wordmark__eyebrow {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			padding: 0;
+			margin: -1px;
+			overflow: hidden;
+			clip: rect(0, 0, 0, 0);
+			white-space: nowrap;
+			border: 0;
+		}
+		.roji-wordmark { position: relative; }
+	}
 </style>
 		<?php
 	},

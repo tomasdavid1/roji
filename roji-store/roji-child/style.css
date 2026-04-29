@@ -989,8 +989,46 @@ header.site-header img,
 }
 
 /* Make sure the wordmark span is fully visible against the dark bar. */
+.roji-wordmark {
+  display: inline-flex !important;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: nowrap;
+  text-decoration: none !important;
+}
 .roji-wordmark__text {
   color: #f0f0f5 !important;
+  font-family: Inter, system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 22px !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1 !important;
+}
+.roji-wordmark__eyebrow {
+  font-family: var(--roji-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--roji-text-secondary) !important;
+  line-height: 1;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .roji-wordmark__eyebrow {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    border: 0 !important;
+    white-space: nowrap !important;
+  }
+  .roji-wordmark {
+    position: relative;
+  }
 }
 
 /* Hello Elementor's fallback site-title path on mobile renders an

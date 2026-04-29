@@ -131,7 +131,8 @@ assert_wordmark_for() {
   fi
 
   # Look at the first <a> element inside .site-branding (the site-title
-  # anchor). It must render lowercase 'roji' with no capitalized fallback.
+  # anchor). It must render lowercase 'roji' (optionally followed by the
+  # RESEARCH PEPTIDES eyebrow), never capitalized 'Roji' fallback.
   local branding_anchor
   branding_anchor=$(python3 - <<PY 2>/dev/null
 import re, sys
@@ -142,8 +143,9 @@ if not m:
 branding = m.group(1)
 anchors = re.findall(r'<a [^>]*>(.*?)</a>', branding, re.DOTALL | re.IGNORECASE)
 if anchors:
-    # Strip whitespace + html tags to get the visible text.
-    text = re.sub(r'<[^>]+>', '', anchors[0]).strip()
+    # Strip tags, collapse whitespace (Elementor adds newlines between spans).
+    text = re.sub(r'<[^>]+>', '', anchors[0])
+    text = re.sub(r'\s+', ' ', text).strip()
     print(text)
 PY
 )
@@ -153,8 +155,13 @@ PY
     return 0
   fi
 
+  # Accept bare wordmark or lockup with RESEARCH PEPTIDES (matches tools site pattern).
   if [[ "$branding_anchor" == "roji" ]]; then
     echo "  OK $label: site-branding anchor renders lowercase 'roji'"
+    return 0
+  fi
+  if [[ "$branding_anchor" =~ ^roji[[:space:]]+RESEARCH[[:space:]]+PEPTIDES$ ]]; then
+    echo "  OK $label: site-branding anchor renders roji + RESEARCH PEPTIDES lockup"
     return 0
   fi
 
