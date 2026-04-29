@@ -1,12 +1,19 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ReconWidget } from "./tools/ReconWidget";
 import { CostPerDoseWidget } from "./tools/CostPerDoseWidget";
 import { RecompWidget } from "./tools/RecompWidget";
 import { InteractionsWidget } from "./tools/InteractionsWidget";
 import { HalfLifeWidget } from "./tools/HalfLifeWidget";
+import { HubWidget } from "./tools/HubWidget";
 
 interface OpenAIContext {
+  toolOutput?: unknown;
   toolResponseMetadata?: Record<string, unknown>;
+  toolInput?: unknown;
+  callTool?: (name: string, args: Record<string, unknown>) => Promise<unknown>;
+  sendFollowUpMessage?: (opts: { prompt: string; scrollToBottom?: boolean }) => void;
+  setWidgetState?: (state: unknown) => void;
+  widgetState?: unknown;
 }
 
 declare global {
@@ -21,6 +28,7 @@ interface ToolData {
 }
 
 const TOOL_MAP: Record<string, React.FC<{ data: ToolData }>> = {
+  roji_tools: HubWidget,
   reconstitution_calculator: ReconWidget,
   cost_per_dose: CostPerDoseWidget,
   recomp_calculator: RecompWidget,
@@ -28,12 +36,32 @@ const TOOL_MAP: Record<string, React.FC<{ data: ToolData }>> = {
   half_life_lookup: HalfLifeWidget,
 };
 
+function readToolData(): ToolData | null {
+  try {
+    const w = window as Window;
+    // Preferred: structuredContent surfaced as toolOutput
+    const toolOutput = w.openai?.toolOutput;
+    if (toolOutput && typeof toolOutput === "object" && "toolName" in toolOutput) {
+      return toolOutput as ToolData;
+    }
+    // Legacy/compat: _meta["openai/data"]
+    const meta = w.openai?.toolResponseMetadata;
+    const raw = meta?.["openai/data"];
+    if (raw && typeof raw === "object" && "toolName" in (raw as object)) {
+      return raw as ToolData;
+    }
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
 function Footer() {
   return (
     <div className="roji-footer">
       Powered by{" "}
       <a
-        href="https://tools.rojipeptides.com"
+        href="https://tools.rojipeptides.com?utm_source=mcp&utm_medium=ai&utm_campaign=widget_footer"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -41,55 +69,46 @@ function Footer() {
       </a>{" "}
       &middot;{" "}
       <a
-        href="https://rojipeptides.com/shop"
+        href="https://rojipeptides.com/shop?utm_source=mcp&utm_medium=ai&utm_campaign=widget_footer"
         target="_blank"
         rel="noopener noreferrer"
       >
-        Shop Roji Peptides
+        Shop research-grade peptides &rarr;
       </a>
     </div>
   );
 }
 
 export function RojiWidgetApp() {
-  const [toolData, setToolData] = useState<ToolData | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [toolData, setToolData] = useState<ToolData | null>(() => readToolData());
 
+  // Re-read when ChatGPT pushes new globals (e.g., on tool result arrival)
   useEffect(() => {
-    try {
-      const meta = window.openai?.toolResponseMetadata;
-      const raw = meta?.["openai/data"];
-      if (raw && typeof raw === "object" && "toolName" in (raw as object)) {
-        setToolData(raw as ToolData);
-      } else {
-        setError("No tool data found. This widget is meant to be used inside ChatGPT.");
-      }
-    } catch {
-      setError("Failed to read tool data.");
+    function refresh() {
+      const next = readToolData();
+      if (next) setToolData(next);
     }
+    // ChatGPT dispatches "openai:set_globals" when toolOutput / metadata change
+    window.addEventListener("openai:set_globals", refresh);
+    // Also poll briefly after mount in case the data lands a tick after render
+    const t1 = setTimeout(refresh, 100);
+    const t2 = setTimeout(refresh, 500);
+    const t3 = setTimeout(refresh, 1500);
+    return () => {
+      window.removeEventListener("openai:set_globals", refresh);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
   }, []);
 
-  if (error) {
-    return (
-      <div style={{ padding: 24, textAlign: "center" }}>
-        <p style={{ color: "var(--roji-text-secondary)", fontSize: 14 }}>{error}</p>
-        <a
-          href="https://tools.rojipeptides.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="roji-btn"
-          style={{ marginTop: 12, display: "inline-flex" }}
-        >
-          Open Roji Research Tools
-        </a>
-      </div>
-    );
-  }
-
+  // No data yet — render the hub picker so the widget is never empty.
+  // Bare @Roji prompts and tool-load races both land here.
   if (!toolData) {
     return (
-      <div style={{ padding: 24, textAlign: "center", color: "var(--roji-text-muted)" }}>
-        Loading...
+      <div>
+        <HubWidget data={{ toolName: "roji_tools", mode: "picker" }} />
+        <Footer />
       </div>
     );
   }
@@ -97,19 +116,9 @@ export function RojiWidgetApp() {
   const Widget = TOOL_MAP[toolData.toolName];
   if (!Widget) {
     return (
-      <div style={{ padding: 24, textAlign: "center" }}>
-        <p style={{ color: "var(--roji-text-secondary)", fontSize: 14 }}>
-          Unknown tool: {toolData.toolName}
-        </p>
-        <a
-          href="https://tools.rojipeptides.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="roji-btn"
-          style={{ marginTop: 12, display: "inline-flex" }}
-        >
-          Try our full tools
-        </a>
+      <div>
+        <HubWidget data={{ toolName: "roji_tools", mode: "picker" }} />
+        <Footer />
       </div>
     );
   }
