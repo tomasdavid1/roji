@@ -480,11 +480,18 @@ add_action(
 		}
 		$shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
 
+		// /shop/ defaults to the Bundles view because that's where the
+		// savings story lives. ?roji_view=all is the explicit opt-in
+		// to see everything (single + autoship + supplies + bundles).
+		$requested_view = isset( $_GET['roji_view'] ) ? sanitize_key( wp_unslash( $_GET['roji_view'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
 		$current_view = '';
-		if ( is_shop() && empty( $_GET['roji_view'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$current_view = 'all';
-		} elseif ( ! empty( $_GET['roji_view'] ) && 'bundles' === $_GET['roji_view'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( is_shop() && '' === $requested_view ) {
 			$current_view = 'bundles';
+		} elseif ( 'bundles' === $requested_view ) {
+			$current_view = 'bundles';
+		} elseif ( 'all' === $requested_view ) {
+			$current_view = 'all';
 		} elseif ( is_product_category( 'accessories' ) ) {
 			$current_view = 'supplies';
 		} elseif ( is_product_category( roji_individuals_category_slug() ) ) {
@@ -501,7 +508,7 @@ add_action(
 		$chips = array(
 			array(
 				'label' => __( 'Bundles', 'roji-child' ),
-				'url'   => add_query_arg( 'roji_view', 'bundles', $shop_url ),
+				'url'   => $shop_url, // canonical /shop/ now lands on bundles
 				'key'   => 'bundles',
 			),
 			array(
@@ -516,7 +523,7 @@ add_action(
 			),
 			array(
 				'label' => __( 'All', 'roji-child' ),
-				'url'   => $shop_url,
+				'url'   => add_query_arg( 'roji_view', 'all', $shop_url ),
 				'key'   => 'all',
 			),
 		);
@@ -538,9 +545,15 @@ add_action(
 );
 
 /**
- * When the "Bundles" chip is clicked, restrict the shop loop to products
- * in any of the bundle categories. Uses the main query's `tax_query`
- * via pre_get_posts so pagination + sorting still behave.
+ * Restrict the shop loop to bundle categories when:
+ *   - The user explicitly requested `?roji_view=bundles`, OR
+ *   - They landed on the bare /shop/ URL with no view parameter at all
+ *     (the canonical entry point now defaults to the bundle story).
+ *
+ * `?roji_view=all` is the explicit opt-out to see the full catalog.
+ *
+ * Uses the main query's tax_query via pre_get_posts so pagination +
+ * sorting still behave.
  */
 add_action(
 	'pre_get_posts',
@@ -548,12 +561,17 @@ add_action(
 		if ( is_admin() || ! $q->is_main_query() ) {
 			return;
 		}
-		if ( empty( $_GET['roji_view'] ) || 'bundles' !== $_GET['roji_view'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return;
-		}
 		if ( ! ( is_shop() || is_post_type_archive( 'product' ) ) ) {
 			return;
 		}
+		$requested_view = isset( $_GET['roji_view'] ) ? sanitize_key( wp_unslash( $_GET['roji_view'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		// Default (no param) and explicit 'bundles' both filter to bundles.
+		// Anything else (including 'all') passes through unchanged.
+		if ( '' !== $requested_view && 'bundles' !== $requested_view ) {
+			return;
+		}
+
 		$tax_query   = (array) $q->get( 'tax_query' );
 		$tax_query[] = array(
 			'taxonomy' => 'product_cat',
