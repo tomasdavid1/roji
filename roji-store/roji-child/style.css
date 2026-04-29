@@ -284,9 +284,9 @@ a:focus {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   color: var(--roji-text-primary) !important;
-  font-size: 15px !important;
+  font-size: 17px !important;
   margin: 0 !important;
   cursor: pointer;
 }
@@ -302,20 +302,20 @@ a:focus {
   margin-left: 4px;
 }
 
-/* Gateway description / hosted form panel — flat inset, no nested box */
+/* Gateway description / hosted form panel — prominent callout */
 .woocommerce-checkout #payment div.payment_box {
-  background: rgba(255,255,255,0.025) !important;
-  border: 0 !important;
-  border-radius: var(--roji-radius) !important;
-  margin: 10px 0 4px !important;
-  padding: 14px 16px !important;
-  color: var(--roji-text-secondary) !important;
-  font-size: 13px;
-  line-height: 1.55;
+  background: rgba(79,109,245,0.06) !important;
+  border: 1px solid rgba(79,109,245,0.25) !important;
+  border-radius: var(--roji-radius-lg) !important;
+  margin: 14px 0 8px !important;
+  padding: 20px 22px !important;
+  color: var(--roji-text-primary) !important;
+  font-size: 15px;
+  line-height: 1.65;
 }
 .woocommerce-checkout #payment div.payment_box::before { content: none !important; }
 .woocommerce-checkout #payment div.payment_box p { margin: 0; }
-.woocommerce-checkout #payment div.payment_box p + p { margin-top: 8px; }
+.woocommerce-checkout #payment div.payment_box p + p { margin-top: 10px; }
 
 /* Privacy / "Your personal data will be used..." paragraph */
 .woocommerce-privacy-policy-text,
@@ -520,6 +520,18 @@ input[type="radio"] {
   background: rgba(239, 68, 68, 0.06);
   border-top: 3px solid var(--roji-danger);
   color: var(--roji-text-primary);
+}
+.woocommerce-checkout .woocommerce-error,
+.woocommerce-checkout .woocommerce-NoticeGroup-checkout .woocommerce-error {
+  background: rgba(239, 68, 68, 0.10) !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+  border-top: 3px solid var(--roji-danger) !important;
+  border-radius: var(--roji-radius) !important;
+  padding: 16px 20px !important;
+  font-size: 15px !important;
+  font-weight: 500;
+  line-height: 1.55;
+  margin-bottom: 20px !important;
 }
 
 /* ============================================================
@@ -2593,6 +2605,15 @@ header .current-menu-item > a {
 .woocommerce-message { border-left: 3px solid var(--roji-success) !important; }
 .woocommerce-info    { border-left: 3px solid var(--roji-accent) !important; }
 .woocommerce-error   { border-left: 3px solid var(--roji-danger) !important; }
+.woocommerce-checkout .woocommerce-info {
+  font-size: 16px !important;
+  font-weight: 500;
+  line-height: 1.65;
+  padding: 20px 22px !important;
+  background: rgba(79,109,245,0.06) !important;
+  border: 1px solid rgba(79,109,245,0.25) !important;
+  border-left: 4px solid var(--roji-accent) !important;
+}
 .woocommerce-message::before,
 .woocommerce-info::before,
 .woocommerce-error::before { display: none !important; }

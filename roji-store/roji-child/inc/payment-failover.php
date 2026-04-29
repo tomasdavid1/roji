@@ -168,7 +168,7 @@ add_filter(
 		// the order-pay endpoint when no gateway is available.
 		if ( 'Sorry, it seems that there are no available payment methods. Please contact us if you require assistance or wish to make alternate arrangements.' === $original ) {
 			return __(
-				"Place your order below — we'll email you a secure payment link within 24 hours. Nothing is charged today.",
+				"Place your order below — we'll email you a secure payment link within 24 hours. Nothing is charged today. Your order is reserved while we confirm inventory.",
 				'roji-child'
 			);
 		}

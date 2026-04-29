@@ -93,6 +93,32 @@ add_action(
 );
 
 /**
+ * Auto-scroll checkout errors into view so the user never misses them.
+ * WooCommerce inserts validation errors at the top of the form; if the
+ * user is scrolled down near Place Order, they see "nothing happened."
+ */
+add_action(
+	'woocommerce_after_checkout_form',
+	function () {
+		?>
+		<script>
+		(function(){
+			var form = document.querySelector('form.checkout');
+			if (!form) return;
+			var observer = new MutationObserver(function(){
+				var notice = form.querySelector('.woocommerce-NoticeGroup, .woocommerce-error');
+				if (notice) {
+					notice.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				}
+			});
+			observer.observe(form, { childList: true, subtree: true });
+		})();
+		</script>
+		<?php
+	}
+);
+
+/**
  * Site-wide footer disclaimer.
  */
 add_action(

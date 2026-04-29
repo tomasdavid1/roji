@@ -54,10 +54,10 @@ function roji_reserve_init_gateway() {
 			$this->init_form_fields();
 			$this->init_settings();
 
-			$this->title       = $this->get_option( 'title', 'Place order — pay by secure link' );
+			$this->title       = $this->get_option( 'title', 'Place your order — pay by secure link' );
 			$this->description = $this->get_option(
 				'description',
-				"Submit your order now and we'll email you a secure payment link within 24 hours. Nothing is charged today; your order is reserved while we verify inventory and ship-readiness."
+				"Place your order below — we'll email you a secure payment link within 24 hours.\nNothing is charged today. Your order is reserved while we confirm inventory."
 			);
 			$this->enabled     = $this->get_option( 'enabled', 'yes' );
 
