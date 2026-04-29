@@ -37,3 +37,6 @@ roji-store/wordpress/
 roji-store/wp-config.php
 roji-store/wp-*.php
 .vercel
+
+# Separate repo — has its own Git history
+roji-mcp/
