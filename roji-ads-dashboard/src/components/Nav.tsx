@@ -12,6 +12,7 @@ const LINKS = [
   { href: "/tracking", label: "Tracking" },
   { href: "/subscriptions", label: "Subscriptions" },
   { href: "/affiliates", label: "Affiliates" },
+  { href: "/mcp-tools", label: "MCP Tools" },
 ];
 
 export type NavMode = "mock" | "test" | "live";
