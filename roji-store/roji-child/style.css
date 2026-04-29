@@ -579,6 +579,21 @@ input[type="radio"] {
   border: 0 !important;
   background: transparent !important;
 }
+/* Shipping row breaks the simple "label left / value right" pattern
+   (it can host the "Change address" + calculator block). Let it
+   stack so the calculator can sit full-width below the label. */
+.woocommerce-cart .cart_totals table tr.shipping {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+.woocommerce-cart .cart_totals table tr.shipping th {
+  flex: 0 0 auto;
+}
+.woocommerce-cart .cart_totals table tr.shipping td {
+  flex: 1 1 auto;
+  text-align: right;
+}
 .woocommerce-cart .cart_totals table tr.cart-subtotal,
 .woocommerce-cart .cart_totals table tr.shipping,
 .woocommerce-cart .cart_totals table tr.fee,
@@ -630,9 +645,85 @@ input[type="radio"] {
   color: var(--roji-text-primary) !important;
 }
 
-/* Shipping calculator block inside the Shipment row — make the
-   "Flat rate / Shipping to DE / Change address" stack legible
-   instead of the bulleted list it currently renders as. */
+/* ============================================================
+   Cart shipping calculator
+   ============================================================
+   The calculator (state + city + ZIP + Update) lives inside the
+   Cart Totals card under the "Shipment" row. The flex/right-align
+   rules on .cart_totals tr were leaking down into its form-rows,
+   which (a) right-aligned the inputs and (b) tried to lay each
+   <p class="form-row"> out as a 2-column flex row. Reset the
+   form-row styling explicitly here and present it as a clean
+   stacked mini-form. The "ships to United States only" lock line
+   is intentionally NOT injected — calculator already implies the
+   country via state/zip + homepage trust strip.
+   ============================================================ */
+.woocommerce-cart .shipping-calculator-form {
+  display: block;
+  margin-top: 12px;
+  padding: 14px 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  text-align: left !important;
+}
+.woocommerce-cart .shipping-calculator-form p.form-row,
+.woocommerce-cart .shipping-calculator-form .form-row {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+  margin: 0 0 12px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  text-align: left !important;
+}
+.woocommerce-cart .shipping-calculator-form p.form-row:last-of-type {
+  margin-bottom: 6px !important;
+}
+.woocommerce-cart .shipping-calculator-form label {
+  display: block !important;
+  text-align: left !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--roji-text-secondary) !important;
+  font-family: var(--roji-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 !important;
+}
+.woocommerce-cart .shipping-calculator-form input.input-text,
+.woocommerce-cart .shipping-calculator-form select {
+  width: 100% !important;
+  text-align: left !important;
+  font-family: var(--roji-font-sans) !important;
+  font-size: 14px !important;
+  min-height: 42px;
+  padding: 10px 12px !important;
+}
+.woocommerce-cart .shipping-calculator-form button[name="calc_shipping"] {
+  width: auto !important;
+  align-self: flex-start;
+  padding: 10px 18px !important;
+  background: var(--roji-accent) !important;
+  border: 1px solid var(--roji-accent) !important;
+  color: #fff !important;
+  border-radius: var(--roji-radius) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  margin-top: 4px;
+}
+.woocommerce-cart .shipping-calculator-form button[name="calc_shipping"]:hover {
+  background: var(--roji-accent-hover) !important;
+  border-color: var(--roji-accent-hover) !important;
+}
+
+/* Shipping method list above the calculator (Flat rate · "Shipping
+   to Brooklyn, NY 11206 · Change address") — keep right-aligned
+   stack but prevent it from being squashed into one line. */
 .woocommerce-cart .cart_totals .shipping ul#shipping_method,
 .woocommerce-cart .cart_totals .shipping ul {
   list-style: none !important;
