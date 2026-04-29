@@ -2744,14 +2744,35 @@ header .current-menu-item > a {
 }
 
 /* ============================================================
-   Buy row (One-time + Autoship pair on stack cards)
+   CTA row vertical alignment
    ============================================================
-   Desktop: side-by-side. Mobile: stack vertically with the
-   primary button full-width and the autoship link sitting
-   underneath, left-aligned, no chrome.
+   Elementor flex containers that hold a primary button + a
+   secondary link-style CTA need explicit centering. Without it,
+   the tall padded button and the slim link sit on different
+   baselines. Applies to the hero "Browse the shop / Or browse
+   research tools" row AND the "One-time / Autoship" buy row.
    ============================================================ */
-.roji-buy-row {
+.roji-buy-row,
+.roji-cta-row {
   align-items: center !important;
+}
+.roji-buy-row > .elementor-element,
+.roji-cta-row > .elementor-element,
+.roji-buy-row > .e-con > .elementor-element,
+.roji-cta-row > .e-con > .elementor-element {
+  align-self: center !important;
+}
+.roji-cta-link .elementor-widget-container {
+  display: flex;
+  align-items: center;
+}
+/* Any Elementor flex row containing buttons should center-align
+   children so primary + secondary CTAs don't drift apart. */
+.e-con:has(.roji-cta-link) {
+  align-items: center !important;
+}
+.e-con:has(.roji-cta-link) > .elementor-element {
+  align-self: center !important;
 }
 @media (max-width: 767px) {
   .roji-buy-row.e-con,
