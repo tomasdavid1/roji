@@ -187,6 +187,21 @@ jobs:
           sshpass -e ssh -o StrictHostKeyChecking=accept-new -p "$PORT" "$USER@$HOST" \
             "cd '$WP_PATH' && wp eval-file wp-content/mu-plugins/roji-scripts/set-brand-options.php"
 
+      - name: Regenerate product thumbnails (idempotent)
+        if: github.event.inputs.dry_run != 'true'
+        env:
+          SSHPASS: ${{ secrets.KINSTA_SSH_PASSWORD }}
+          HOST: ${{ secrets.KINSTA_SSH_HOST }}
+          PORT: ${{ secrets.KINSTA_SSH_PORT }}
+          USER: ${{ secrets.KINSTA_SSH_USER }}
+          WP_PATH: ${{ secrets.KINSTA_WP_PATH }}
+        run: |
+          # Recreates the 600x600 woocommerce_thumbnail intermediates for
+          # the 11 product packshots so the shop loop tiles render sharp
+          # on retina displays. No-op when intermediates already exist.
+          sshpass -e ssh -o StrictHostKeyChecking=accept-new -p "$PORT" "$USER@$HOST" \
+            "cd '$WP_PATH' && wp eval-file wp-content/mu-plugins/roji-scripts/regenerate-product-thumbnails.php"
+
       - name: Activate child theme + flush caches
         if: github.event.inputs.dry_run != 'true'
         env:

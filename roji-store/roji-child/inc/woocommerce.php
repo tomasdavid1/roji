@@ -20,6 +20,51 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_filter( 'woocommerce_enqueue_styles', '__return_empty_array' );
 
 /**
+ * Declare WooCommerce theme support and pin product image sizes.
+ *
+ * The default WC `woocommerce_thumbnail` size is 324x324 hard-cropped,
+ * which looks soft on retina displays once the browser scales it up to
+ * fill a ~300px loop tile. Bumping the canonical sizes lets WP generate
+ * larger intermediates so srcset can pick a sharp source.
+ *
+ *   thumbnail (loop / shop):    600x600 cropped, 1:1 (matches our square
+ *                               vial+box packshots; sharp on 2x screens up
+ *                               to a 300px display slot).
+ *   single   (PDP main):        1200px wide, uncropped.
+ *   gallery  (PDP gallery row): 200x200 cropped (small thumbnails).
+ *
+ * Theme support must be declared via add_theme_support('woocommerce', ...)
+ * during after_setup_theme; the ['thumbnail_image_width'] key tells WC
+ * what to use for the loop tiles.
+ */
+add_action(
+	'after_setup_theme',
+	function () {
+		add_theme_support(
+			'woocommerce',
+			array(
+				'thumbnail_image_width' => 600,
+				'gallery_thumbnail_image_width' => 200,
+				'single_image_width' => 1200,
+			)
+		);
+	},
+	5
+);
+
+/**
+ * Force the loop thumbnail to crop to a clean 1:1 square (matches our
+ * vial+box packshot composition). WC reads this option dynamically so
+ * filtering it covers shops where it was never set in the customizer.
+ */
+add_filter(
+	'pre_option_woocommerce_thumbnail_cropping',
+	function () {
+		return '1:1';
+	}
+);
+
+/**
  * Suppress WooCommerce's default "Your cart is currently empty." notice —
  * our custom woocommerce/cart/cart-empty.php template renders a richer
  * branded card and we don't want the bare notice line above it.
