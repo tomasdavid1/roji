@@ -99,34 +99,112 @@ function roji_reserve_init_gateway() {
 		}
 
 		public function process_payment( $order_id ) {
+			// All steps below are wrapped so a single failure (stock, mail,
+			// transient store) cannot bubble up as the generic WC
+			// "We were unable to process your order" error. The order is
+			// the source of truth — once it's saved on-hold, we redirect
+			// to thank-you regardless of secondary side-effect failures.
+
 			$order = wc_get_order( $order_id );
 			if ( ! $order ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( "[Roji Reserve] process_payment: order #{$order_id} not found" );
+				wc_add_notice(
+					__( "We couldn't find your order. Please try again or email support@rojipeptides.com.", 'roji-child' ),
+					'error'
+				);
 				return array( 'result' => 'failure', 'redirect' => '' );
 			}
 
-			// Reduce stock so the same vials don't get over-reserved while
-			// we're chasing payment manually.
-			wc_reduce_stock_levels( $order_id );
+			// Stock reduction is best-effort. Most Roji SKUs run with
+			// manage_stock=false (so this is a no-op), but if any single
+			// item has stock issues we don't want to block the order —
+			// ops will reconcile inventory manually before shipping.
+			try {
+				wc_reduce_stock_levels( $order_id );
+			} catch ( \Throwable $e ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( sprintf(
+					'[Roji Reserve] stock reduction failed for order #%d: %s',
+					$order_id,
+					$e->getMessage()
+				) );
+				$order->add_order_note( 'Stock reduction skipped: ' . $e->getMessage() );
+			}
 
-			$order->update_status(
-				'on-hold',
-				__( 'Reserve-order checkout: payment deferred — awaiting manual invoice.', 'roji-child' )
-			);
+			try {
+				$order->update_status(
+					'on-hold',
+					__( 'Reserve-order checkout: payment deferred — awaiting manual invoice.', 'roji-child' )
+				);
+				$order->update_meta_data( '_roji_reserve_order', 'yes' );
+				$order->update_meta_data( '_roji_reserve_at', gmdate( 'c' ) );
+				$order->save();
+			} catch ( \Throwable $e ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( sprintf(
+					'[Roji Reserve] order status/save failed for order #%d: %s',
+					$order_id,
+					$e->getMessage()
+				) );
+				wc_add_notice(
+					__( "Something went wrong saving your order. We've been notified — please email support@rojipeptides.com so we can complete it manually.", 'roji-child' ),
+					'error'
+				);
+				return array( 'result' => 'failure', 'redirect' => '' );
+			}
 
-			// Add a flag we can search on later.
-			$order->update_meta_data( '_roji_reserve_order', 'yes' );
-			$order->update_meta_data( '_roji_reserve_at', gmdate( 'c' ) );
-			$order->save();
+			// Empty cart so customer can start fresh. Wrap because a
+			// session/cart edge case here would derail the redirect.
+			try {
+				if ( function_exists( 'WC' ) && WC()->cart ) {
+					WC()->cart->empty_cart();
+				}
+			} catch ( \Throwable $e ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( sprintf(
+					'[Roji Reserve] cart empty failed for order #%d: %s',
+					$order_id,
+					$e->getMessage()
+				) );
+			}
 
-			// Empty cart so customer can start fresh.
-			WC()->cart->empty_cart();
+			// Conversion pixel transient — pure key/value write, but
+			// guard it anyway so a transient backend hiccup is harmless.
+			try {
+				roji_reserve_emit_conversion_pixel( $order );
+			} catch ( \Throwable $e ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( sprintf(
+					'[Roji Reserve] conversion pixel failed for order #%d: %s',
+					$order_id,
+					$e->getMessage()
+				) );
+			}
 
-			// Fire the GA4/Ads conversion event — this is the only place we
-			// can attach order ID + value before the redirect to thank-you.
-			roji_reserve_emit_conversion_pixel( $order );
+			// Validation email is the most likely source of synchronous
+			// failure on a fresh Kinsta install (no SMTP plugin, no SPF,
+			// or wp_mail throwing on a misconfigured From). Defer it to
+			// a one-shot WP-Cron task so the customer always gets the
+			// thank-you redirect even if the mailer is unhappy.
+			$admin_email = $this->get_option( 'admin_email' );
+			if ( ! empty( $admin_email ) ) {
+				if ( ! wp_next_scheduled( 'roji_reserve_send_email_async', array( $order_id, $admin_email ) ) ) {
+					wp_schedule_single_event(
+						time() + 5,
+						'roji_reserve_send_email_async',
+						array( $order_id, $admin_email )
+					);
+				}
+			}
 
-			// Send the validation digest email to ops.
-			roji_reserve_send_validation_email( $order, $this->get_option( 'admin_email' ) );
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf(
+				'[Roji Reserve] order #%d placed successfully (total=%s %s)',
+				$order_id,
+				$order->get_total(),
+				$order->get_currency()
+			) );
 
 			return array(
 				'result'   => 'success',
@@ -194,6 +272,30 @@ function roji_reserve_init_gateway() {
  *   - Subscription / autoship flag
  *   - Time-to-purchase from first session
  */
+/**
+ * Async wrapper triggered by the wp_schedule_single_event call inside
+ * process_payment. Loads the order fresh and delegates to the regular
+ * sender. Wrapped in try/catch so a mail failure cannot retrigger the
+ * cron retry storm WC's default behavior would create.
+ */
+add_action( 'roji_reserve_send_email_async', 'roji_reserve_send_email_async_handler', 10, 2 );
+function roji_reserve_send_email_async_handler( $order_id, $to ) {
+	try {
+		$order = wc_get_order( (int) $order_id );
+		if ( ! $order ) {
+			return;
+		}
+		roji_reserve_send_validation_email( $order, $to );
+	} catch ( \Throwable $e ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( sprintf(
+			'[Roji Reserve] async validation email failed for order #%d: %s',
+			(int) $order_id,
+			$e->getMessage()
+		) );
+	}
+}
+
 function roji_reserve_send_validation_email( WC_Order $order, $to ) {
 	if ( empty( $to ) ) {
 		return;
@@ -243,14 +345,26 @@ function roji_reserve_send_validation_email( WC_Order $order, $to ) {
 
 	$body = implode( "\n", $lines );
 
-	wp_mail(
-		$to,
-		sprintf( '[Roji RESERVED] Order #%d — %s',
-			$order->get_id(),
-			$order->get_billing_email()
-		),
-		$body
-	);
+	$sent = false;
+	try {
+		$sent = wp_mail(
+			$to,
+			sprintf( '[Roji RESERVED] Order #%d — %s',
+				$order->get_id(),
+				$order->get_billing_email()
+			),
+			$body
+		);
+	} catch ( \Throwable $e ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( '[Roji Reserve] wp_mail threw: ' . $e->getMessage() );
+	}
+
+	if ( ! $sent ) {
+		// Persist the digest as an order note so ops can still read it
+		// from wp-admin even when SMTP is unavailable.
+		$order->add_order_note( "Validation digest (mailer unavailable):\n\n" . $body );
+	}
 }
 
 /**

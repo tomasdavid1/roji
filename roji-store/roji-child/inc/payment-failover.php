@@ -195,3 +195,60 @@ add_action(
 	10,
 	3
 );
+
+/**
+ * Log every checkout-validation error so we can see in the server log
+ * what's actually blocking the order. WC's default behavior is to
+ * collect notices and display them at the top of the checkout, but
+ * if anything throws *before* notices render the customer just sees
+ * the generic "We were unable to process your order" message.
+ *
+ * This handler attaches at priority 1 so it runs before WC's own
+ * processing and doesn't interfere with normal error display.
+ */
+add_action(
+	'woocommerce_after_checkout_validation',
+	function ( $data, $errors ) {
+		if ( ! ( $errors instanceof WP_Error ) ) {
+			return;
+		}
+		$codes = $errors->get_error_codes();
+		if ( empty( $codes ) ) {
+			return;
+		}
+		$messages = array();
+		foreach ( $codes as $code ) {
+			foreach ( (array) $errors->get_error_messages( $code ) as $msg ) {
+				$messages[] = $code . ': ' . wp_strip_all_tags( $msg );
+			}
+		}
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log(
+			'[Roji Checkout] validation errors: '
+			. implode( ' | ', $messages )
+			. ' | payment_method=' . ( isset( $data['payment_method'] ) ? $data['payment_method'] : '?' )
+			. ' | country=' . ( isset( $data['billing_country'] ) ? $data['billing_country'] : '?' )
+		);
+	},
+	10,
+	2
+);
+
+/**
+ * Catch any uncaught exception thrown by gateway process_payment so
+ * the customer sees something better than the generic WC "unable to
+ * process" message and we get a full stack trace in the log to debug.
+ *
+ * Hooks into the action WC fires right before redirecting on payment
+ * success - if we got here, the gateway returned success. The point
+ * of this handler is the LOG side, so we can correlate ChatGPT order
+ * complaints with what actually happened.
+ */
+add_action(
+	'woocommerce_payment_complete',
+	function ( $order_id ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( sprintf( '[Roji Checkout] payment_complete fired for order #%d', (int) $order_id ) );
+	},
+	5
+);
