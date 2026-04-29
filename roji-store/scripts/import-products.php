@@ -320,6 +320,36 @@ $products = array(
 		'description'       => '200-count box of sterile 70% isopropyl alcohol prep pads. Laboratory use only.',
 		'meta'              => array(),
 	),
+
+	/*
+	 * Research Supplies Kit — bundles BAC water + syringes + swabs at
+	 * a small discount. Sold as a simple product (not a WC grouped or
+	 * bundle product) because:
+	 *   - Grouped products force a multi-line checkout cart that
+	 *     fights our cart card layout.
+	 *   - Our cart-upsell module needs ONE SKU it can add in a single
+	 *     click; that's incompatible with grouped/bundle flows.
+	 *   - The fulfillment SOP is "ship 1× of each" regardless of the
+	 *     parent SKU; warehouse picks the same three boxes either way.
+	 *
+	 * Pricing: $8.99 + $12.99 + $6.99 = $28.97 individually → $24.99
+	 * as a kit, savings $3.98 (≈14%). Tweak `price` to retune.
+	 */
+	array(
+		'sku'               => 'ROJI-KIT-001',
+		'name'              => 'Research Supplies Kit',
+		'slug'              => 'research-supplies-kit',
+		'price'             => 24.99,
+		'category'          => 'Accessories',
+		'tags'              => array( 'accessory', 'kit', 'supplies-kit' ),
+		'weight_lbs'        => 0.9, // sum of the three components.
+		'short_description' => 'Everything you need to use a research peptide stack: 30ml BAC water, 100 insulin syringes, 200 alcohol swabs. Save $3.98 vs. buying separately.',
+		'description'       => 'A bundled supplies kit for laboratory peptide research. Includes one 30ml vial of 0.9% benzyl-alcohol bacteriostatic water, one 100-count box of sterile single-use 1cc insulin syringes, and one 200-count box of sterile 70% isopropyl alcohol prep pads. For laboratory use only.',
+		'meta'              => array(
+			'_roji_supplies_kit'   => 1,
+			'_roji_kit_components' => 'ROJI-BAC-30,ROJI-SYR-100,ROJI-SWAB-200',
+		),
+	),
 );
 
 $ids = array();
@@ -334,3 +364,4 @@ WP_CLI::log( 'Add to wp-content/themes/roji-child/inc/config.php:' );
 WP_CLI::log( sprintf( "define( 'ROJI_WOLVERINE_PRODUCT_ID', %d );", $ids['ROJI-WOLF-001'] ?? 0 ) );
 WP_CLI::log( sprintf( "define( 'ROJI_RECOMP_PRODUCT_ID', %d );", $ids['ROJI-RECOMP-001'] ?? 0 ) );
 WP_CLI::log( sprintf( "define( 'ROJI_FULL_PRODUCT_ID', %d );", $ids['ROJI-FULL-001'] ?? 0 ) );
+WP_CLI::log( sprintf( "define( 'ROJI_SUPPLIES_KIT_PRODUCT_ID', %d );", $ids['ROJI-KIT-001'] ?? 0 ) );

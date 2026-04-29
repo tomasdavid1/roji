@@ -1,0 +1,27 @@
+# Roji Peptides
+
+> Research-grade peptide stacks for laboratory use. US-based, third-party tested, COA-verified.
+
+## Products
+
+- [Wolverine Stack (BPC-157 + TB-500)](https://rojipeptides.com/product/wolverine-stack/): Tissue repair research stack
+- [Recomp Stack (CJC-1295 + Ipamorelin)](https://rojipeptides.com/product/recomp-stack/): Growth hormone axis research stack
+- [Full Protocol](https://rojipeptides.com/product/full-protocol/): Complete research protocol combining healing + GH-axis peptides
+- [Research Supplies Kit](https://rojipeptides.com/product/research-supplies-kit/): BAC water, syringes, and swabs bundle
+
+## Research Resources
+
+- [Research Library](https://rojipeptides.com/research-library/): Compound profiles with PubMed citations
+- [Certificate of Analysis Library](https://rojipeptides.com/coa/): Third-party COAs for all products
+- [FAQ](https://rojipeptides.com/faq/): Frequently asked questions about peptide research
+
+## Free Research Tools
+
+- [Peptide Research Tools](https://tools.rojipeptides.com): Reconstitution calculator, half-life database, COA analyzer, cost-per-dose calculator, body recomp calculator, supplement interaction checker, PubMed search
+- [MCP Server](https://mcp.rojipeptides.com/mcp): Use these tools programmatically via the Model Context Protocol (ChatGPT, Claude, Cursor)
+
+## About
+
+- [About Roji](https://rojipeptides.com/about/)
+
+For research and laboratory use only.

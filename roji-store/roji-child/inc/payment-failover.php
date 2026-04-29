@@ -112,24 +112,70 @@ add_filter(
 		}
 
 		/*
-		 * No approved gateway is available right now. Try to inject
-		 * the always-safe Reserve-Order gateway so the customer can
-		 * still complete the funnel (we'll invoice them within 24h).
+		 * No approved gateway is available right now. Force-inject
+		 * the Reserve-Order gateway so the customer can still
+		 * complete the funnel (we'll email a payment link within
+		 * 24h). We must bypass the gateway's own `enabled` setting
+		 * here — on a fresh install it defaults to "yes" but only
+		 * after an admin opens WC > Settings > Payments and saves
+		 * once. Until then WC excludes it from the available list,
+		 * which is exactly the failure mode we're guarding against.
 		 *
-		 * We pull the registered instance straight from the WC
-		 * gateways manager rather than instantiating a new one, so
-		 * settings and admin overrides are preserved.
+		 * We instantiate the class directly if necessary, then
+		 * override `enabled` in-memory just for this request.
 		 */
+		$reserve = null;
 		if ( function_exists( 'WC' ) && WC()->payment_gateways() ) {
 			$all = WC()->payment_gateways()->payment_gateways();
 			if ( isset( $all['roji_reserve'] ) ) {
-				$gateways['roji_reserve'] = $all['roji_reserve'];
+				$reserve = $all['roji_reserve'];
 			}
+		}
+		if ( ! $reserve && class_exists( 'WC_Roji_Reserve_Gateway' ) ) {
+			$reserve = new WC_Roji_Reserve_Gateway();
+		}
+		if ( $reserve ) {
+			// Force-enable for this request; we don't persist the
+			// setting because admins should still be able to flip
+			// it via Settings.
+			$reserve->enabled = 'yes';
+			$gateways['roji_reserve'] = $reserve;
 		}
 
 		return $gateways;
 	},
 	100
+);
+
+/**
+ * Replace WooCommerce's stock "Sorry, it seems that there are no
+ * available payment methods..." notice with friendlier Roji copy.
+ *
+ * In practice the failover above should keep at least Reserve-Order
+ * available at all times, so this notice should never reach a real
+ * customer. We override it anyway as a belt-and-suspenders so that
+ * if something race-conditions the fallback (e.g. a plugin runs at
+ * priority > 100 and strips it again), the message still tells the
+ * customer what to do instead of looking broken.
+ */
+add_filter(
+	'gettext',
+	function ( $translated, $original, $domain ) {
+		if ( 'woocommerce' !== $domain ) {
+			return $translated;
+		}
+		// WC core source string, used by both the checkout page and
+		// the order-pay endpoint when no gateway is available.
+		if ( 'Sorry, it seems that there are no available payment methods. Please contact us if you require assistance or wish to make alternate arrangements.' === $original ) {
+			return __(
+				"Place your order below — we'll email you a secure payment link within 24 hours. Nothing is charged today.",
+				'roji-child'
+			);
+		}
+		return $translated;
+	},
+	20,
+	3
 );
 
 /**

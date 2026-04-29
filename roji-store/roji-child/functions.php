@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ROJI_CHILD_VERSION', '1.2.0' );
+define( 'ROJI_CHILD_VERSION', '1.4.0' );
 define( 'ROJI_CHILD_DIR', get_stylesheet_directory() );
 define( 'ROJI_CHILD_URI', get_stylesheet_directory_uri() );
 
@@ -22,6 +22,7 @@ require_once ROJI_CHILD_DIR . '/inc/seo.php';
 require_once ROJI_CHILD_DIR . '/inc/disclaimers.php';
 require_once ROJI_CHILD_DIR . '/inc/woocommerce.php';
 require_once ROJI_CHILD_DIR . '/inc/header-cart.php';
+require_once ROJI_CHILD_DIR . '/inc/mobile-nav.php';
 require_once ROJI_CHILD_DIR . '/inc/checkout-country-lock.php';
 require_once ROJI_CHILD_DIR . '/inc/tracking.php';
 require_once ROJI_CHILD_DIR . '/inc/age-gate.php';
@@ -36,3 +37,4 @@ require_once ROJI_CHILD_DIR . '/inc/affiliates-ui.php';
 require_once ROJI_CHILD_DIR . '/inc/affiliates-admin.php';
 require_once ROJI_CHILD_DIR . '/inc/cart-upsell.php';
 require_once ROJI_CHILD_DIR . '/inc/gateway-reserve-order.php';
+require_once ROJI_CHILD_DIR . '/inc/llms-txt.php';

@@ -50,6 +50,14 @@ if ( ! defined( 'ROJI_SYRINGES_PRODUCT_ID' ) ) {
 if ( ! defined( 'ROJI_SWABS_PRODUCT_ID' ) ) {
 	define( 'ROJI_SWABS_PRODUCT_ID', 17 );
 }
+/*
+ * Research Supplies Kit — bundled BAC + syringes + swabs at a small
+ * discount, surfaced on the cart upsell when 2+ supplies are missing.
+ * Default ID matches the WP-CLI seed; SKU fallback ROJI-KIT-001.
+ */
+if ( ! defined( 'ROJI_SUPPLIES_KIT_PRODUCT_ID' ) ) {
+	define( 'ROJI_SUPPLIES_KIT_PRODUCT_ID', 18 );
+}
 
 /* -----------------------------------------------------------------------------
  * Google Ads / Analytics
@@ -372,6 +380,31 @@ function roji_supply_product_id( $key ) {
 		$found = wc_get_product_id_by_sku( $sku );
 		if ( $found > 0 ) {
 			return (int) $found;
+		}
+	}
+	return 0;
+}
+
+/**
+ * Resolve the bundled "Research Supplies Kit" product ID.
+ *
+ * Mirrors roji_supply_product_id(): fast-path on the constant, then a
+ * SKU fallback (ROJI-KIT-001) so installs with shifted post IDs still
+ * resolve. Returns 0 if the kit hasn't been seeded yet — callers
+ * should treat that as "no kit upsell available" and fall back to the
+ * per-supply checkboxes.
+ *
+ * @return int Kit product ID, or 0 if unresolved.
+ */
+function roji_supply_kit_product_id() {
+	$id = defined( 'ROJI_SUPPLIES_KIT_PRODUCT_ID' ) ? (int) ROJI_SUPPLIES_KIT_PRODUCT_ID : 0;
+	if ( $id > 0 && get_post_status( $id ) === 'publish' ) {
+		return $id;
+	}
+	if ( function_exists( 'wc_get_product_id_by_sku' ) ) {
+		$found = (int) wc_get_product_id_by_sku( 'ROJI-KIT-001' );
+		if ( $found > 0 ) {
+			return $found;
 		}
 	}
 	return 0;

@@ -42,7 +42,7 @@ export function TypewriterRotator({
 }: Props) {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [wordIdx, setWordIdx] = useState(0);
-  const [text, setText] = useState("");
+  const [text, setText] = useState(words[0] ?? "");
   const [phase, setPhase] = useState<
     "typing" | "holding" | "deleting" | "empty"
   >("typing");

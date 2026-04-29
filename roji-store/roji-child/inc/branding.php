@@ -339,6 +339,39 @@ if ( ! function_exists( 'wp_get_document_title_for_post' ) ) {
 }
 
 /**
+ * Inject the eyebrow into Hello Elementor's native header.
+ *
+ * Hello Elementor renders the header via its own PHP template that
+ * outputs: <div class="site-title show"><a href="...">roji</a></div>
+ * None of the Elementor widget filters fire for this path. We hook
+ * `wp_footer` to inject a tiny DOM-patch script that transforms
+ * the bare "roji" anchor into our "roji RESEARCH PEPTIDES" lockup.
+ * Runs once on DOMContentLoaded.
+ */
+add_action(
+	'wp_footer',
+	function () {
+		if ( is_admin() ) {
+			return;
+		}
+		?>
+<script>
+(function(){
+	var st = document.querySelector('.site-title a');
+	if (!st) return;
+	if (st.querySelector('.roji-wordmark__eyebrow')) return;
+	st.classList.add('roji-wordmark');
+	var txt = st.textContent.trim();
+	st.innerHTML = '<span class="roji-wordmark__text">' + txt + '</span>'
+		+ '<span class="roji-wordmark__eyebrow" aria-hidden="true">RESEARCH PEPTIDES</span>';
+})();
+</script>
+		<?php
+	},
+	5
+);
+
+/**
  * Tiny CSS for the wordmark lockup - kept here next to the markup
  * so it's easy to maintain together. Hooked at high priority so it
  * sits after the rest of the theme's styles and wins specificity.
@@ -377,6 +410,13 @@ add_action(
 	}
 	.roji-wordmark:hover .roji-wordmark__eyebrow {
 		color: #f0f0f5;
+	}
+	/* Hello Elementor native header lockup */
+	.site-title a.roji-wordmark {
+		display: inline-flex;
+		align-items: baseline;
+		gap: 12px;
+		text-decoration: none;
 	}
 	@media (max-width: 480px) {
 		.roji-wordmark__eyebrow {

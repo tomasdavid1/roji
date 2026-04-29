@@ -54,10 +54,10 @@ function roji_reserve_init_gateway() {
 			$this->init_form_fields();
 			$this->init_settings();
 
-			$this->title       = $this->get_option( 'title', 'Reserve order (we\'ll invoice you)' );
+			$this->title       = $this->get_option( 'title', 'Place order — pay by secure link' );
 			$this->description = $this->get_option(
 				'description',
-				'Reserve your stack now. We verify inventory + ship-readiness, then email a secure payment link within 24 hours. No charge today.'
+				"Submit your order now and we'll email you a secure payment link within 24 hours. Nothing is charged today; your order is reserved while we verify inventory and ship-readiness."
 			);
 			$this->enabled     = $this->get_option( 'enabled', 'yes' );
 
@@ -81,13 +81,13 @@ function roji_reserve_init_gateway() {
 					'title'       => __( 'Title shown to customer', 'roji-child' ),
 					'type'        => 'text',
 					'description' => __( 'Label on the checkout payment-method radio group.', 'roji-child' ),
-					'default'     => __( 'Reserve order (we\'ll invoice you)', 'roji-child' ),
+					'default'     => __( 'Place order — pay by secure link', 'roji-child' ),
 				),
 				'description' => array(
 					'title'       => __( 'Description shown to customer', 'roji-child' ),
 					'type'        => 'textarea',
 					'description' => __( 'Helper text under the radio. Be honest about the deferred-payment flow.', 'roji-child' ),
-					'default'     => __( 'Reserve your stack now. We verify inventory + ship-readiness, then email a secure payment link within 24 hours. No charge today.', 'roji-child' ),
+					'default'     => __( "Submit your order now and we'll email you a secure payment link within 24 hours. Nothing is charged today; your order is reserved while we verify inventory and ship-readiness.", 'roji-child' ),
 				),
 				'admin_email' => array(
 					'title'       => __( 'Notify email on new reserved order', 'roji-child' ),
@@ -147,11 +147,12 @@ function roji_reserve_init_gateway() {
 				color: var(--roji-text, #f0f0f5);
 			">
 				<strong style="display:block; margin-bottom: 0.4em; font-size: 1.05em;">
-					Your order is reserved.
+					Order received — payment link on the way.
 				</strong>
 				<p style="margin: 0; line-height: 1.55;">
-					We're verifying inventory and ship-readiness now. You'll get a secure
-					payment link by email within 24 hours. <strong>No charge has been made today.</strong>
+					Check your inbox: we'll email you a secure payment link within 24 hours.
+					Your order is reserved while we verify inventory.
+					<strong>Nothing has been charged today.</strong>
 				</p>
 			</div>
 			<?php

@@ -1,0 +1,27 @@
+# Roji Research Tools
+
+> Free peptide research calculators: reconstitution, half-life database, COA analyzer, cost-per-dose, body recomp, supplement interactions, PubMed search, and more.
+
+## Tools
+
+- [Reconstitution Calculator](https://tools.rojipeptides.com/reconstitution): Calculate peptide reconstitution — vial mg + BAC water mL + target dose mcg → concentration, units per dose, total doses
+- [Half-Life Database](https://tools.rojipeptides.com/half-life): Look up half-life, molecular weight, storage, references, and decay curves for 20+ research peptides
+- [COA Analyzer](https://tools.rojipeptides.com/coa): Paste Certificate of Analysis text → trust score (0–100), identified lab, flags, positives
+- [Cost-Per-Dose Calculator](https://tools.rojipeptides.com/cost-per-dose): Compare vendors by cost per dose — vial size, purity, price → best value
+- [Body Recomp Calculator](https://tools.rojipeptides.com/recomp): TDEE, macros, and 8/12/16-week body composition projection
+- [Supplement Interaction Checker](https://tools.rojipeptides.com/interactions): Check synergies, timing conflicts, and cautions for 50+ OTC supplements
+- [PubMed Research Search](https://tools.rojipeptides.com/research): Search PubMed with study-type classification (RCT, meta-analysis, review, animal, etc.)
+- [Bloodwork Interpreter](https://tools.rojipeptides.com/bloodwork): Interpret blood panel results with reference ranges
+- [AI Research Assistant](https://tools.rojipeptides.com/ai): AI-powered peptide research Q&A
+
+## MCP Integration
+
+- [MCP Server](https://mcp.rojipeptides.com/mcp): Use these tools programmatically via the Model Context Protocol (ChatGPT, Claude, Cursor)
+
+## Shop
+
+- [Research-Grade Peptides](https://rojipeptides.com/shop): Third-party tested, COA-verified peptide stacks for laboratory use
+
+## About
+
+All tools are free, no login required. Built by Roji Peptides. For research and laboratory use only.

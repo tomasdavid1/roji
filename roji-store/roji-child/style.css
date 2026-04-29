@@ -30,6 +30,10 @@ Text Domain: roji-child
 
   --roji-radius: 8px;
   --roji-radius-lg: 12px;
+
+  /* Site-wide horizontal gutter on mobile. Tweak the value here and
+     every page that reads --roji-mobile-gutter will pick it up. */
+  --roji-mobile-gutter: 12px;
 }
 
 html,
@@ -881,25 +885,56 @@ input[type="radio"] {
     text-align: center;
   }
 
-  /* Remove × — visible on dark, square hit target, red on hover */
+  /* Remove control — desktop.
+     The default WC markup is `<a class="remove">×</a>` with the
+     literal multiplication-sign glyph as text. Glyph baselines
+     differ across font stacks, so even with flex-centering it
+     looks visually low/right of center. Fix: hide the glyph
+     (font-size 0 + transparent color) and draw the X with two
+     pseudo-elements that are mathematically centered. */
+  .woocommerce-cart table.cart td.product-remove {
+    text-align: center;
+    vertical-align: middle;
+  }
   .woocommerce-cart table.cart td.product-remove a.remove,
   .woocommerce-cart table.cart td.product-remove a.remove:link {
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
+    position: relative;
+    display: inline-block !important;
     width: 28px;
     height: 28px;
     border-radius: 999px;
-    background: rgba(255,255,255,0.04) !important;
-    color: var(--roji-text-secondary) !important;
-    font-size: 16px;
-    line-height: 1;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
     text-decoration: none !important;
-    transition: background 0.15s ease, color 0.15s ease;
+    overflow: hidden;
+    transition: background 0.15s ease;
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove::before,
+  .woocommerce-cart table.cart td.product-remove a.remove::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 1.5px;
+    background: var(--roji-text-secondary);
+    border-radius: 1px;
+    transition: background 0.15s ease;
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
   }
   .woocommerce-cart table.cart td.product-remove a.remove:hover {
-    background: rgba(239,68,68,0.15) !important;
-    color: var(--roji-danger) !important;
+    background: rgba(239, 68, 68, 0.15) !important;
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove:hover::before,
+  .woocommerce-cart table.cart td.product-remove a.remove:hover::after {
+    background: var(--roji-danger);
   }
 
   /* Actions row (Update cart + coupon) — flat, no internal table chrome */
@@ -962,22 +997,27 @@ input[type="radio"] {
   .woocommerce table.shop_table.cart tbody {
     display: block;
   }
+  /* Card layout: thumb (left) + product block (right). Inside the
+     product block we stack name → price → footer (qty stepper +
+     line subtotal + remove). Reads like a Stripe / Shopify cart
+     line, not a stripped-down table. */
   .woocommerce-cart table.cart tbody tr.cart_item,
   .woocommerce table.shop_table.cart tbody tr.cart_item {
     display: grid;
-    grid-template-columns: 64px 1fr;
+    grid-template-columns: 72px 1fr;
     grid-template-areas:
       "thumb  name"
       "thumb  price"
-      "qty    qty"
-      "remove remove";
+      "thumb  meta"
+      "footer footer";
     column-gap: 14px;
-    row-gap: 8px;
+    row-gap: 4px;
     background: var(--roji-card);
     border: 1px solid var(--roji-border);
-    border-radius: var(--roji-radius);
-    padding: 14px;
+    border-radius: var(--roji-radius-lg);
+    padding: 14px 14px 12px;
     margin: 0 0 12px;
+    position: relative;
   }
   .woocommerce-cart table.cart tbody tr.cart_item td,
   .woocommerce table.shop_table.cart tbody tr.cart_item td {
@@ -990,15 +1030,24 @@ input[type="radio"] {
     font-size: 14px;
   }
   .woocommerce-cart table.cart td.product-thumbnail { grid-area: thumb; }
-  .woocommerce-cart table.cart td.product-name      { grid-area: name; font-weight: 600; }
-  .woocommerce-cart table.cart td.product-price     { grid-area: price; color: var(--roji-text-secondary); font-family: var(--roji-font-mono); font-size: 13px; }
-  .woocommerce-cart table.cart td.product-subtotal  { display: none !important; }
-  .woocommerce-cart table.cart td.product-quantity  { grid-area: qty; }
-  .woocommerce-cart table.cart td.product-remove    { grid-area: remove; }
+  .woocommerce-cart table.cart td.product-name      { grid-area: name; }
+  .woocommerce-cart table.cart td.product-price     { grid-area: price; }
+  /* Per-line subtotal shows in the footer next to the qty stepper.
+     We keep .product-subtotal in the DOM (some plugins read it) but
+     reposition it via grid into the footer area. */
+  .woocommerce-cart table.cart td.product-subtotal  { grid-area: footer; justify-self: end; align-self: center; }
+  .woocommerce-cart table.cart td.product-quantity  { grid-area: footer; justify-self: start; align-self: center; }
+  /* Remove pinned to top-right of the card so the footer row can
+     stay clean (qty + line subtotal). */
+  .woocommerce-cart table.cart td.product-remove {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
 
   .woocommerce-cart table.cart td.product-thumbnail img {
-    width: 64px !important;
-    height: 64px !important;
+    width: 72px !important;
+    height: 72px !important;
     border-radius: 8px;
     object-fit: cover;
     display: block;
@@ -1007,44 +1056,143 @@ input[type="radio"] {
     color: var(--roji-text-primary) !important;
     text-decoration: none !important;
     font-size: 15px;
+    font-weight: 600;
     line-height: 1.3;
+    /* Leave space for the absolute-positioned remove button. */
+    padding-right: 36px;
+    display: inline-block;
   }
-  .woocommerce-cart table.cart td.product-quantity .quantity {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .woocommerce-cart table.cart td.product-quantity .quantity::before {
-    content: "Qty";
+  .woocommerce-cart table.cart td.product-price {
+    color: var(--roji-text-secondary);
     font-family: var(--roji-font-mono);
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--roji-text-muted);
+    font-size: 13px;
+    margin-top: 2px;
+  }
+
+  /* Footer row separator — divides the product block from the
+     qty/subtotal controls so the card has clear visual hierarchy. */
+  .woocommerce-cart table.cart tbody tr.cart_item::before {
+    content: "";
+    grid-area: footer;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.05);
+    align-self: start;
+    margin: 10px -14px 8px;
+  }
+  /* Stretch the rule across the full card width regardless of
+     the absolute remove button. */
+  .woocommerce-cart table.cart tbody tr.cart_item {
+    /* nothing extra; the ::before negative margins above handle bleed */
+  }
+
+  /* Quantity stepper — minus / input / plus, integrated. */
+  .woocommerce-cart table.cart td.product-quantity .quantity {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1px solid var(--roji-border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  /* Hide WC's default "Quantity" before-label — the stepper is self-evident. */
+  .woocommerce-cart table.cart td.product-quantity .quantity::before {
+    content: none;
   }
   .woocommerce-cart table.cart td.product-quantity input.qty {
-    width: 70px !important;
-    height: 38px;
-  }
-  .woocommerce-cart table.cart td.product-remove {
-    text-align: right;
-  }
-  .woocommerce-cart table.cart td.product-remove a.remove {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--roji-text-muted) !important;
-    font-size: 13px;
-    text-decoration: none !important;
+    width: 44px !important;
+    height: 36px !important;
     background: transparent !important;
+    border: 0 !important;
+    border-left: 1px solid var(--roji-border) !important;
+    border-right: 1px solid var(--roji-border) !important;
+    border-radius: 0 !important;
+    color: var(--roji-text-primary) !important;
+    text-align: center;
+    font-family: var(--roji-font-mono);
+    font-size: 14px;
+    -moz-appearance: textfield;
+  }
+  .woocommerce-cart table.cart td.product-quantity input.qty::-webkit-inner-spin-button,
+  .woocommerce-cart table.cart td.product-quantity input.qty::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  /* Optional plus/minus buttons: WC core doesn't render them, but
+     several quantity-stepper plugins do; style them if present so
+     the stepper still looks intentional. */
+  .woocommerce-cart table.cart td.product-quantity .quantity .plus,
+  .woocommerce-cart table.cart td.product-quantity .quantity .minus {
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    color: var(--roji-text-secondary);
+    border: 0;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+  .woocommerce-cart table.cart td.product-quantity .quantity .plus:hover,
+  .woocommerce-cart table.cart td.product-quantity .quantity .minus:hover {
+    background: rgba(79, 109, 245, 0.10);
+    color: var(--roji-text-primary);
+  }
+
+  /* Per-line subtotal in the footer — accent it so customers can
+     scan the cart vertically. WC labels it "Subtotal: $X" via
+     data-title; we want just "$X" so we suppress the prefix. */
+  .woocommerce-cart table.cart td.product-subtotal {
+    font-family: var(--roji-font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--roji-text-primary);
+  }
+  .woocommerce-cart table.cart td.product-subtotal .woocommerce-Price-amount {
+    color: var(--roji-text-primary);
+  }
+
+  /* Remove control — mobile.
+     Same SVG-from-pseudo-elements trick as desktop so the X is
+     mathematically centered. Slightly smaller hit target (32px)
+     since it's pinned at the corner. */
+  .woocommerce-cart table.cart td.product-remove a.remove {
+    position: relative;
+    display: inline-block !important;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    text-decoration: none !important;
+    overflow: hidden;
+    transition: background 0.15s ease;
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove::before,
+  .woocommerce-cart table.cart td.product-remove a.remove::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 1.5px;
+    background: var(--roji-text-secondary);
+    border-radius: 1px;
+    transition: background 0.15s ease;
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove::before {
+    transform: translate(-50%, -50%) rotate(45deg);
   }
   .woocommerce-cart table.cart td.product-remove a.remove::after {
-    content: "Remove";
-    font-family: var(--roji-font-sans);
-    font-size: 13px;
+    transform: translate(-50%, -50%) rotate(-45deg);
   }
   .woocommerce-cart table.cart td.product-remove a.remove:hover {
-    color: var(--roji-danger) !important;
+    background: rgba(239, 68, 68, 0.15) !important;
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove:hover::before,
+  .woocommerce-cart table.cart td.product-remove a.remove:hover::after {
+    background: var(--roji-danger);
   }
 
   /* "Actions" row (Update cart + coupon) — full-width row */
@@ -1991,104 +2139,289 @@ header .site-title a,
 }
 
 /* ============================================================
-   Mobile nav dropdown panel
+   Mobile navigation
    ============================================================
-   Elementor / Hello kits ship the dropdown with a hard-coded
-   white background on the <ul> AND on each <li>, so painting
-   only the <nav> wrapper leaves the white panel showing
-   through. We paint EVERY layer (wrapper, container, ul, li,
-   a) and bump specificity with .elementor-element to beat the
-   kit's `body .elementor *` rules without using !important
-   wars.
+   We REPLACE Elementor's mobile dropdown widget with a custom
+   full-screen overlay drawer rendered by inc/mobile-nav.php.
+
+   Why: Elementor / Hello kits hard-code a white background on
+   the dropdown <ul> and each <li>, plus a translucent currentColor
+   on each <a>. Multiple rounds of !important overrides leak
+   through because Elementor injects new wrapper classes per
+   version. Easier to bypass entirely than chase the cascade.
+
+   Strategy below:
+     1. Hide Elementor's mobile toggle + dropdown on screens
+        <= 1024px.
+     2. Show our own .roji-mnav-toggle (hamburger) in the same
+        spot, positioned over the header.
+     3. Style the .roji-mnav-drawer overlay we own end-to-end.
+
+   Desktop (>= 1025px) is untouched — Elementor's horizontal
+   menu continues to render normally.
    ============================================================ */
-.elementor-nav-menu--dropdown,
-.elementor-nav-menu__container.elementor-nav-menu--dropdown,
-nav.elementor-nav-menu--dropdown,
-.elementor-location-header .elementor-widget-nav-menu .elementor-widget-container,
-.elementor-widget-nav-menu .elementor-nav-menu__container,
-.elementor-widget-nav-menu .elementor-nav-menu__container.elementor-nav-menu--dropdown,
-.elementor-widget-nav-menu .elementor-nav-menu--dropdown,
-.elementor-widget-nav-menu ul.elementor-nav-menu,
-.elementor-widget-nav-menu ul.elementor-nav-menu--dropdown,
-.elementor-nav-menu--dropdown ul.elementor-nav-menu,
-.elementor-nav-menu--dropdown li,
-.elementor-widget-nav-menu .elementor-nav-menu li {
-  background-color: var(--roji-darker) !important;
-  background-image: none !important;
-}
 
-.elementor-nav-menu--dropdown,
-.elementor-nav-menu__container.elementor-nav-menu--dropdown,
-nav.elementor-nav-menu--dropdown {
-  border-top: 1px solid var(--roji-border);
-  padding: 8px 0 !important;
-}
-
-/* Full-width mobile nav: fill the viewport so page content does
-   not show through underneath the (now-shorter) menu list. */
+/* --- Hide ALL native / Elementor mobile menus on phones / tablets --- */
 @media (max-width: 1024px) {
+  /* Elementor Pro nav-menu widget */
+  .elementor-menu-toggle,
   .elementor-nav-menu--dropdown,
-  .elementor-nav-menu__container.elementor-nav-menu--dropdown,
+  nav.elementor-nav-menu--dropdown,
   .elementor-widget-nav-menu .elementor-nav-menu--dropdown {
-    min-height: calc(100vh - 52px);
-    box-sizing: border-box;
-    padding-bottom: 32px !important;
+    display: none !important;
+  }
+  /* Hello Elementor theme's built-in mobile nav */
+  .site-navigation-toggle-holder,
+  .site-navigation-dropdown,
+  nav.site-navigation-dropdown {
+    display: none !important;
   }
 }
 
-/* Item rows: dark, full-width, divider between, readable label.
-   We re-state the color on every selector layer because Elementor
-   applies its own transparency + currentColor cascade that can
-   dim the text to ~30% opacity (which is exactly what the
-   screenshot was showing). */
-.elementor-nav-menu--dropdown .elementor-item,
-.elementor-nav-menu--dropdown a.elementor-item,
-.elementor-nav-menu--dropdown li a,
-.elementor-widget-nav-menu .elementor-nav-menu--dropdown a.elementor-item,
-.elementor-widget-nav-menu .elementor-nav-menu--dropdown li > a {
-  background: transparent !important;
-  border-bottom: 1px solid var(--roji-border) !important;
-  padding: 16px 24px !important;
-  font-size: 16px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0 !important;
-  color: #f0f0f5 !important;
-  opacity: 1 !important;
-  text-decoration: none !important;
-  transition: background 0.12s ease, color 0.12s ease;
+/* --- Our hamburger toggle -------------------------------- */
+.roji-mnav-toggle {
+  display: none;
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 10px;
+  background: rgba(13, 13, 20, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #f0f0f5;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
-.elementor-nav-menu--dropdown .elementor-item:hover,
-.elementor-nav-menu--dropdown .elementor-item:focus,
-.elementor-nav-menu--dropdown .elementor-item.elementor-item-active,
-.elementor-nav-menu--dropdown li a:hover,
-.elementor-widget-nav-menu .elementor-nav-menu--dropdown a.elementor-item:hover {
-  background: rgba(79, 109, 245, 0.12) !important;
-  color: #ffffff !important;
+.roji-mnav-toggle:hover {
+  background: rgba(22, 22, 31, 0.96);
+  border-color: rgba(255, 255, 255, 0.18);
 }
-.elementor-nav-menu--dropdown li:last-child .elementor-item,
-.elementor-nav-menu--dropdown li:last-child a {
-  border-bottom: 0 !important;
-}
-
-/* Hamburger toggle button - keep the icon white on the dark bar */
-.elementor-menu-toggle,
-.elementor-menu-toggle.elementor-active {
-  background: transparent !important;
-  color: rgba(240, 240, 245, 0.92) !important;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-.elementor-menu-toggle:focus:not(:focus-visible) {
-  outline: none !important;
-}
-.elementor-menu-toggle:focus-visible {
-  outline: 2px solid var(--roji-accent) !important;
+.roji-mnav-toggle:focus-visible {
+  outline: 2px solid var(--roji-accent);
   outline-offset: 3px;
 }
-.elementor-menu-toggle svg,
-.elementor-menu-toggle i {
-  fill: currentColor !important;
+.roji-mnav-toggle__bar {
+  display: block;
+  width: 18px;
+  height: 2px;
+  margin: 4px auto;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+/* Animate to an "X" when active */
+.roji-mnav-toggle.is-active .roji-mnav-toggle__bar:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.roji-mnav-toggle.is-active .roji-mnav-toggle__bar:nth-child(2) {
+  opacity: 0;
+}
+.roji-mnav-toggle.is-active .roji-mnav-toggle__bar:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+@media (max-width: 1024px) {
+  .roji-mnav-toggle {
+    display: block;
+  }
+}
+
+/* --- Drawer overlay -------------------------------------- */
+.roji-mnav-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  /* Hidden state: panel slides off to the right; backdrop fades */
+  pointer-events: none;
+}
+.roji-mnav-drawer:not([hidden]) {
+  pointer-events: auto;
+}
+.roji-mnav-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+.roji-mnav-drawer.is-open .roji-mnav-backdrop {
+  opacity: 1;
+}
+.roji-mnav-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(360px, 92vw);
+  background: var(--roji-black, #0a0a0f);
+  border-left: 1px solid var(--roji-border, rgba(255, 255, 255, 0.06));
+  color: var(--roji-text-primary, #f0f0f5);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.22s cubic-bezier(0.32, 0.72, 0.20, 1.00);
+  box-shadow: -16px 0 40px rgba(0, 0, 0, 0.55);
+  outline: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.roji-mnav-drawer.is-open .roji-mnav-panel {
+  transform: translateX(0);
+}
+
+/* Body scroll lock when drawer is open */
+body.roji-mnav-locked {
+  overflow: hidden;
+}
+
+/* --- Drawer header (brand + close) ----------------------- */
+.roji-mnav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--roji-border, rgba(255, 255, 255, 0.06));
+}
+.roji-mnav-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+.roji-mnav-brand__mark {
+  font-family: var(--roji-font-sans);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: #f0f0f5;
+  text-transform: lowercase;
+}
+.roji-mnav-brand__eyebrow {
+  font-family: var(--roji-font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--roji-text-secondary, #8a8a9a);
+  font-weight: 400;
+}
+.roji-mnav-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #f0f0f5;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.roji-mnav-close:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.roji-mnav-close:focus-visible {
+  outline: 2px solid var(--roji-accent);
+  outline-offset: 2px;
+}
+
+/* --- Drawer nav list ------------------------------------- */
+.roji-mnav-nav {
+  flex: 1;
+  padding: 10px 0 24px;
+}
+.roji-mnav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.roji-mnav-item + .roji-mnav-item {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+.roji-mnav-link,
+.roji-mnav-item--cart > .roji-cart-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 22px;
+  font-family: var(--roji-font-sans);
+  font-size: 15.5px;
+  font-weight: 500;
+  color: #f0f0f5;
+  text-decoration: none;
+  background: transparent;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.roji-mnav-link:hover,
+.roji-mnav-link:focus,
+.roji-mnav-item--cart > .roji-cart-link:hover {
+  background: rgba(79, 109, 245, 0.10);
+  color: #ffffff;
+}
+.roji-mnav-link.is-current {
+  color: #ffffff;
+  background: rgba(79, 109, 245, 0.06);
+  box-shadow: inset 3px 0 0 var(--roji-accent, #4f6df5);
+}
+.roji-mnav-link__chev {
+  flex-shrink: 0;
+  color: var(--roji-text-muted, #55556a);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+.roji-mnav-link:hover .roji-mnav-link__chev {
+  color: var(--roji-accent, #4f6df5);
+  transform: translateX(2px);
+}
+
+/* Cart row inside the drawer: keep the cart icon + badge but
+   drop the separate "Cart" text label so it visually matches
+   the other rows. */
+.roji-mnav-item--cart > .roji-cart-link {
+  font-size: 15.5px;
+}
+.roji-mnav-item--cart .roji-cart-link__icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  color: var(--roji-text-secondary, #8a8a9a);
+}
+.roji-mnav-item--cart .roji-cart-link__text {
+  flex: 1;
+}
+.roji-mnav-item--cart .roji-cart-link__badge {
+  background: var(--roji-accent, #4f6df5);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+}
+
+/* --- Drawer footer --------------------------------------- */
+.roji-mnav-footer {
+  padding: 14px 22px 20px;
+  border-top: 1px solid var(--roji-border, rgba(255, 255, 255, 0.06));
+}
+.roji-mnav-footer__text {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--roji-text-muted, #55556a);
+  font-family: var(--roji-font-sans);
 }
 
 /* Catch-all: every menu link inside any header / site navigation
@@ -2234,17 +2567,9 @@ header .current-menu-item > a {
     overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
   }
 }
-/* Mobile dropdown: show "Cart" label + badge inline like other items */
-@media (max-width: 1024px) {
-  .roji-cart-menu-item .roji-cart-link {
-    width: 100%;
-    padding: 16px 24px !important;
-    border-bottom: 1px solid var(--roji-border) !important;
-    font-size: 16px !important;
-    font-weight: 500 !important;
-  }
-  .roji-cart-link__text { display: inline-block; }
-}
+/* Mobile cart row styling lives in the .roji-mnav-item--cart block above
+   (see "Mobile navigation" section). The Elementor dropdown that this
+   used to target is hidden on screens <= 1024px. */
 
 /* ============================================================
    Add-to-cart success notice
@@ -2424,5 +2749,75 @@ header .current-menu-item > a {
     width: auto;
     justify-content: flex-start;
     padding-left: 2px !important;
+  }
+}
+
+/* ============================================================
+   Site-wide mobile gutter
+   ============================================================
+   Keeps page content from hugging the viewport edges on phones.
+   Applies a small horizontal pad to the main content wrapper
+   plus Elementor's boxed sections/containers, which is where
+   Roji pages actually render.
+
+   Header, footer, and any element marked with .roji-bleed (or
+   Elementor "full-width" containers) opt out so hero photos and
+   nav bars can still go edge-to-edge.
+
+   The gutter value is exposed as --roji-mobile-gutter in :root
+   so we can dial it up/down from a single place.
+   ============================================================ */
+@media (max-width: 767px) {
+  /* Hello Elementor / Astra / generic theme main wrapper. */
+  body main.site-main,
+  body .site-content > main,
+  body .woocommerce-page main {
+    padding-left: var(--roji-mobile-gutter);
+    padding-right: var(--roji-mobile-gutter);
+  }
+
+  /* Elementor BOXED containers (legacy section + new flexbox).
+     The "boxed" variant is the one meant to align with the page
+     content area, so it's safe to nudge inward. We deliberately
+     skip .e-con-full and .elementor-section-stretched. */
+  .elementor-section.elementor-section-boxed
+    > .elementor-container,
+  .e-con.e-con-boxed > .e-con-inner {
+    padding-left: var(--roji-mobile-gutter);
+    padding-right: var(--roji-mobile-gutter);
+  }
+
+  /* WooCommerce shop / cart / checkout / account wrappers.
+     These are sometimes rendered outside an Elementor container
+     (e.g. when a page falls back to the theme template), so we
+     belt-and-suspenders them too. */
+  .woocommerce,
+  .woocommerce-cart .woocommerce,
+  .woocommerce-checkout .woocommerce,
+  .woocommerce-account .woocommerce {
+    padding-left: var(--roji-mobile-gutter);
+    padding-right: var(--roji-mobile-gutter);
+  }
+
+  /* Avoid double-padding when a WooCommerce wrapper sits inside
+     an already-gutter'd Elementor container. */
+  .e-con.e-con-boxed > .e-con-inner .woocommerce,
+  main.site-main .woocommerce {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Explicit opt-outs: header, footer, anything tagged .roji-bleed,
+     and Elementor's full-width / stretched sections. */
+  header.site-header,
+  footer.site-footer,
+  .roji-bleed,
+  .elementor-section.elementor-section-full_width
+    > .elementor-container,
+  .elementor-section.elementor-section-stretched
+    > .elementor-container,
+  .e-con.e-con-full {
+    padding-left: 0;
+    padding-right: 0;
   }
 }

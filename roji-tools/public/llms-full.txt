@@ -1,0 +1,202 @@
+# Roji Research Tools — Full Reference
+
+> Comprehensive documentation of all Roji Peptide Research Tools, including input/output schemas, compound database coverage, and supplement interaction database.
+
+## Site
+
+- URL: https://tools.rojipeptides.com
+- MCP Server: https://mcp.rojipeptides.com/mcp
+- Shop: https://rojipeptides.com/shop
+- All tools are free, no login, no API key required.
+
+---
+
+## Tool 1: Reconstitution Calculator
+
+URL: https://tools.rojipeptides.com/reconstitution
+MCP tool name: `reconstitution_calculator`
+
+Calculate peptide reconstitution math for research use.
+
+### Inputs
+- `vialMg` (number, required): Peptide content in the vial, in milligrams
+- `waterMl` (number, required): Volume of bacteriostatic water to add, in mL
+- `doseMcg` (number, required): Target dose in micrograms
+- `syringe` (string, optional): Syringe type — "u100" (default, 1 mL), "u50" (0.5 mL), "u40" (0.4 mL)
+
+### Outputs
+- `concentrationMcgPerMl`: Concentration in mcg/mL
+- `concentrationMcgPerUnit`: Concentration in mcg per syringe unit
+- `unitsPerDose`: How many syringe units per dose
+- `mlPerDose`: Volume per dose in mL
+- `totalDoses`: Total doses obtainable from the vial
+- `alternativeDoses`: Suggested round-number dose alternatives with unit counts
+- `warnings`: Array of warning strings (e.g., dose exceeds syringe capacity)
+
+---
+
+## Tool 2: Half-Life Database
+
+URL: https://tools.rojipeptides.com/half-life
+MCP tool name: `half_life_lookup`
+
+Look up pharmacokinetic data for 20+ research peptides.
+
+### Inputs
+- `compound` (string, required): Compound name or slug. Pass "list" to get all available compounds.
+
+### Outputs
+- `slug`, `name`, `aliases`, `category`, `oneLiner`
+- `molecularWeightDa`: Molecular weight in Daltons
+- `halfLifeHoursByRoute`: Half-life ranges in hours by administration route (subq, iv, oral, intranasal)
+- `bioavailabilityNotes`: Per-route bioavailability information
+- `storageNotes`, `solubilityNotes`: Handling information
+- `references`: Array of { label, url } literature citations
+- `decayCurve`: Exponential decay model data points for visualization
+
+### Compound Database Coverage
+Categories: GH-axis, Healing, Cognitive, Metabolic, Immune, Structural, Sexual
+
+Compounds: BPC-157, TB-500, CJC-1295 (no DAC), CJC-1295 with DAC, Ipamorelin, Tesamorelin, Sermorelin, GHRP-2, GHRP-6, MK-677, MOTS-c, Epithalon, Selank, Semax, Thymalin, Thymosin Alpha-1, GHK-Cu, PT-141, Melanotan II, AOD-9604
+
+---
+
+## Tool 3: COA Analyzer
+
+URL: https://tools.rojipeptides.com/coa
+MCP tool name: `coa_analyzer`
+
+Analyze Certificate of Analysis documents for peptide quality assessment.
+
+### Inputs
+- `text` (string, required): Full text content of the COA document
+
+### Outputs
+- `trustScore`: 0–100 trust score
+- `fields`: Array of identified fields (HPLC purity, mass spec, water content, peptide content, sequence, lab, lot, date) with values, good/bad status, and plain-English explanations
+- `flags`: Negative signals (missing data, low purity, etc.)
+- `positives`: Positive signals
+- `identifiedLab`: Recognized lab name (Janoshik, Anresco, Pyrum, CDN Bio, Eurofins, etc.) or null
+- `identifiedCompound`: Recognized compound name or null
+- `identifiedDate`: COA date or null
+
+### Scoring Methodology
+- HPLC purity ≥98%: +25 points (present but <98%: +10)
+- Mass spectrometry confirmation: +20
+- Peptide content ≥80%: +15
+- Named third-party lab: +15
+- Water content ≤10%: +10
+- Sequence printed: +5
+- Batch/lot number: +5
+- Date within 18 months: +5
+
+---
+
+## Tool 4: Cost-Per-Dose Calculator
+
+URL: https://tools.rojipeptides.com/cost-per-dose
+MCP tool name: `cost_per_dose`
+
+Compare peptide vendors by cost per dose.
+
+### Inputs
+- `targetDoseMcg` (number, required): Target dose in micrograms
+- `vendors` (array, required): Array of vendor objects:
+  - `name` (string): Vendor name
+  - `vialMg` (number): Peptide content per vial in mg
+  - `purityPct` (number): Purity percentage (e.g., 99)
+  - `priceUsd` (number): Price per vial in USD
+  - `shippingUsd` (number, optional): Shipping cost in USD
+
+### Outputs
+Per vendor: `totalCost`, `effectiveMg`, `dosesPerVial`, `costPerMg`, `costPerDose`
+- `bestValue`: Name of the vendor with the lowest cost per dose
+
+---
+
+## Tool 5: Body Recomp Calculator
+
+URL: https://tools.rojipeptides.com/recomp
+MCP tool name: `recomp_calculator`
+
+Calculate body recomposition targets using Mifflin-St Jeor BMR.
+
+### Inputs
+- `sex` ("male" | "female"): Biological sex
+- `age` (number): Age in years
+- `heightIn` (number): Height in inches
+- `weightLb` (number): Weight in pounds
+- `bodyFatPct` (number): Estimated body fat percentage
+- `activity` ("sedentary" | "light" | "moderate" | "active" | "very_active")
+- `focus` ("lean" | "fat" | "both"): Goal — build muscle (+250 kcal), lose fat (-500 kcal), or recomp (-100 kcal)
+- `trainingFreq` (number): Training sessions per week (0–7)
+- `proteinPerLbLbm` (number, optional, default 1.0): Protein grams per pound of lean body mass
+
+### Outputs
+- BMR, TDEE, target kcal
+- Macro split: protein, fat, carbs in grams
+- 8/12/16-week projection: weight, lean body mass, fat mass, body fat %
+- Warnings (e.g., macros exceed target, high BF%, low training frequency)
+
+---
+
+## Tool 6: Supplement Interaction Checker
+
+URL: https://tools.rojipeptides.com/interactions
+MCP tool name: `supplement_interactions`
+
+Check interactions between OTC supplements.
+
+### Inputs
+- `supplements` (array of strings, required): Array of supplement slugs. Pass ["list"] to see all available.
+
+### Outputs
+- Interactions grouped by severity: synergy, timing, redundant, caution
+- Each interaction includes: pair, severity, suggested action, plain-English explanation
+
+### Supplement Database
+50+ supplements across categories: Vitamins (A, D3, E, K2, C, B-complex, B1–B12), Minerals (calcium, magnesium, zinc, copper, iron, iodine, selenium, boron, chromium), Amino acids (creatine, L-arginine, L-citrulline, L-carnitine, taurine, glycine, L-theanine, tyrosine, 5-HTP, glutamine, NAC), Fatty acids (omega-3, krill oil), Botanicals (ashwagandha, rhodiola, tongkat ali, maca, curcumin, berberine, ginseng, ginkgo, green tea extract, garlic, yohimbine), Other (melatonin, probiotics, CoQ10, alpha-lipoic acid, caffeine, magnesium threonate)
+
+---
+
+## Tool 7: PubMed Research Search
+
+URL: https://tools.rojipeptides.com/research
+MCP tool name: `pubmed_search`
+
+Search PubMed with automatic study-type classification.
+
+### Inputs
+- `query` (string, required): PubMed search query
+- `limit` (number, optional, default 10, max 20): Maximum results
+- `sort` ("relevance" | "date", optional, default "relevance")
+
+### Outputs
+Per result: `pmid`, `title`, `authors`, `journal`, `pubYear`, `doi`, `pubTypes`, `url`, `studyType`
+
+Study types classified: Meta-analysis, Systematic Review, RCT, Clinical Trial, Cohort, Review, Animal, In vitro, Other
+
+---
+
+## Additional Tools (Web-only, not yet in MCP)
+
+### Bloodwork Interpreter
+URL: https://tools.rojipeptides.com/bloodwork
+Interpret blood panel results with reference ranges and plain-English explanations.
+
+### AI Research Assistant
+URL: https://tools.rojipeptides.com/ai
+AI-powered peptide research Q&A with citations.
+
+---
+
+## About Roji Peptides
+
+Roji Peptides provides research-grade peptide stacks for laboratory use. All products are third-party tested and COA-verified. US-based.
+
+- Shop: https://rojipeptides.com/shop
+- Research Library: https://rojipeptides.com/research-library/
+- COA Library: https://rojipeptides.com/coa/
+- FAQ: https://rojipeptides.com/faq/
+
+For research and laboratory use only.

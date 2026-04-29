@@ -98,22 +98,38 @@ function roji_lock_country_shipping_fields( $fields ) {
 }
 
 /**
- * Mutate a country field definition into a locked hidden+display
- * pair. We keep `type=country` so WC still applies the right
- * validation, but mark it readonly with a custom field class that
- * our CSS turns into a static line.
+ * Mutate a country field definition so the customer can't change it,
+ * but WooCommerce still treats it as a real country <select>.
+ *
+ * We deliberately do NOT change `type` here. Earlier we set
+ * `type=hidden`, which broke checkout in two subtle ways:
+ *
+ *   1. WC's checkout JS listens to the country <select>'s `change`
+ *      event to populate the state dropdown via wc-ajax. With a
+ *      hidden input, that event never fires, so `billing_state`
+ *      stays empty and server-side validation rejects the order
+ *      (silently, because the WC error region was also visually
+ *      hidden by the lock CSS).
+ *
+ *   2. `update_order_review` requests echoed back an empty country
+ *      which then propagated to shipping / tax calculation — also
+ *      contributing to "Place Order" doing nothing.
+ *
+ * The fix: keep `type=country`, just hide the wrapper visually
+ * via the .roji-country-locked class (style.css) and rely on
+ * woocommerce_countries_allowed_countries (above) to guarantee
+ * 'US' is the only option in the select. WC then handles state
+ * population, AJAX, and validation correctly because the DOM
+ * element is a normal country select with the right value.
  */
 function roji_country_field_locked( array $field ) {
-	$field['type']        = 'hidden';
-	$field['default']     = 'US';
-	$field['required']    = true;
-	$classes              = isset( $field['class'] ) ? (array) $field['class'] : array();
-	$classes[]            = 'roji-country-locked';
-	$field['class']       = array_values( array_unique( $classes ) );
-	$field['custom_attributes'] = array(
-		'readonly' => 'readonly',
-		'aria-readonly' => 'true',
-	);
+	$field['required'] = true;
+	$field['default']  = 'US';
+
+	$classes      = isset( $field['class'] ) ? (array) $field['class'] : array();
+	$classes[]    = 'roji-country-locked';
+	$field['class'] = array_values( array_unique( $classes ) );
+
 	return $field;
 }
 
