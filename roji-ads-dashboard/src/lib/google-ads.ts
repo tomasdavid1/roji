@@ -444,6 +444,9 @@ export async function createCampaign(
         target_content_network: false,
         target_partner_search_network: false,
       },
+      contains_eu_political_advertising:
+        enums.EuPoliticalAdvertisingStatus
+          .DOES_NOT_CONTAIN_EU_POLITICAL_ADVERTISING,
     },
   ]));
 

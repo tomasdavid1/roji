@@ -70,6 +70,41 @@ if ( ! function_exists( 'roji_header_cart_link_html' ) ) {
 	}
 }
 
+if ( ! function_exists( 'roji_header_account_link_html' ) ) {
+	/**
+	 * My Account link for the primary header menu (next to cart).
+	 *
+	 * @param bool $with_li Wrap in `<li class="menu-item">`.
+	 * @return string
+	 */
+	function roji_header_account_link_html( $with_li = true ) {
+		if ( ! function_exists( 'wc_get_page_permalink' ) ) {
+			return '';
+		}
+		if ( function_exists( 'roji_members_auth_under_construction' ) && roji_members_auth_under_construction() && ! is_user_logged_in() ) {
+			return '';
+		}
+		$url = wc_get_page_permalink( 'myaccount' );
+		if ( ! $url ) {
+			return '';
+		}
+		$label   = is_user_logged_in() ? __( 'Account', 'roji-child' ) : __( 'Log in', 'roji-child' );
+		$current = function_exists( 'is_account_page' ) && is_account_page();
+		$svg     = '<svg class="roji-account-link__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
+			. '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>'
+			. '<circle cx="12" cy="7" r="4"/>'
+			. '</svg>';
+		$inner   = '<a class="roji-account-link elementor-item' . ( $current ? ' is-current' : '' ) . '" href="' . esc_url( $url ) . '">'
+			. $svg
+			. '<span class="roji-account-link__text">' . esc_html( $label ) . '</span>'
+			. '</a>';
+		if ( ! $with_li ) {
+			return $inner;
+		}
+		return '<li class="menu-item roji-account-menu-item">' . $inner . '</li>';
+	}
+}
+
 /**
  * Append cart link to the `roji-header` menu (theme location `menu-1`)
  * AND to the legacy menu used by Hello Elementor mobile dropdown if
@@ -93,7 +128,8 @@ add_filter(
 		if ( ! $is_header_menu ) {
 			return $items;
 		}
-		return $items . roji_header_cart_link_html( true );
+		$account = function_exists( 'roji_header_account_link_html' ) ? roji_header_account_link_html( true ) : '';
+		return $items . $account . roji_header_cart_link_html( true );
 	},
 	10,
 	2
@@ -108,7 +144,8 @@ add_filter(
 add_filter(
 	'woocommerce_add_to_cart_fragments',
 	function ( $fragments ) {
-		$fragments['li.roji-cart-menu-item'] = roji_header_cart_link_html( true );
+		$fragments['li.roji-cart-menu-item']     = roji_header_cart_link_html( true );
+		$fragments['li.roji-account-menu-item'] = function_exists( 'roji_header_account_link_html' ) ? roji_header_account_link_html( true ) : '';
 		return $fragments;
 	}
 );

@@ -1,0 +1,4274 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<title>Tirzepatide + Retatrutide — Research Pairing | Roji Peptides</title>
+<meta name="description" content="Tirzepatide + Retatrutide comparative research: GIP/GLP-1 dual vs. GIP/GLP-1/Glucagon triple agonism. PubMed citations.">
+<link rel="canonical" href="https://rojipeptides.com/research/tirzepatide-and-retatrutide/">
+<style>
+/*
+Theme Name: Roji Child
+Theme URI: https://rojipeptides.com
+Template: hello-elementor
+Description: Roji Peptides custom child theme — dark-mode storefront with WooCommerce + Elementor.
+Author: Roji Peptides
+Version: 1.0.0
+Text Domain: roji-child
+*/
+
+:root {
+  --roji-black: #0a0a0f;
+  --roji-dark: #111118;
+  --roji-darker: #0d0d14;
+  --roji-card: #16161f;
+  --roji-border: rgba(255, 255, 255, 0.06);
+  --roji-border-hover: rgba(255, 255, 255, 0.12);
+  --roji-text-primary: #f0f0f5;
+  --roji-text-secondary: #8a8a9a;
+  --roji-text-muted: #55556a;
+  --roji-accent: #4f6df5;
+  --roji-accent-hover: #6380ff;
+  --roji-accent-subtle: rgba(79, 109, 245, 0.08);
+  --roji-success: #22c55e;
+  --roji-warning: #eab308;
+  --roji-danger: #ef4444;
+
+  --roji-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --roji-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --roji-radius: 8px;
+  --roji-radius-lg: 12px;
+
+  /* Site-wide horizontal gutter on mobile. Tweak the value here and
+     every page that reads --roji-mobile-gutter will pick it up. */
+  --roji-mobile-gutter: 12px;
+}
+
+html,
+body {
+  background-color: var(--roji-black);
+  color: var(--roji-text-primary);
+  font-family: var(--roji-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--roji-text-primary);
+  font-family: var(--roji-font-sans);
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+a {
+  color: var(--roji-accent);
+  transition: color 0.15s ease;
+}
+a:hover,
+a:focus {
+  color: var(--roji-accent-hover);
+}
+
+::selection {
+  background: var(--roji-accent-subtle);
+  color: var(--roji-text-primary);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--roji-black);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ==========================================================================
+   WooCommerce — dark overrides
+   ========================================================================== */
+
+.woocommerce,
+.woocommerce-page {
+  background: transparent;
+  color: var(--roji-text-primary);
+}
+
+.woocommerce ul.products li.product,
+.woocommerce-page ul.products li.product {
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  padding: 20px;
+  transition: border-color 0.15s ease;
+}
+.woocommerce ul.products li.product:hover,
+.woocommerce-page ul.products li.product:hover {
+  border-color: var(--roji-border-hover);
+}
+
+.woocommerce ul.products li.product .price,
+.woocommerce-page ul.products li.product .price {
+  color: var(--roji-text-primary);
+  font-family: var(--roji-font-mono);
+  font-size: 1.2em;
+}
+
+.woocommerce ul.products li.product h2,
+.woocommerce ul.products li.product .woocommerce-loop-product__title {
+  color: var(--roji-text-primary);
+  font-size: 1rem;
+  padding: 0.5rem 0;
+}
+
+.woocommerce span.onsale {
+  background: var(--roji-accent);
+  color: #fff;
+  border-radius: 999px;
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.woocommerce #respond input#submit,
+.woocommerce a.button,
+.woocommerce button.button,
+.woocommerce input.button {
+  background: var(--roji-accent);
+  color: #fff;
+  border-radius: var(--roji-radius);
+  padding: 12px 22px;
+  font-weight: 600;
+  font-family: var(--roji-font-sans);
+  border: none;
+  transition: background 0.15s ease;
+}
+.woocommerce #respond input#submit:hover,
+.woocommerce a.button:hover,
+.woocommerce button.button:hover,
+.woocommerce input.button:hover {
+  background: var(--roji-accent-hover);
+}
+
+.woocommerce #respond input#submit.alt,
+.woocommerce a.button.alt,
+.woocommerce button.button.alt,
+.woocommerce input.button.alt {
+  background: var(--roji-accent);
+  color: #fff;
+}
+
+/* Product page */
+.woocommerce div.product .product_title {
+  color: var(--roji-text-primary);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.woocommerce div.product p.price,
+.woocommerce div.product span.price {
+  color: var(--roji-text-primary);
+  font-family: var(--roji-font-mono);
+  font-size: 1.5rem;
+}
+
+.woocommerce div.product .woocommerce-tabs ul.tabs {
+  border-bottom: 1px solid var(--roji-border);
+  padding: 0;
+}
+.woocommerce div.product .woocommerce-tabs ul.tabs li {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+}
+.woocommerce div.product .woocommerce-tabs ul.tabs li a {
+  color: var(--roji-text-secondary);
+  padding: 12px 18px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.woocommerce div.product .woocommerce-tabs ul.tabs li.active a {
+  color: var(--roji-text-primary);
+  border-bottom-color: var(--roji-accent);
+}
+
+/* Cart & checkout */
+.woocommerce table.shop_table,
+.woocommerce-cart table.cart,
+.woocommerce-checkout table.shop_table,
+.woocommerce-cart .cart_totals table,
+.woocommerce-checkout-review-order-table {
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-collapse: separate;
+  border-radius: var(--roji-radius);
+  color: var(--roji-text-primary);
+  overflow: hidden;
+}
+
+.woocommerce table.shop_table th,
+.woocommerce table.shop_table td,
+.woocommerce-cart .cart_totals table th,
+.woocommerce-cart .cart_totals table td,
+.woocommerce-checkout-review-order-table th,
+.woocommerce-checkout-review-order-table td {
+  border-color: var(--roji-border);
+  background: transparent;
+  color: var(--roji-text-primary);
+}
+
+.woocommerce table.shop_table thead th,
+.woocommerce-checkout-review-order-table thead th {
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--roji-text-secondary);
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.woocommerce table.shop_table tfoot th,
+.woocommerce table.shop_table tfoot td,
+.woocommerce-checkout-review-order-table tfoot th,
+.woocommerce-checkout-review-order-table tfoot td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ============================================================
+   Checkout — payment block, consent, place-order
+   ============================================================
+   The default WC payment area renders nested boxes (#payment ⊃
+   .payment_box) with a triangle ::before notch — looks broken on
+   dark. We flatten it to a single dark card with each gateway as
+   a clean radio row, then a soft inset for the gateway's
+   description/<form> body. Place-order CTA gets the same primary
+   button treatment as Proceed-to-checkout.
+   ============================================================ */
+.woocommerce-checkout #payment {
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  color: var(--roji-text-primary);
+  padding: 8px 4px;
+}
+.woocommerce-checkout #payment ul.payment_methods {
+  background: transparent;
+  border-bottom: 0 !important;
+  margin: 0;
+  padding: 0;
+  list-style: none !important;
+}
+.woocommerce-checkout #payment ul.payment_methods > li {
+  list-style: none !important;
+  background: transparent;
+  color: var(--roji-text-primary);
+  padding: 14px 16px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--roji-border);
+}
+.woocommerce-checkout #payment ul.payment_methods > li:last-child {
+  border-bottom: 0;
+}
+.woocommerce-checkout #payment ul.payment_methods > li::before { content: none !important; }
+.woocommerce-checkout #payment ul.payment_methods > li label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600 !important;
+  color: var(--roji-text-primary) !important;
+  font-size: 17px !important;
+  margin: 0 !important;
+  cursor: pointer;
+}
+.woocommerce-checkout #payment ul.payment_methods > li input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex-shrink: 0;
+}
+.woocommerce-checkout #payment ul.payment_methods > li img {
+  max-height: 22px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+/* Gateway description / hosted form panel — prominent callout */
+.woocommerce-checkout #payment div.payment_box {
+  background: rgba(79,109,245,0.06) !important;
+  border: 1px solid rgba(79,109,245,0.25) !important;
+  border-radius: var(--roji-radius-lg) !important;
+  margin: 14px 0 8px !important;
+  padding: 20px 22px !important;
+  color: var(--roji-text-primary) !important;
+  font-size: 15px;
+  line-height: 1.65;
+}
+.woocommerce-checkout #payment div.payment_box::before { content: none !important; }
+.woocommerce-checkout #payment div.payment_box p { margin: 0; }
+.woocommerce-checkout #payment div.payment_box p + p { margin-top: 10px; }
+
+/* Privacy / "Your personal data will be used..." paragraph */
+.woocommerce-privacy-policy-text,
+.woocommerce-checkout .woocommerce-privacy-policy-text p {
+  font-size: 12px !important;
+  line-height: 1.6 !important;
+  color: var(--roji-text-muted) !important;
+  margin: 14px 0 !important;
+}
+.woocommerce-privacy-policy-text a {
+  color: var(--roji-text-secondary) !important;
+  text-decoration: underline !important;
+  text-decoration-color: var(--roji-border-hover) !important;
+  text-underline-offset: 3px;
+}
+.woocommerce-privacy-policy-text a:hover {
+  color: var(--roji-text-primary) !important;
+}
+
+/* Research-use consent checkbox — clear row, custom indicator,
+   tap-friendly target. */
+.roji-research-confirm {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  margin: 16px 0 20px !important;
+  padding: 14px 16px;
+  background: rgba(79,109,245,0.06);
+  border: 1px solid rgba(79,109,245,0.25);
+  border-radius: var(--roji-radius);
+}
+.roji-research-confirm label {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--roji-text-primary) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1.5;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.roji-research-confirm input[type="checkbox"] {
+  width: 20px !important;
+  height: 20px !important;
+  margin: 1px 0 0 !important;
+  flex-shrink: 0;
+  accent-color: var(--roji-accent);
+  cursor: pointer;
+}
+
+/* Place order — match Proceed-to-checkout treatment */
+.woocommerce-checkout #place_order,
+.woocommerce-checkout button#place_order {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 8px !important;
+  padding: 16px 22px !important;
+  background: var(--roji-accent) !important;
+  border: 1px solid var(--roji-accent) !important;
+  color: #ffffff !important;
+  border-radius: var(--roji-radius) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0;
+  text-decoration: none !important;
+  box-shadow: 0 8px 24px rgba(79,109,245,0.18);
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.woocommerce-checkout #place_order:hover {
+  background: var(--roji-accent-hover) !important;
+  border-color: var(--roji-accent-hover) !important;
+  box-shadow: 0 10px 28px rgba(79,109,245,0.28);
+}
+
+/* ==========================================================================
+   Form inputs — ALL of them, on every storefront page.
+   The previous rules only targeted `.woocommerce form .form-row`, which
+   missed the country/state dropdowns and quantity spinners in the cart.
+   ========================================================================== */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="password"],
+input[type="search"],
+input[type="url"],
+input[type="date"],
+select,
+textarea,
+.woocommerce form .form-row input.input-text,
+.woocommerce form .form-row textarea,
+.woocommerce form .form-row select,
+.woocommerce-page form .form-row input.input-text,
+.woocommerce-page form .form-row textarea,
+.woocommerce-page form .form-row select,
+.woocommerce .quantity input.qty {
+  background-color: var(--roji-card) !important;
+  color: var(--roji-text-primary) !important;
+  border: 1px solid var(--roji-border) !important;
+  border-radius: var(--roji-radius);
+  padding: 12px 14px;
+  font-family: var(--roji-font-sans);
+  font-size: 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Quantity spinner — narrower, monospace, doesn't need huge padding */
+.woocommerce .quantity input.qty {
+  padding: 8px 10px;
+  width: 70px;
+  text-align: center;
+  font-family: var(--roji-font-mono);
+}
+
+/* Native select arrow — re-add a chevron we control (since we killed appearance) */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238a8a9a' d='M6 8L0 0h12z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 10px !important;
+  padding-right: 36px !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.woocommerce form .form-row input.input-text:focus,
+.woocommerce form .form-row textarea:focus,
+.woocommerce form .form-row select:focus,
+.woocommerce .quantity input.qty:focus {
+  border-color: var(--roji-accent) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 1px var(--roji-accent);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--roji-text-muted);
+}
+
+/* Select2 dropdowns (used by WooCommerce country picker) */
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+  background-color: var(--roji-card) !important;
+  border: 1px solid var(--roji-border) !important;
+  color: var(--roji-text-primary) !important;
+  border-radius: var(--roji-radius) !important;
+  height: auto !important;
+  min-height: 46px;
+  padding: 10px 12px;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: var(--roji-text-primary) !important;
+  line-height: 24px !important;
+  padding: 0;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 100% !important;
+  top: 0 !important;
+  right: 8px !important;
+}
+.select2-dropdown {
+  background-color: var(--roji-card) !important;
+  border: 1px solid var(--roji-border) !important;
+  color: var(--roji-text-primary) !important;
+}
+.select2-container--default .select2-results__option {
+  color: var(--roji-text-primary);
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected],
+.select2-container--default .select2-results__option--highlighted {
+  background-color: var(--roji-accent) !important;
+  color: #fff !important;
+}
+.select2-container--default .select2-search--dropdown .select2-search__field {
+  background-color: var(--roji-dark) !important;
+  border: 1px solid var(--roji-border) !important;
+  color: var(--roji-text-primary) !important;
+}
+
+/* Checkboxes + radios — keep native-ish, just give them indigo accent */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--roji-accent);
+}
+
+.woocommerce-info,
+.woocommerce-message {
+  background: var(--roji-card);
+  border-top-color: var(--roji-accent);
+  color: var(--roji-text-primary);
+}
+
+.woocommerce-error {
+  background: rgba(239, 68, 68, 0.06);
+  border-top: 3px solid var(--roji-danger);
+  color: var(--roji-text-primary);
+}
+.woocommerce-checkout .woocommerce-error,
+.woocommerce-checkout .woocommerce-NoticeGroup-checkout .woocommerce-error {
+  background: rgba(239, 68, 68, 0.10) !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+  border-top: 3px solid var(--roji-danger) !important;
+  border-radius: var(--roji-radius) !important;
+  padding: 16px 20px !important;
+  font-size: 15px !important;
+  font-weight: 500;
+  line-height: 1.55;
+  margin-bottom: 20px !important;
+}
+
+/* ============================================================
+   Cart totals — clean summary panel (desktop + mobile)
+   ============================================================
+   Replaces the default WC `.cart_totals` table treatment with a
+   single dark card: small mono uppercase labels on the left,
+   mono numbers right-aligned, a hairline before the Total row,
+   bold accent total, full-width primary CTA below. Works at all
+   breakpoints — the per-row flex layout means it never overflows
+   on phones (which was the issue in the screenshot).
+   ============================================================ */
+.cart_totals,
+.cross-sells {
+  margin-top: 32px;
+}
+.cart_totals h2,
+.cross-sells h2 {
+  color: var(--roji-text-primary);
+  font-size: 14px;
+  font-family: var(--roji-font-mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--roji-text-secondary);
+  margin: 0 0 12px;
+}
+
+/* Wrap the totals table in a card, kill table chrome. */
+.woocommerce-cart .cart_totals {
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  padding: 20px 22px;
+}
+.woocommerce-cart .cart_totals h2 {
+  margin: 0 0 14px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--roji-border);
+}
+
+.woocommerce-cart .cart_totals table.shop_table,
+.woocommerce-cart .cart_totals table {
+  display: block;
+  width: 100%;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  overflow: visible;
+  margin: 0;
+}
+.woocommerce-cart .cart_totals table thead { display: none; }
+.woocommerce-cart .cart_totals table tbody,
+.woocommerce-cart .cart_totals table tfoot { display: block; }
+.woocommerce-cart .cart_totals table tr {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 10px 0;
+  border: 0 !important;
+  background: transparent !important;
+}
+/* Shipping row breaks the simple "label left / value right" pattern
+   (it can host the "Change address" + calculator block). Let it
+   stack so the calculator can sit full-width below the label. */
+.woocommerce-cart .cart_totals table tr.shipping {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+.woocommerce-cart .cart_totals table tr.shipping th {
+  flex: 0 0 auto;
+}
+.woocommerce-cart .cart_totals table tr.shipping td {
+  flex: 1 1 auto;
+  text-align: right;
+}
+.woocommerce-cart .cart_totals table tr.cart-subtotal,
+.woocommerce-cart .cart_totals table tr.shipping,
+.woocommerce-cart .cart_totals table tr.fee,
+.woocommerce-cart .cart_totals table tr.tax-rate {
+  border-bottom: 1px dashed rgba(255,255,255,0.04) !important;
+}
+.woocommerce-cart .cart_totals table tr.order-total {
+  margin-top: 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--roji-border) !important;
+}
+.woocommerce-cart .cart_totals table th,
+.woocommerce-cart .cart_totals table td {
+  display: block;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+.woocommerce-cart .cart_totals table th {
+  flex: 0 0 auto;
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--roji-text-secondary) !important;
+  text-align: left;
+}
+.woocommerce-cart .cart_totals table td {
+  flex: 1 1 auto;
+  text-align: right;
+  color: var(--roji-text-primary) !important;
+  font-family: var(--roji-font-mono);
+  font-size: 14px;
+}
+.woocommerce-cart .cart_totals table td .amount,
+.woocommerce-cart .cart_totals table td bdi {
+  color: var(--roji-text-primary) !important;
+  font-weight: 500;
+}
+.woocommerce-cart .cart_totals table tr.order-total th {
+  font-size: 12px;
+  color: var(--roji-text-primary) !important;
+}
+.woocommerce-cart .cart_totals table tr.order-total td,
+.woocommerce-cart .cart_totals table tr.order-total td .amount {
+  font-size: 22px;
+  font-weight: 700 !important;
+  color: var(--roji-text-primary) !important;
+}
+
+/* ============================================================
+   Cart shipping calculator
+   ============================================================
+   The calculator (state + city + ZIP + Update) lives inside the
+   Cart Totals card under the "Shipment" row. The flex/right-align
+   rules on .cart_totals tr were leaking down into its form-rows,
+   which (a) right-aligned the inputs and (b) tried to lay each
+   <p class="form-row"> out as a 2-column flex row. Reset the
+   form-row styling explicitly here and present it as a clean
+   stacked mini-form. The "ships to United States only" lock line
+   is intentionally NOT injected — calculator already implies the
+   country via state/zip + homepage trust strip.
+   ============================================================ */
+.woocommerce-cart .shipping-calculator-form {
+  display: block;
+  margin-top: 12px;
+  padding: 14px 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  text-align: left !important;
+}
+.woocommerce-cart .shipping-calculator-form p.form-row,
+.woocommerce-cart .shipping-calculator-form .form-row {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+  margin: 0 0 12px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  text-align: left !important;
+}
+.woocommerce-cart .shipping-calculator-form p.form-row:last-of-type {
+  margin-bottom: 6px !important;
+}
+.woocommerce-cart .shipping-calculator-form label {
+  display: block !important;
+  text-align: left !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--roji-text-secondary) !important;
+  font-family: var(--roji-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 !important;
+}
+.woocommerce-cart .shipping-calculator-form input.input-text,
+.woocommerce-cart .shipping-calculator-form select {
+  width: 100% !important;
+  text-align: left !important;
+  font-family: var(--roji-font-sans) !important;
+  font-size: 14px !important;
+  min-height: 42px;
+  padding: 10px 12px !important;
+}
+.woocommerce-cart .shipping-calculator-form button[name="calc_shipping"] {
+  width: auto !important;
+  align-self: flex-start;
+  padding: 10px 18px !important;
+  background: var(--roji-accent) !important;
+  border: 1px solid var(--roji-accent) !important;
+  color: #fff !important;
+  border-radius: var(--roji-radius) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  margin-top: 4px;
+}
+.woocommerce-cart .shipping-calculator-form button[name="calc_shipping"]:hover {
+  background: var(--roji-accent-hover) !important;
+  border-color: var(--roji-accent-hover) !important;
+}
+
+/* Shipping method list above the calculator (Flat rate · "Shipping
+   to Brooklyn, NY 11206 · Change address") — keep right-aligned
+   stack but prevent it from being squashed into one line. */
+.woocommerce-cart .cart_totals .shipping ul#shipping_method,
+.woocommerce-cart .cart_totals .shipping ul {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: right;
+}
+.woocommerce-cart .cart_totals .shipping ul li {
+  list-style: none !important;
+  margin: 0 0 4px !important;
+  padding: 0 !important;
+  background: none !important;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+.woocommerce-cart .cart_totals .shipping ul li::before { content: none !important; }
+.woocommerce-cart .cart_totals .shipping ul li label {
+  color: var(--roji-text-primary) !important;
+  font-family: var(--roji-font-mono) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+.woocommerce-cart .cart_totals .shipping .shipping-calculator-button,
+.woocommerce-cart .cart_totals .shipping a {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 12px !important;
+  color: var(--roji-text-secondary) !important;
+  text-decoration: none !important;
+  border-bottom: 1px dotted var(--roji-border-hover);
+  font-family: var(--roji-font-sans) !important;
+  font-weight: 500 !important;
+}
+.woocommerce-cart .cart_totals .shipping .shipping-calculator-button:hover,
+.woocommerce-cart .cart_totals .shipping a:hover {
+  color: var(--roji-text-primary) !important;
+  border-bottom-color: var(--roji-accent) !important;
+}
+.woocommerce-cart .cart_totals .woocommerce-shipping-destination {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--roji-text-muted) !important;
+  font-family: var(--roji-font-mono);
+}
+
+/* Proceed to checkout — full-width primary CTA, no underline */
+.woocommerce-cart .wc-proceed-to-checkout {
+  margin: 18px 0 0;
+  padding: 0;
+}
+.woocommerce-cart .wc-proceed-to-checkout a.checkout-button,
+.woocommerce-cart .wc-proceed-to-checkout a.button.alt {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 16px 22px !important;
+  background: var(--roji-accent) !important;
+  border: 1px solid var(--roji-accent) !important;
+  color: #ffffff !important;
+  border-radius: var(--roji-radius) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  letter-spacing: 0;
+  box-shadow: 0 8px 24px rgba(79,109,245,0.18);
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.woocommerce-cart .wc-proceed-to-checkout a.checkout-button:hover {
+  background: var(--roji-accent-hover) !important;
+  border-color: var(--roji-accent-hover) !important;
+  box-shadow: 0 10px 28px rgba(79,109,245,0.28);
+}
+
+/* "Update cart" + "Proceed to checkout" buttons already styled above by
+   .woocommerce a.button — no change needed. Just make the disabled
+   variant readable on dark. */
+.woocommerce a.button.disabled,
+.woocommerce button.button:disabled {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--roji-text-muted);
+}
+
+/* ============================================================
+   Cart page — desktop table layout
+   ============================================================
+   The default WC cart table has no column-width constraints,
+   so the product image stretches its column to whatever the
+   browser feels like. Pin the layout: tight remove + thumb +
+   qty + price columns; product name flexes; subtotal balanced.
+   Cap the thumbnail to a clean 80px square. Mobile rules below
+   collapse this same table into stacked cards.
+   ============================================================ */
+@media (min-width: 769px) {
+  /* Constrain the cart page to a centered content column so the
+     table doesn't span 1400px on wide monitors. */
+  .woocommerce-cart .woocommerce,
+  .woocommerce-cart main .entry-content > .woocommerce {
+    max-width: 1080px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 16px;
+  }
+  .woocommerce-cart table.cart {
+    table-layout: fixed;
+    width: 100%;
+  }
+  .woocommerce-cart table.cart thead th {
+    padding: 16px 18px !important;
+  }
+  .woocommerce-cart table.cart tbody td {
+    padding: 18px !important;
+    vertical-align: middle;
+  }
+  /* Column widths: remove · thumb · name · price · qty · subtotal */
+  .woocommerce-cart table.cart .product-remove    { width: 44px; text-align: center; }
+  .woocommerce-cart table.cart .product-thumbnail { width: 96px; }
+  .woocommerce-cart table.cart .product-price     { width: 110px; }
+  .woocommerce-cart table.cart .product-quantity  { width: 130px; }
+  .woocommerce-cart table.cart .product-subtotal  { width: 130px; text-align: right; }
+  .woocommerce-cart table.cart .product-name      { width: auto; }
+
+  .woocommerce-cart table.cart td.product-thumbnail img,
+  .woocommerce-cart table.cart td.product-thumbnail a img {
+    width: 72px !important;
+    height: 72px !important;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px;
+    border: 1px solid var(--roji-border);
+  }
+
+  .woocommerce-cart table.cart td.product-name a {
+    color: var(--roji-text-primary) !important;
+    text-decoration: none !important;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.3;
+  }
+  .woocommerce-cart table.cart td.product-name a:hover {
+    color: var(--roji-accent) !important;
+  }
+  .woocommerce-cart table.cart td.product-price,
+  .woocommerce-cart table.cart td.product-subtotal {
+    font-family: var(--roji-font-mono);
+    font-size: 14px;
+    color: var(--roji-text-primary);
+  }
+  .woocommerce-cart table.cart td.product-quantity input.qty {
+    width: 84px !important;
+    height: 42px;
+    text-align: center;
+  }
+
+  /* Remove control — desktop.
+     The default WC markup is `<a class="remove">×</a>` with the
+     literal multiplication-sign glyph as text. Glyph baselines
+     differ across font stacks, so even with flex-centering it
+     looks visually low/right of center. Fix: hide the glyph
+     (font-size 0 + transparent color) and draw the X with two
+     pseudo-elements that are mathematically centered. */
+  .woocommerce-cart table.cart td.product-remove {
+    text-align: center;
+    vertical-align: middle;
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove,
+  .woocommerce-cart table.cart td.product-remove a.remove:link {
+    position: relative;
+    display: inline-block !important;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    text-decoration: none !important;
+    overflow: hidden;
+    transition: background 0.15s ease;
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove::before,
+  .woocommerce-cart table.cart td.product-remove a.remove::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 1.5px;
+    background: var(--roji-text-secondary);
+    border-radius: 1px;
+    transition: background 0.15s ease;
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove:hover {
+    background: rgba(239, 68, 68, 0.15) !important;
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove:hover::before,
+  .woocommerce-cart table.cart td.product-remove a.remove:hover::after {
+    background: var(--roji-danger);
+  }
+
+  /* Actions row (Update cart + coupon) — flat, no internal table chrome */
+  .woocommerce-cart table.cart tr:not(.cart_item) td.actions {
+    padding: 16px 18px !important;
+    background: rgba(255,255,255,0.015) !important;
+    border-top: 1px solid var(--roji-border) !important;
+  }
+  .woocommerce-cart table.cart td.actions .coupon {
+    display: inline-flex;
+    gap: 8px;
+    align-items: stretch;
+    margin-right: 12px;
+  }
+  .woocommerce-cart table.cart td.actions .coupon input[name="coupon_code"] {
+    width: 220px;
+  }
+  .woocommerce-cart table.cart td.actions button[name="update_cart"] {
+    float: right;
+  }
+
+  /* Two-up layout: cart on the left, totals on the right */
+  .woocommerce-cart .cart-collaterals {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-top: 28px;
+  }
+  .woocommerce-cart .cart-collaterals .cart_totals {
+    width: 100% !important;
+    max-width: 480px;
+    margin-left: auto;
+  }
+}
+
+/* ============================================================
+   Cart page — mobile-first card layout
+   ============================================================
+   The default WC cart table is a fixed 6-column grid that
+   overflows on phones (the "Update cart" / x / quantity columns
+   push past 320–390px viewports — exactly what the screenshot
+   showed). Below 768px we collapse the table into a stack of
+   cards, one per cart line, using the `data-title` attribute
+   that WC sets on every <td>. Desktop stays a normal table.
+   ============================================================ */
+@media (max-width: 768px) {
+  .woocommerce-cart table.cart,
+  .woocommerce table.shop_table.cart {
+    display: block;
+    width: 100%;
+    border: 0 !important;
+    background: transparent !important;
+    overflow: visible;
+  }
+  .woocommerce-cart table.cart thead,
+  .woocommerce table.shop_table.cart thead {
+    display: none;
+  }
+  .woocommerce-cart table.cart tbody,
+  .woocommerce table.shop_table.cart tbody {
+    display: block;
+  }
+  /* Card layout: thumb (left) + product block (right). Inside the
+     product block we stack name → price → footer (qty stepper +
+     line subtotal + remove). Reads like a Stripe / Shopify cart
+     line, not a stripped-down table. */
+  .woocommerce-cart table.cart tbody tr.cart_item,
+  .woocommerce table.shop_table.cart tbody tr.cart_item {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    grid-template-areas:
+      "thumb  name"
+      "thumb  price"
+      "thumb  meta"
+      "footer footer";
+    column-gap: 14px;
+    row-gap: 4px;
+    background: var(--roji-card);
+    border: 1px solid var(--roji-border);
+    border-radius: var(--roji-radius-lg);
+    padding: 14px 14px 12px;
+    margin: 0 0 12px;
+    position: relative;
+  }
+  .woocommerce-cart table.cart tbody tr.cart_item td,
+  .woocommerce table.shop_table.cart tbody tr.cart_item td {
+    display: block;
+    width: auto;
+    border: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    color: var(--roji-text-primary);
+    font-size: 14px;
+  }
+  .woocommerce-cart table.cart td.product-thumbnail { grid-area: thumb; }
+  .woocommerce-cart table.cart td.product-name      { grid-area: name; }
+  .woocommerce-cart table.cart td.product-price     { grid-area: price; }
+  /* Per-line subtotal shows in the footer next to the qty stepper.
+     We keep .product-subtotal in the DOM (some plugins read it) but
+     reposition it via grid into the footer area. */
+  .woocommerce-cart table.cart td.product-subtotal  { grid-area: footer; justify-self: end; align-self: center; }
+  .woocommerce-cart table.cart td.product-quantity  { grid-area: footer; justify-self: start; align-self: center; }
+  /* Remove pinned to top-right of the card so the footer row can
+     stay clean (qty + line subtotal). */
+  .woocommerce-cart table.cart td.product-remove {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+
+  .woocommerce-cart table.cart td.product-thumbnail img {
+    width: 72px !important;
+    height: 72px !important;
+    border-radius: 8px;
+    object-fit: cover;
+    display: block;
+  }
+  .woocommerce-cart table.cart td.product-name a {
+    color: var(--roji-text-primary) !important;
+    text-decoration: none !important;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+    /* Leave space for the absolute-positioned remove button. */
+    padding-right: 36px;
+    display: inline-block;
+  }
+  .woocommerce-cart table.cart td.product-price {
+    color: var(--roji-text-secondary);
+    font-family: var(--roji-font-mono);
+    font-size: 13px;
+    margin-top: 2px;
+  }
+
+  /* Footer row separator — divides the product block from the
+     qty/subtotal controls so the card has clear visual hierarchy. */
+  .woocommerce-cart table.cart tbody tr.cart_item::before {
+    content: "";
+    grid-area: footer;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.05);
+    align-self: start;
+    margin: 10px -14px 8px;
+  }
+  /* Stretch the rule across the full card width regardless of
+     the absolute remove button. */
+  .woocommerce-cart table.cart tbody tr.cart_item {
+    /* nothing extra; the ::before negative margins above handle bleed */
+  }
+
+  /* Quantity stepper — minus / input / plus, integrated. */
+  .woocommerce-cart table.cart td.product-quantity .quantity {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1px solid var(--roji-border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  /* Hide WC's default "Quantity" before-label — the stepper is self-evident. */
+  .woocommerce-cart table.cart td.product-quantity .quantity::before {
+    content: none;
+  }
+  .woocommerce-cart table.cart td.product-quantity input.qty {
+    width: 44px !important;
+    height: 36px !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-left: 1px solid var(--roji-border) !important;
+    border-right: 1px solid var(--roji-border) !important;
+    border-radius: 0 !important;
+    color: var(--roji-text-primary) !important;
+    text-align: center;
+    font-family: var(--roji-font-mono);
+    font-size: 14px;
+    -moz-appearance: textfield;
+  }
+  .woocommerce-cart table.cart td.product-quantity input.qty::-webkit-inner-spin-button,
+  .woocommerce-cart table.cart td.product-quantity input.qty::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  /* Optional plus/minus buttons: WC core doesn't render them, but
+     several quantity-stepper plugins do; style them if present so
+     the stepper still looks intentional. */
+  .woocommerce-cart table.cart td.product-quantity .quantity .plus,
+  .woocommerce-cart table.cart td.product-quantity .quantity .minus {
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    color: var(--roji-text-secondary);
+    border: 0;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+  .woocommerce-cart table.cart td.product-quantity .quantity .plus:hover,
+  .woocommerce-cart table.cart td.product-quantity .quantity .minus:hover {
+    background: rgba(79, 109, 245, 0.10);
+    color: var(--roji-text-primary);
+  }
+
+  /* Per-line subtotal in the footer — accent it so customers can
+     scan the cart vertically. WC labels it "Subtotal: $X" via
+     data-title; we want just "$X" so we suppress the prefix. */
+  .woocommerce-cart table.cart td.product-subtotal {
+    font-family: var(--roji-font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--roji-text-primary);
+  }
+  .woocommerce-cart table.cart td.product-subtotal .woocommerce-Price-amount {
+    color: var(--roji-text-primary);
+  }
+
+  /* Remove control — mobile.
+     Same SVG-from-pseudo-elements trick as desktop so the X is
+     mathematically centered. Slightly smaller hit target (32px)
+     since it's pinned at the corner. */
+  .woocommerce-cart table.cart td.product-remove a.remove {
+    position: relative;
+    display: inline-block !important;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    text-decoration: none !important;
+    overflow: hidden;
+    transition: background 0.15s ease;
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove::before,
+  .woocommerce-cart table.cart td.product-remove a.remove::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 1.5px;
+    background: var(--roji-text-secondary);
+    border-radius: 1px;
+    transition: background 0.15s ease;
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove:hover {
+    background: rgba(239, 68, 68, 0.15) !important;
+  }
+  .woocommerce-cart table.cart td.product-remove a.remove:hover::before,
+  .woocommerce-cart table.cart td.product-remove a.remove:hover::after {
+    background: var(--roji-danger);
+  }
+
+  /* "Actions" row (Update cart + coupon) — full-width row */
+  .woocommerce-cart table.cart tr.cart_item ~ tr,
+  .woocommerce-cart table.cart tr:not(.cart_item) {
+    display: block;
+    background: var(--roji-card);
+    border: 1px solid var(--roji-border);
+    border-radius: var(--roji-radius);
+    padding: 14px;
+    margin: 0 0 12px;
+  }
+  .woocommerce-cart table.cart tr:not(.cart_item) td.actions {
+    padding: 0 !important;
+    border: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .woocommerce-cart table.cart td.actions .coupon {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .woocommerce-cart table.cart td.actions .coupon input[name="coupon_code"] {
+    flex: 1 1 60%;
+    min-width: 0;
+  }
+  .woocommerce-cart table.cart td.actions button[name="update_cart"],
+  .woocommerce-cart table.cart td.actions button[name="apply_coupon"] {
+    width: 100%;
+  }
+
+}
+
+/* ============================================================
+   Checkout / cart form rhythm
+   ============================================================
+   Default WC stacks <label> directly on top of <input> with no
+   breathing room and no row separation, which on dark looks
+   cramped (per the mobile checkout screenshot). Give every
+   form-row real vertical rhythm and a clear label/input gap.
+   ============================================================ */
+.woocommerce form .form-row,
+.woocommerce-page form .form-row,
+.woocommerce-cart .shipping-calculator-form .form-row,
+.woocommerce form.checkout_coupon .form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 0;
+  line-height: 1.4;
+}
+.woocommerce form .form-row label,
+.woocommerce-page form .form-row label,
+.woocommerce form .form-row > label:first-child {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--roji-text-primary);
+  letter-spacing: 0;
+}
+.woocommerce form .form-row label .required,
+.woocommerce form .form-row label abbr.required {
+  color: var(--roji-accent) !important;
+  text-decoration: none !important;
+  margin-left: 2px;
+  border: 0 !important;
+}
+.woocommerce form .form-row label .optional {
+  color: var(--roji-text-muted);
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+/* Larger touch targets + consistent height across inputs/selects */
+.woocommerce form .form-row input.input-text,
+.woocommerce form .form-row textarea,
+.woocommerce form .form-row select,
+.woocommerce-page form .form-row input.input-text,
+.woocommerce-page form .form-row textarea,
+.woocommerce-page form .form-row select {
+  min-height: 48px;
+  padding: 12px 14px !important;
+  font-size: 15px !important;
+  line-height: 1.4;
+}
+.woocommerce form .form-row textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+/* Address line 2 ("Apartment, suite, ...") — visually pair with line 1
+   without doubling the gap. */
+.woocommerce form .form-row#billing_address_2_field,
+.woocommerce form .form-row#shipping_address_2_field {
+  margin-top: -8px;
+}
+
+/* Two-up rows on tablet+ (First/Last name, City/State, etc.) */
+@media (min-width: 600px) {
+  .woocommerce form .form-row-first,
+  .woocommerce form .form-row-last,
+  .woocommerce-page form .form-row-first,
+  .woocommerce-page form .form-row-last {
+    width: calc(50% - 8px) !important;
+    float: none !important;
+    display: inline-flex !important;
+    vertical-align: top;
+  }
+  .woocommerce form .form-row-first { margin-right: 16px !important; }
+  .woocommerce form .form-row-last  { margin-right: 0 !important; }
+}
+
+/* Section heading ("Billing details", "Additional information") */
+.woocommerce form.checkout h3,
+.woocommerce-checkout h3#order_review_heading {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 32px 0 18px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--roji-border);
+}
+
+/* Select chevron uses our themed arrow already; just make sure the
+   country/state Select2 single-row matches the new input height. */
+.select2-container--default .select2-selection--single {
+  min-height: 48px !important;
+  padding: 12px 14px !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 24px !important;
+}
+
+/* ============================================================
+   Locked country field (checkout + cart calculator)
+   ============================================================
+   We sell US-only. The country select is replaced with a hidden
+   input + this static line so customers can't change it. See
+   inc/checkout-country-lock.php.
+   ============================================================ */
+.roji-country-lock-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 8px 0 18px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  font-size: 14px;
+}
+.roji-country-lock-line__label {
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--roji-text-secondary);
+}
+.roji-country-lock-line__value {
+  color: var(--roji-text-primary);
+  font-weight: 500;
+}
+.roji-country-lock-line__hint {
+  margin-left: 8px;
+  color: var(--roji-text-muted);
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+/* Hide the now-hidden country form-row (the <p class="form-row
+   ... roji-country-locked">) so it doesn't leave an empty gap on
+   the checkout. WC still submits the hidden input from inside it. */
+.woocommerce form .form-row.roji-country-locked,
+.woocommerce-page form .form-row.roji-country-locked {
+  display: none !important;
+}
+
+/* Cart shipping calculator: hide the country <select> row but keep
+   state/zip. The native row is `.shipping-calculator-form p#calc_shipping_country_field`. */
+.shipping-calculator-form #calc_shipping_country_field {
+  display: none !important;
+}
+
+/* ============================================================
+   Cart upsell card — kill "boxes within boxes"
+   ============================================================
+   The supply upsell renders an outer card AND each supply
+   <label> as its own card → visually nested boxes. Strip the
+   inner border + background; use a thin divider instead.
+   Defined in inc/cart-upsell.php with inline styles, so we
+   override with !important.
+   ============================================================ */
+.roji-supply-upsell label[for^="roji-supply-"] {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  border-radius: 0 !important;
+  padding: 12px 2px !important;
+}
+.roji-supply-upsell label[for^="roji-supply-"]:last-of-type {
+  border-bottom: 0 !important;
+}
+.roji-supply-upsell label[for^="roji-supply-"]:hover {
+  background: rgba(79,109,245,0.04) !important;
+  border-color: rgba(79,109,245,0.18) !important;
+}
+
+/* ==========================================================================
+   Shop / Products archive — grid layout + cleaner tile
+   ========================================================================== */
+
+.woocommerce ul.products,
+.woocommerce-page ul.products {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin: 0 0 32px;
+  padding: 0;
+  list-style: none;
+}
+.woocommerce ul.products li.product,
+.woocommerce-page ul.products li.product {
+  width: auto !important;       /* override Hello Elementor's float math */
+  margin: 0 !important;
+  float: none !important;
+  clear: none !important;
+}
+
+@media (max-width: 1023px) {
+  .woocommerce ul.products,
+  .woocommerce-page ul.products {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 599px) {
+  .woocommerce ul.products,
+  .woocommerce-page ul.products {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tile: image, title, price stack, button on its own row beneath */
+.woocommerce ul.products li.product .woocommerce-loop-product__link {
+  display: block;
+}
+.woocommerce ul.products li.product .price {
+  display: block;
+  margin-bottom: 14px;
+}
+.woocommerce ul.products li.product .button,
+.woocommerce ul.products li.product a.button.add_to_cart_button,
+.woocommerce ul.products li.product a.button.product_type_simple {
+  display: block;
+  margin-top: 0;
+  width: 100%;
+  text-align: center;
+}
+
+/* Post-AJAX "View cart →" link that WC injects next to the add-to-cart
+   button on the shop loop after a successful add. Default WC drops it
+   inline with no spacing or styling, so it reads as a stray accent
+   link kissing the button. Style it as a clear secondary action with
+   real breathing room above. */
+.woocommerce ul.products li.product a.added_to_cart,
+.woocommerce ul.products li.product a.added_to_cart.wc-forward {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px !important;
+  padding: 6px 0 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--roji-text-secondary) !important;
+  text-decoration: none !important;
+  border-bottom: 1px dotted var(--roji-border-hover);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.woocommerce ul.products li.product a.added_to_cart::after {
+  content: "→";
+  margin-left: 2px;
+  font-family: var(--roji-font-mono);
+}
+.woocommerce ul.products li.product a.added_to_cart:hover {
+  color: var(--roji-text-primary) !important;
+  border-bottom-color: var(--roji-accent) !important;
+}
+
+/* Hide WooCommerce's default "Showing all X results" + sort dropdown.
+   We replace them with branded category chips (rendered server-side
+   via the `roji_shop_category_filter` shortcode/action). */
+.woocommerce .woocommerce-result-count,
+.woocommerce-page .woocommerce-result-count,
+.woocommerce .woocommerce-ordering,
+.woocommerce-page .woocommerce-ordering {
+  display: none !important;
+}
+
+/* Category filter chips */
+.roji-cat-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+}
+.roji-cat-filter a {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px solid var(--roji-border);
+  border-radius: 999px;
+  background: var(--roji-card);
+  color: var(--roji-text-secondary);
+  font-size: 13px;
+  font-family: var(--roji-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.roji-cat-filter a:hover {
+  color: var(--roji-text-primary);
+  border-color: var(--roji-border-hover);
+}
+.roji-cat-filter a.is-active {
+  background: var(--roji-accent);
+  border-color: var(--roji-accent);
+  color: #fff;
+}
+
+/* "Save with the bundle" banner + per-card savings badge */
+.roji-individuals-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 28px;
+  padding: 18px 22px;
+  background: linear-gradient(
+    135deg,
+    rgba(79, 109, 245, 0.1) 0%,
+    rgba(79, 109, 245, 0.04) 100%
+  );
+  border: 1px solid rgba(79, 109, 245, 0.25);
+  border-radius: var(--roji-radius);
+}
+.roji-individuals-banner__eyebrow {
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--roji-accent);
+  margin-bottom: 4px;
+}
+.roji-individuals-banner__title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--roji-text-primary);
+  line-height: 1.3;
+}
+.roji-individuals-banner__sub {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--roji-text-secondary);
+  line-height: 1.5;
+  max-width: 540px;
+}
+.roji-individuals-banner__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: var(--roji-accent);
+  color: #fff;
+  border-radius: 999px;
+  font-family: var(--roji-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+.roji-individuals-banner__cta:hover {
+  background: var(--roji-accent-hover, #3954d8);
+  color: #fff;
+}
+
+.roji-card-savings {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 0;
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--roji-text-secondary);
+}
+.roji-card-savings__chip {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  border-radius: 4px;
+  color: #22c55e;
+  font-weight: 600;
+}
+
+/* Roji helpers */
+.roji-disclaimer {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  font-size: 12px;
+  color: var(--roji-text-secondary);
+  line-height: 1.6;
+}
+.roji-disclaimer strong {
+  color: var(--roji-text-primary);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.roji-checkout-disclaimer {
+  margin: 14px 0 4px;
+  padding: 0;
+  border: 0;
+  font-size: 12px;
+  color: var(--roji-text-muted);
+  line-height: 1.6;
+}
+.roji-checkout-disclaimer a {
+  color: var(--roji-text-secondary);
+  text-decoration: underline;
+  text-decoration-color: var(--roji-border-hover);
+  text-underline-offset: 3px;
+}
+.roji-checkout-disclaimer a:hover {
+  color: var(--roji-text-primary);
+}
+
+.roji-footer-disclaimer {
+  text-align: center;
+  padding: 20px;
+  font-size: 11px;
+  color: var(--roji-text-muted);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  max-width: 800px;
+  margin: 40px auto 0;
+  line-height: 1.6;
+}
+
+/* --------------------------------------------------------------------------
+ * Site footer — Elementor + Hello often leave nav links at browser default
+ * blue on black. Normalize to readable neutrals + calmer wrap layout.
+ * -------------------------------------------------------------------------- */
+
+.site-footer,
+#site-footer,
+footer.site-footer,
+.elementor-location-footer,
+.elementor-location-footer > .elementor {
+  background-color: var(--roji-black) !important;
+  color: var(--roji-text-secondary);
+  border-top: 1px solid var(--roji-border);
+}
+
+.site-footer .site-footer-inner,
+.elementor-location-footer .elementor-section-wrap {
+  padding-top: 28px;
+  padding-bottom: 20px;
+}
+
+.site-footer a,
+.site-footer a:visited,
+#site-footer a,
+#site-footer a:visited,
+footer.site-footer a,
+footer.site-footer a:visited,
+.elementor-location-footer a,
+.elementor-location-footer a:visited {
+  color: rgba(240, 240, 245, 0.92) !important;
+  text-decoration: none !important;
+  font-weight: 500;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.site-footer a:hover,
+.site-footer a:focus,
+#site-footer a:hover,
+footer.site-footer a:hover,
+.elementor-location-footer a:hover,
+.elementor-location-footer a:focus {
+  color: var(--roji-accent-hover) !important;
+}
+
+.elementor-location-footer .elementor-nav-menu,
+.site-footer nav .menu,
+.site-footer .footer-navigation ul {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  align-items: center;
+  gap: 10px 22px !important;
+  row-gap: 14px !important;
+  list-style: none !important;
+  margin: 0 auto !important;
+  padding: 12px 16px 8px !important;
+  max-width: 1100px;
+}
+
+.elementor-location-footer .elementor-nav-menu li,
+.site-footer nav .menu li {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+.elementor-location-footer .elementor-nav-menu a,
+.elementor-location-footer .elementor-nav-menu .elementor-item {
+  color: rgba(240, 240, 245, 0.92) !important;
+}
+
+.elementor-location-footer .elementor-nav-menu a:hover,
+.elementor-location-footer .elementor-nav-menu .elementor-item:hover {
+  color: var(--roji-accent-hover) !important;
+}
+
+/* "All rights reserved" / copyright under the menu */
+.site-footer .copyright,
+.site-footer .site-info {
+  color: var(--roji-text-muted);
+  font-size: 12px;
+  text-align: center;
+  margin: 16px auto 0;
+  max-width: 720px;
+  line-height: 1.5;
+}
+
+.roji-coa-tab,
+.roji-research-tab {
+  padding: 8px 0;
+}
+.roji-coa-tab .button {
+  background: var(--roji-accent);
+  color: #fff;
+  border: none;
+}
+
+/* --------------------------------------------------------------------------
+ * Single Product (PDP) — dark-theme refinements.
+ *
+ * Hello Elementor + WooCommerce ship a generic two-column PDP. The form
+ * inputs are already dark via the base styles above, but the gallery,
+ * price, summary, tabs, and add-to-cart need explicit treatment so the
+ * page stops looking like default WC.
+ * -------------------------------------------------------------------------- */
+
+.woocommerce.single-product .product,
+.woocommerce-page.single-product .product {
+  margin: 32px 0;
+}
+
+/* Image gallery — soften the white borders WC injects */
+.woocommerce.single-product .woocommerce-product-gallery {
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  background: var(--roji-card);
+  padding: 16px;
+}
+.woocommerce.single-product .woocommerce-product-gallery__image img {
+  border-radius: var(--roji-radius);
+  background: var(--roji-darker);
+}
+.woocommerce.single-product .flex-control-thumbs {
+  margin-top: 12px;
+}
+.woocommerce.single-product .flex-control-thumbs li img {
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  opacity: 0.6;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+.woocommerce.single-product .flex-control-thumbs li img.flex-active,
+.woocommerce.single-product .flex-control-thumbs li img:hover {
+  opacity: 1;
+  border-color: var(--roji-accent);
+}
+
+/* Summary column */
+.woocommerce.single-product .summary .product_title,
+.woocommerce.single-product div.product .product_title {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+  color: var(--roji-text-primary);
+}
+.woocommerce.single-product .summary .price,
+.woocommerce.single-product div.product p.price,
+.woocommerce.single-product div.product span.price {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--roji-text-primary);
+  margin: 4px 0 16px;
+}
+.woocommerce.single-product .summary .price del {
+  color: var(--roji-text-muted);
+  font-weight: 400;
+  margin-right: 8px;
+}
+.woocommerce.single-product .summary .price ins {
+  text-decoration: none;
+  color: var(--roji-accent);
+}
+.woocommerce.single-product .woocommerce-product-details__short-description {
+  color: var(--roji-text-secondary);
+  font-size: 15px;
+  line-height: 1.65;
+  padding: 16px 20px;
+  border-left: 3px solid var(--roji-accent);
+  background: var(--roji-card);
+  border-radius: 0 var(--roji-radius) var(--roji-radius) 0;
+  margin: 0 0 24px;
+}
+
+/* Quantity + add-to-cart row */
+.woocommerce.single-product .summary form.cart {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  background: var(--roji-card);
+}
+.woocommerce.single-product .summary form.cart .quantity {
+  margin: 0;
+}
+.woocommerce.single-product .summary form.cart .single_add_to_cart_button {
+  flex: 1;
+  min-width: 200px;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  background: var(--roji-accent);
+  color: #fff;
+  border: 1px solid var(--roji-accent);
+  border-radius: var(--roji-radius);
+  letter-spacing: 0.01em;
+  transition: background 0.15s, transform 0.15s;
+}
+.woocommerce.single-product .summary form.cart .single_add_to_cart_button:hover {
+  background: var(--roji-accent-hover);
+  transform: translateY(-1px);
+}
+
+/* SKU + meta row */
+.woocommerce.single-product .product_meta {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--roji-border);
+  font-size: 13px;
+  color: var(--roji-text-muted);
+}
+.woocommerce.single-product .product_meta > span {
+  display: block;
+  margin-bottom: 6px;
+}
+.woocommerce.single-product .product_meta a {
+  color: var(--roji-text-secondary);
+}
+.woocommerce.single-product .product_meta a:hover {
+  color: var(--roji-accent);
+}
+
+/* Tabs (Description / Additional info / COA / Research) */
+.woocommerce.single-product .woocommerce-tabs {
+  margin-top: 48px;
+}
+.woocommerce.single-product .woocommerce-tabs ul.tabs {
+  border-bottom: 1px solid var(--roji-border);
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
+}
+.woocommerce.single-product .woocommerce-tabs ul.tabs::before {
+  display: none;
+}
+.woocommerce.single-product .woocommerce-tabs ul.tabs li {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin: 0 24px 0 0;
+  padding: 0;
+}
+.woocommerce.single-product .woocommerce-tabs ul.tabs li::before,
+.woocommerce.single-product .woocommerce-tabs ul.tabs li::after {
+  display: none;
+}
+.woocommerce.single-product .woocommerce-tabs ul.tabs li a {
+  color: var(--roji-text-muted);
+  font-size: 13px;
+  font-family: var(--roji-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 14px 0;
+  display: inline-block;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.woocommerce.single-product .woocommerce-tabs ul.tabs li a:hover {
+  color: var(--roji-text-secondary);
+}
+.woocommerce.single-product .woocommerce-tabs ul.tabs li.active a {
+  color: var(--roji-text-primary);
+  border-bottom-color: var(--roji-accent);
+}
+.woocommerce.single-product .woocommerce-tabs .panel {
+  background: transparent;
+  border: none;
+  margin-top: 24px;
+  padding: 0;
+  color: var(--roji-text-secondary);
+  line-height: 1.7;
+}
+.woocommerce.single-product .woocommerce-tabs .panel h2 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--roji-text-primary);
+  margin-bottom: 12px;
+}
+
+/* Related / upsell rows */
+.woocommerce.single-product .related,
+.woocommerce.single-product .upsells {
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--roji-border);
+}
+.woocommerce.single-product .related > h2,
+.woocommerce.single-product .upsells > h2 {
+  font-size: 13px;
+  font-family: var(--roji-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--roji-accent);
+  margin-bottom: 24px;
+}
+
+/* Stock status pill */
+.woocommerce.single-product .stock {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-family: var(--roji-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+.woocommerce.single-product .stock.in-stock {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--roji-success);
+}
+.woocommerce.single-product .stock.out-of-stock {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--roji-danger);
+}
+
+/* Variation form (if Subscriptions plugin adds an autoship variant) */
+.woocommerce.single-product .variations {
+  width: 100%;
+  margin: 0 0 16px;
+}
+.woocommerce.single-product .variations td.label label {
+  color: var(--roji-text-secondary);
+  font-size: 13px;
+  font-family: var(--roji-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* On mobile, stack the gallery + summary cleanly */
+@media (max-width: 768px) {
+  .woocommerce.single-product .product .images,
+  .woocommerce.single-product .product .summary {
+    width: 100% !important;
+    float: none !important;
+    margin-bottom: 24px;
+  }
+}
+
+/* ============================================================
+   Site header + mobile nav
+   ============================================================
+   Hello Elementor ships a header with a transparent/inherited
+   background and a white slide-down panel for the mobile menu.
+   Force the whole thing to live in our dark palette so the
+   wordmark stays legible and the dropdown matches the rest of
+   the site.
+   ============================================================ */
+
+/* Header bar background */
+.site-header,
+header.site-header,
+.elementor-location-header,
+.elementor-location-header > .elementor {
+  background-color: var(--roji-black) !important;
+  border-bottom: 1px solid var(--roji-border);
+}
+
+/* Elementor kit sections inside the header often ship with a solid white
+   fill; on mobile the open menu inherits that and looks broken on dark. */
+.elementor-location-header .elementor-section,
+.elementor-location-header .elementor-top-section,
+.elementor-location-header .elementor-column,
+.elementor-location-header .elementor-column-wrap {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Wordmark lockup: hide ANY image (Customizer site-icon, leftover
+   uploaded logos, the "Bluum" relic) anywhere inside the header,
+   so only the filtered <span>roji</span> wordmark renders. */
+.site-header img.custom-logo,
+.site-header .custom-logo-link img,
+header.site-header img,
+.elementor-location-header .custom-logo-link img,
+.elementor-location-header img.custom-logo {
+  display: none !important;
+}
+
+/* Make sure the wordmark span is fully visible against the dark bar. */
+.roji-wordmark {
+  display: inline-flex !important;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: nowrap;
+  text-decoration: none !important;
+}
+.roji-wordmark__text {
+  color: #f0f0f5 !important;
+  font-family: Inter, system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 1.25rem !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1 !important;
+}
+.roji-wordmark__eyebrow {
+  font-family: var(--roji-font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--roji-text-secondary) !important;
+  line-height: 1;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+.roji-wordmark:hover .roji-wordmark__eyebrow {
+  color: var(--roji-text-primary) !important;
+}
+/* Mobile: keep the eyebrow visible (matches tools.rojipeptides.com,
+   which shows "RESEARCH TOOLS" at every breakpoint). Just shrink it
+   slightly so it doesn't crowd the hamburger toggle on narrow phones. */
+@media (max-width: 480px) {
+  .roji-wordmark__eyebrow {
+    font-size: 9px !important;
+    letter-spacing: 0.16em !important;
+  }
+  .roji-wordmark {
+    gap: 8px !important;
+  }
+}
+
+/* Hello Elementor's fallback site-title path on mobile renders an
+   <h1 class="site-title"><a href="...">Roji</a></h1>, which inherits
+   the brand-blue link color and capitalizes the bloginfo name. Force
+   it to look like our wordmark: lowercase-ready, off-white, modest
+   size, no underline. The bloginfo filter in inc/branding.php also
+   replaces the literal text with 'roji' (lowercase). */
+/* Hello Elementor's fallback site-title path on mobile renders an
+   <h1 class="site-title"><a href="...">Roji</a></h1>. Force the
+   anchor to look like our wordmark, AND turn the heading wrapper
+   into a baseline flex so the eyebrow we inject in
+   inc/branding.php (elementor/widget/render_content filter) sits
+   inline rather than wrapping below. */
+.site-title,
+.site-title a,
+.site-title a:link,
+.site-title a:visited,
+.site-title a:hover,
+header .site-title,
+header .site-title a,
+.elementor-location-header .site-title,
+.elementor-location-header .site-title a,
+.elementor-location-header .elementor-widget-theme-site-title .elementor-heading-title,
+.elementor-location-header .elementor-widget-theme-site-title .elementor-heading-title a,
+.elementor-location-header .elementor-widget-site-title .elementor-heading-title,
+.elementor-location-header .elementor-widget-site-title .elementor-heading-title a {
+  color: #f0f0f5 !important;
+  font-family: Inter, system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 1.25rem !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+}
+
+/* Heading wrappers around the Site Title widget — make them inline
+   flex so the eyebrow span appended via the widget filter sits next
+   to the wordmark on the same baseline. The widget renders e.g.
+   <h2 class="elementor-heading-title roji-wordmark"><a>roji</a>
+   <span class="roji-wordmark__eyebrow">…</span></h2>. */
+.elementor-location-header .elementor-widget-theme-site-title .elementor-heading-title,
+.elementor-location-header .elementor-widget-site-title .elementor-heading-title,
+.elementor-heading-title.roji-wordmark {
+  display: inline-flex !important;
+  align-items: baseline !important;
+  gap: 12px !important;
+  flex-wrap: nowrap !important;
+  margin: 0 !important;
+}
+
+/* Some Hello variants wrap the title in <p class="site-description">
+   right under the title - hide it on mobile so we don't get a tagline
+   that we never set (or that defaults to "Just another WordPress site"). */
+.site-description {
+  display: none !important;
+}
+
+/* ============================================================
+   Mobile navigation
+   ============================================================
+   We REPLACE Elementor's mobile dropdown widget with a custom
+   full-screen overlay drawer rendered by inc/mobile-nav.php.
+
+   Why: Elementor / Hello kits hard-code a white background on
+   the dropdown <ul> and each <li>, plus a translucent currentColor
+   on each <a>. Multiple rounds of !important overrides leak
+   through because Elementor injects new wrapper classes per
+   version. Easier to bypass entirely than chase the cascade.
+
+   Strategy below:
+     1. Hide Elementor's mobile toggle + dropdown on screens
+        <= 1024px.
+     2. Show our own .roji-mnav-toggle (hamburger) in the same
+        spot, positioned over the header.
+     3. Style the .roji-mnav-drawer overlay we own end-to-end.
+
+   Desktop (>= 1025px) is untouched — Elementor's horizontal
+   menu continues to render normally.
+   ============================================================ */
+
+/* --- Hide ALL native / Elementor mobile menus on phones / tablets --- */
+@media (max-width: 1024px) {
+  /* Elementor Pro nav-menu widget */
+  .elementor-menu-toggle,
+  .elementor-nav-menu--dropdown,
+  nav.elementor-nav-menu--dropdown,
+  .elementor-widget-nav-menu .elementor-nav-menu--dropdown {
+    display: none !important;
+  }
+  /* Hello Elementor theme's built-in mobile nav */
+  .site-navigation-toggle-holder,
+  .site-navigation-dropdown,
+  nav.site-navigation-dropdown {
+    display: none !important;
+  }
+}
+
+/* --- Our hamburger toggle -------------------------------- */
+.roji-mnav-toggle {
+  display: none;
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 10px;
+  background: rgba(13, 13, 20, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #f0f0f5;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.roji-mnav-toggle:hover {
+  background: rgba(22, 22, 31, 0.96);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.roji-mnav-toggle:focus-visible {
+  outline: 2px solid var(--roji-accent);
+  outline-offset: 3px;
+}
+.roji-mnav-toggle__bar {
+  display: block;
+  width: 18px;
+  height: 2px;
+  margin: 4px auto;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+/* Animate to an "X" when active */
+.roji-mnav-toggle.is-active .roji-mnav-toggle__bar:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.roji-mnav-toggle.is-active .roji-mnav-toggle__bar:nth-child(2) {
+  opacity: 0;
+}
+.roji-mnav-toggle.is-active .roji-mnav-toggle__bar:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+@media (max-width: 1024px) {
+  .roji-mnav-toggle {
+    display: block;
+  }
+}
+
+/* --- Drawer overlay -------------------------------------- */
+.roji-mnav-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  /* Hidden state: panel slides off to the right; backdrop fades */
+  pointer-events: none;
+}
+.roji-mnav-drawer:not([hidden]) {
+  pointer-events: auto;
+}
+.roji-mnav-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+.roji-mnav-drawer.is-open .roji-mnav-backdrop {
+  opacity: 1;
+}
+.roji-mnav-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(360px, 92vw);
+  background: var(--roji-black, #0a0a0f);
+  border-left: 1px solid var(--roji-border, rgba(255, 255, 255, 0.06));
+  color: var(--roji-text-primary, #f0f0f5);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.22s cubic-bezier(0.32, 0.72, 0.20, 1.00);
+  box-shadow: -16px 0 40px rgba(0, 0, 0, 0.55);
+  outline: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.roji-mnav-drawer.is-open .roji-mnav-panel {
+  transform: translateX(0);
+}
+
+/* Body scroll lock when drawer is open */
+body.roji-mnav-locked {
+  overflow: hidden;
+}
+
+/* --- Drawer header (brand + close) ----------------------- */
+.roji-mnav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--roji-border, rgba(255, 255, 255, 0.06));
+}
+.roji-mnav-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+.roji-mnav-brand__mark {
+  font-family: var(--roji-font-sans);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: #f0f0f5;
+  text-transform: lowercase;
+}
+.roji-mnav-brand__eyebrow {
+  font-family: var(--roji-font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--roji-text-secondary, #8a8a9a);
+  font-weight: 400;
+}
+.roji-mnav-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #f0f0f5;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.roji-mnav-close:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.roji-mnav-close:focus-visible {
+  outline: 2px solid var(--roji-accent);
+  outline-offset: 2px;
+}
+
+/* --- Drawer nav list ------------------------------------- */
+.roji-mnav-nav {
+  flex: 1;
+  padding: 10px 0 24px;
+}
+.roji-mnav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.roji-mnav-item + .roji-mnav-item {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+.roji-mnav-link,
+.roji-mnav-item--cart > .roji-cart-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 22px;
+  font-family: var(--roji-font-sans);
+  font-size: 15.5px;
+  font-weight: 500;
+  color: #f0f0f5;
+  text-decoration: none;
+  background: transparent;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.roji-mnav-link:hover,
+.roji-mnav-link:focus,
+.roji-mnav-item--cart > .roji-cart-link:hover {
+  background: rgba(79, 109, 245, 0.10);
+  color: #ffffff;
+}
+.roji-mnav-link.is-current {
+  color: #ffffff;
+  background: rgba(79, 109, 245, 0.06);
+  box-shadow: inset 3px 0 0 var(--roji-accent, #4f6df5);
+}
+.roji-mnav-link__chev {
+  flex-shrink: 0;
+  color: var(--roji-text-muted, #55556a);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+.roji-mnav-link:hover .roji-mnav-link__chev {
+  color: var(--roji-accent, #4f6df5);
+  transform: translateX(2px);
+}
+
+/* Cart row inside the drawer: keep the cart icon + badge but
+   drop the separate "Cart" text label so it visually matches
+   the other rows. */
+.roji-mnav-item--cart > .roji-cart-link {
+  font-size: 15.5px;
+}
+.roji-mnav-item--cart .roji-cart-link__icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  color: var(--roji-text-secondary, #8a8a9a);
+}
+.roji-mnav-item--cart .roji-cart-link__text {
+  flex: 1;
+}
+.roji-mnav-item--cart .roji-cart-link__badge {
+  background: var(--roji-accent, #4f6df5);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+}
+
+/* --- Drawer footer --------------------------------------- */
+.roji-mnav-footer {
+  padding: 14px 22px 20px;
+  border-top: 1px solid var(--roji-border, rgba(255, 255, 255, 0.06));
+}
+.roji-mnav-footer__text {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--roji-text-muted, #55556a);
+  font-family: var(--roji-font-sans);
+}
+
+/* Catch-all: every menu link inside any header / site navigation
+   widget renders in white. This deliberately covers many themes
+   (OceanWP, Astra, Hello Elementor, Generate Press, Hello Biz, etc.)
+   so we don't have to chase per-theme selectors. */
+.site-header .menu a,
+.site-header .menu li a,
+.site-header nav a,
+.site-header ul.menu a,
+.site-header #menu-roji-header a,
+.site-header #menu-roji-header-1 a,
+.site-header .navigation a,
+.site-header .main-navigation a,
+.site-header .site-navigation a,
+.site-header .header-menu a,
+.site-header .nav-menu a,
+.elementor-location-header .menu a,
+.elementor-location-header nav a,
+.elementor-location-header .elementor-item,
+.site-navigation-toggle-holder .menu a,
+.site-navigation-toggle-holder a,
+nav#site-navigation a,
+nav.main-navigation a,
+.menu-roji-header-container a,
+.menu-roji-header-1-container a,
+header .menu a,
+header nav a,
+header ul.menu a {
+  color: var(--roji-text-primary) !important;
+  text-decoration: none !important;
+  font-weight: 500;
+  letter-spacing: 0;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+
+.site-header .menu a:hover,
+.site-header nav a:hover,
+.site-header ul.menu a:hover,
+.elementor-location-header .menu a:hover,
+.elementor-location-header .elementor-item:hover,
+.site-navigation-toggle-holder a:hover,
+header .menu a:hover,
+header nav a:hover {
+  color: var(--roji-accent) !important;
+}
+
+/* Active / current menu item gets a subtle accent treatment */
+.site-header .current-menu-item > a,
+.site-header .current_page_item > a,
+.elementor-location-header .elementor-item.elementor-item-active,
+header .current-menu-item > a {
+  color: var(--roji-text-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* ============================================================
+   Responsive H1 / hero typography
+   ============================================================
+   Elementor templates set a fixed 56-72px hero size that's
+   correct on desktop but cramped on phones. Override at the CSS
+   layer so we don't have to retrofit every page template with
+   per-breakpoint overrides.
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .elementor-widget-heading h1.elementor-heading-title,
+  .elementor-section h1.elementor-heading-title,
+  .elementor-widget-heading .elementor-heading-title[class*="h1"] {
+    font-size: clamp(34px, 8vw, 48px) !important;
+    line-height: 1.05 !important;
+    letter-spacing: -1px !important;
+  }
+
+  /* Hero sub-paragraph (the 22px lede under the H1) */
+  .elementor-section .elementor-widget-text-editor p {
+    font-size: 17px !important;
+    line-height: 1.55 !important;
+  }
+
+  /* Hero CTA buttons: full-width on mobile so they don't collide */
+  .elementor-section .elementor-button-wrapper,
+  .elementor-section .elementor-button-link {
+    width: 100%;
+  }
+  .elementor-section .elementor-button-wrapper .elementor-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .elementor-widget-heading h1.elementor-heading-title {
+    font-size: clamp(30px, 8.5vw, 40px) !important;
+  }
+}
+
+/* ============================================================
+   Header cart link
+   ============================================================
+   Lives as the LAST <li> of the primary header menu (`menu-1`)
+   via the wp_nav_menu_items filter in inc/header-cart.php.
+   On desktop it sits inline with the nav links; on the mobile
+   dropdown it's a full-width row like the other items.
+   ============================================================ */
+.roji-cart-link {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  color: var(--roji-text-primary) !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease;
+}
+.roji-cart-link:hover { color: var(--roji-accent) !important; }
+.roji-cart-link__icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.roji-cart-link__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--roji-accent);
+  color: #fff;
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+}
+.roji-cart-link__badge[hidden] { display: none; }
+/* Desktop horizontal nav: hide redundant "Cart" word, badge alone is enough */
+@media (min-width: 1025px) {
+  .elementor-nav-menu--layout-horizontal .roji-cart-link__text {
+    position: absolute;
+    width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+}
+
+/* Header My Account link (see inc/header-cart.php) */
+.roji-account-link {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+  color: var(--roji-text-primary) !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease;
+}
+.roji-account-link:hover {
+  color: var(--roji-accent) !important;
+}
+.roji-account-link.is-current {
+  color: var(--roji-accent) !important;
+}
+.roji-account-link__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+@media (min-width: 1025px) {
+  .elementor-nav-menu--layout-horizontal .roji-account-link__text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+/* ============================================================
+   Members area (WooCommerce My Account) — full theming
+   ============================================================
+   Owns the visual layer for /my-account/* pages: side-nav,
+   dashboard cards, orders table, addresses, edit-account form,
+   and login/register forms. Native WC markup, dark-themed.
+   ============================================================ */
+
+/* Page wrapper — adds breathing room and a max width */
+.woocommerce-account .woocommerce {
+  max-width: 1100px;
+  margin: 32px auto;
+}
+
+/* Side navigation */
+.woocommerce-account .woocommerce-MyAccount-navigation {
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  padding: 10px 0;
+  margin-bottom: 24px;
+}
+.woocommerce-account .woocommerce-MyAccount-navigation ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.woocommerce-account .woocommerce-MyAccount-navigation li {
+  margin: 0;
+}
+.woocommerce-account .woocommerce-MyAccount-navigation li a {
+  display: block;
+  padding: 11px 20px;
+  color: var(--roji-text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-left: 3px solid transparent;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.woocommerce-account .woocommerce-MyAccount-navigation li a:hover {
+  color: var(--roji-text-primary);
+  background: rgba(255, 255, 255, 0.03);
+}
+.woocommerce-account .woocommerce-MyAccount-navigation li.is-active a {
+  color: var(--roji-text-primary);
+  border-left-color: var(--roji-accent);
+  background: var(--roji-accent-subtle);
+}
+.woocommerce-account .woocommerce-MyAccount-navigation li--customer-logout {
+  border-top: 1px solid var(--roji-border);
+  margin-top: 6px;
+  padding-top: 6px;
+}
+.woocommerce-account .woocommerce-MyAccount-navigation li--customer-logout a {
+  color: var(--roji-text-muted);
+}
+
+/* Two-column layout from tablet up */
+@media (min-width: 768px) {
+  .woocommerce-account .woocommerce {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  .woocommerce-account .woocommerce-MyAccount-navigation {
+    margin-bottom: 0;
+    position: sticky;
+    top: 90px;
+  }
+}
+
+/* Content panel typography */
+.woocommerce-account .woocommerce-MyAccount-content {
+  color: var(--roji-text-primary);
+}
+.woocommerce-account .woocommerce-MyAccount-content > p:first-of-type {
+  margin-top: 0;
+}
+.woocommerce-account .woocommerce-MyAccount-content h2,
+.woocommerce-account .woocommerce-MyAccount-content h3 {
+  color: var(--roji-text-primary);
+  margin-top: 0;
+}
+
+/* ----- Dashboard (custom Roji template) ----- */
+.roji-member-dashboard { display: grid; gap: 28px; }
+.rmd-greet__title {
+  margin: 0 0 6px;
+  font-size: 1.7rem;
+  letter-spacing: -0.02em;
+}
+.rmd-greet__sub {
+  margin: 0;
+  color: var(--roji-text-secondary);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.rmd-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+.rmd-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  text-decoration: none !important;
+  color: inherit !important;
+  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+.rmd-card:hover {
+  border-color: var(--roji-border-hover);
+  transform: translateY(-1px);
+}
+.rmd-card__icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(79, 109, 245, 0.08);
+  color: var(--roji-accent);
+}
+.rmd-card--accent .rmd-card__icon {
+  background: rgba(79, 109, 245, 0.16);
+}
+.rmd-card__label {
+  font-family: var(--roji-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--roji-text-muted);
+  margin-bottom: 4px;
+}
+.rmd-card__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--roji-text-primary);
+  margin-bottom: 2px;
+}
+.rmd-card__hint {
+  font-size: 12.5px;
+  color: var(--roji-text-secondary);
+  line-height: 1.5;
+}
+
+.rmd-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.rmd-section-head h3 {
+  margin: 0;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--roji-text-secondary);
+  font-family: var(--roji-font-mono);
+  font-weight: 500;
+}
+.rmd-section-head__link {
+  font-size: 12.5px;
+  color: var(--roji-accent);
+  text-decoration: none;
+}
+.rmd-recent__list {
+  display: grid;
+  gap: 8px;
+}
+.rmd-order {
+  display: grid;
+  grid-template-columns: 110px 1fr auto auto;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  text-decoration: none !important;
+  color: inherit !important;
+  transition: border-color 0.15s ease;
+}
+.rmd-order:hover { border-color: var(--roji-border-hover); }
+.rmd-order__num {
+  font-family: var(--roji-font-mono);
+  font-size: 13px;
+  color: var(--roji-text-primary);
+  font-weight: 600;
+}
+.rmd-order__date {
+  font-size: 12.5px;
+  color: var(--roji-text-secondary);
+}
+.rmd-order__total {
+  font-family: var(--roji-font-mono);
+  font-size: 13.5px;
+  color: var(--roji-text-primary);
+}
+.rmd-order__status {
+  font-family: var(--roji-font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--roji-text-secondary);
+}
+.rmd-order__status--processing { background: rgba(79,109,245,0.12); color: #aab9ff; }
+.rmd-order__status--completed { background: rgba(34,197,94,0.12); color: #4ade80; }
+.rmd-order__status--on-hold { background: rgba(234,179,8,0.12); color: #fbbf24; }
+.rmd-order__status--cancelled,
+.rmd-order__status--failed,
+.rmd-order__status--refunded { background: rgba(239,68,68,0.12); color: #fca5a5; }
+@media (max-width: 600px) {
+  .rmd-order {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "num status"
+      "date total";
+    gap: 8px 14px;
+  }
+  .rmd-order__num { grid-area: num; }
+  .rmd-order__status { grid-area: status; justify-self: end; }
+  .rmd-order__date { grid-area: date; }
+  .rmd-order__total { grid-area: total; justify-self: end; }
+}
+
+.rmd-foot {
+  margin-top: 8px;
+  padding-top: 18px;
+  border-top: 1px solid var(--roji-border);
+  text-align: center;
+  font-size: 13px;
+  color: var(--roji-text-muted);
+}
+.rmd-foot a {
+  color: var(--roji-accent);
+  text-decoration: none;
+}
+
+/* ----- Orders table (WC native) ----- */
+.woocommerce-orders-table,
+.woocommerce-table--order-details {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  overflow: hidden;
+  margin: 0 0 24px;
+  font-size: 14px;
+}
+.woocommerce-orders-table th,
+.woocommerce-table--order-details th {
+  background: rgba(255,255,255,0.02);
+  color: var(--roji-text-secondary);
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--roji-border);
+}
+.woocommerce-orders-table td,
+.woocommerce-table--order-details td {
+  padding: 14px;
+  border-bottom: 1px solid var(--roji-border);
+  color: var(--roji-text-primary);
+}
+.woocommerce-orders-table tbody tr:last-child td,
+.woocommerce-table--order-details tbody tr:last-child td {
+  border-bottom: none;
+}
+.woocommerce-orders-table .button {
+  display: inline-block;
+  padding: 7px 14px;
+  background: rgba(79,109,245,0.1);
+  color: var(--roji-accent) !important;
+  border: 1px solid rgba(79,109,245,0.3);
+  border-radius: var(--roji-radius);
+  font-size: 12.5px;
+  text-decoration: none;
+  font-weight: 500;
+  margin-right: 6px;
+  transition: background 0.15s ease;
+}
+.woocommerce-orders-table .button:hover {
+  background: rgba(79,109,245,0.18);
+}
+
+/* Order status pill inside the table */
+.woocommerce-orders-table .order-status,
+.woocommerce-orders-table mark {
+  display: inline-block;
+  background: rgba(255,255,255,0.05);
+  color: var(--roji-text-secondary);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--roji-font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Pagination */
+.woocommerce-pagination {
+  margin-top: 16px;
+}
+.woocommerce-pagination ul {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.woocommerce-pagination li a,
+.woocommerce-pagination li span {
+  padding: 6px 12px;
+  border-radius: var(--roji-radius);
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  color: var(--roji-text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+}
+.woocommerce-pagination li .current {
+  background: var(--roji-accent);
+  color: #fff;
+  border-color: var(--roji-accent);
+}
+
+/* ----- Edit account / address forms ----- */
+.woocommerce-EditAccountForm,
+.woocommerce-address-fields,
+.edit-account,
+.woocommerce form.checkout_coupon {
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  padding: 24px;
+}
+.woocommerce-MyAccount-content fieldset {
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  padding: 16px 20px;
+  margin-top: 18px;
+}
+.woocommerce-MyAccount-content fieldset legend {
+  padding: 0 8px;
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--roji-text-secondary);
+}
+.woocommerce-MyAccount-content .form-row {
+  margin: 0 0 14px;
+  display: block;
+}
+.woocommerce-MyAccount-content .form-row label {
+  display: block;
+  font-size: 12.5px;
+  color: var(--roji-text-secondary);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.woocommerce-MyAccount-content input[type="text"],
+.woocommerce-MyAccount-content input[type="email"],
+.woocommerce-MyAccount-content input[type="password"],
+.woocommerce-MyAccount-content input[type="tel"],
+.woocommerce-MyAccount-content select,
+.woocommerce-MyAccount-content textarea {
+  width: 100%;
+  background: var(--roji-dark);
+  color: var(--roji-text-primary);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color 0.15s ease;
+}
+.woocommerce-MyAccount-content input:focus,
+.woocommerce-MyAccount-content select:focus,
+.woocommerce-MyAccount-content textarea:focus {
+  outline: none;
+  border-color: var(--roji-accent);
+}
+.woocommerce-MyAccount-content button[type="submit"],
+.woocommerce-MyAccount-content .button {
+  display: inline-block;
+  background: var(--roji-accent);
+  color: #fff !important;
+  border: none;
+  padding: 11px 22px;
+  border-radius: var(--roji-radius);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.woocommerce-MyAccount-content button[type="submit"]:hover,
+.woocommerce-MyAccount-content .button:hover {
+  background: var(--roji-accent-hover);
+}
+
+/* Address cards on the addresses landing */
+.woocommerce-Address {
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.woocommerce-Address-title h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--roji-font-mono);
+  color: var(--roji-text-secondary);
+}
+.woocommerce-Address-title .edit {
+  font-size: 12.5px;
+  color: var(--roji-accent);
+  text-decoration: none;
+}
+.woocommerce-Address address {
+  font-style: normal;
+  color: var(--roji-text-primary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ============================================================
+   Members "coming soon" landing
+   ============================================================ */
+.roji-members-soon {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+.roji-members-soon__inner {
+  max-width: 560px;
+  text-align: center;
+}
+.roji-members-soon__pill {
+  display: inline-block;
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--roji-accent);
+  background: var(--roji-accent-subtle);
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 18px;
+}
+.roji-members-soon h1 {
+  font-size: clamp(2.2rem, 7vw, 3rem);
+  letter-spacing: -0.03em;
+  margin: 0 0 16px;
+}
+.roji-members-soon__lede {
+  color: var(--roji-text-secondary);
+  font-size: 16px;
+  line-height: 1.7;
+  margin: 0 0 28px;
+}
+.roji-members-soon__actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.roji-members-soon__cta {
+  background: var(--roji-accent);
+  color: #fff !important;
+  text-decoration: none !important;
+  padding: 13px 26px;
+  border-radius: var(--roji-radius);
+  font-weight: 600;
+  font-size: 15px;
+  transition: background 0.15s ease;
+}
+.roji-members-soon__cta:hover { background: var(--roji-accent-hover); }
+.roji-members-soon__alt {
+  color: var(--roji-text-secondary) !important;
+  text-decoration: none !important;
+  padding: 13px 14px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+.roji-members-soon__alt:hover { color: var(--roji-text-primary) !important; }
+.roji-members-soon__support {
+  font-size: 13px;
+  color: var(--roji-text-muted);
+  margin: 0;
+}
+.roji-members-soon__support a { color: var(--roji-accent); text-decoration: none; }
+
+/* ============================================================
+   Auth screens (login / lost password) — used when gate flips off
+   ============================================================ */
+.roji-auth {
+  max-width: 980px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+.roji-auth__hero {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.roji-auth__brand {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.roji-auth__brand-mark {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--roji-text-primary);
+  line-height: 1;
+}
+.roji-auth__brand-eyebrow {
+  font-family: var(--roji-font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--roji-text-muted);
+  margin-top: 4px;
+}
+.roji-auth__title {
+  font-size: clamp(1.7rem, 4.5vw, 2.2rem);
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+}
+.roji-auth__sub {
+  color: var(--roji-text-secondary);
+  font-size: 15px;
+  margin: 0;
+}
+.roji-auth__cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  max-width: 460px;
+  margin: 0 auto;
+}
+.roji-auth__cols--two {
+  max-width: 920px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+  .roji-auth__cols--two {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.roji-auth__card {
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  padding: 28px;
+}
+.roji-auth__card--solo {
+  max-width: 460px;
+  margin: 0 auto;
+}
+.roji-auth__card-title {
+  margin: 0 0 18px;
+  font-size: 1.2rem;
+}
+.roji-auth__form { display: grid; gap: 14px; }
+.roji-auth__field { display: grid; gap: 6px; margin: 0; }
+.roji-auth__field label {
+  font-size: 12.5px;
+  color: var(--roji-text-secondary);
+  font-weight: 500;
+}
+.roji-auth__field input {
+  background: var(--roji-dark);
+  color: var(--roji-text-primary);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  padding: 11px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.15s ease;
+}
+.roji-auth__field input:focus {
+  outline: none;
+  border-color: var(--roji-accent);
+}
+.roji-auth__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.roji-auth__remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--roji-text-secondary);
+  cursor: pointer;
+}
+.roji-auth__remember input { accent-color: var(--roji-accent); }
+.roji-auth__forgot {
+  font-size: 13px;
+  color: var(--roji-accent);
+  text-decoration: none;
+}
+.roji-auth__btn {
+  background: var(--roji-accent);
+  color: #fff !important;
+  border: none;
+  border-radius: var(--roji-radius);
+  padding: 13px 22px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.roji-auth__btn:hover { background: var(--roji-accent-hover); }
+.roji-auth__hint {
+  font-size: 13px;
+  color: var(--roji-text-secondary);
+  margin: 0;
+}
+.roji-auth__legal {
+  font-size: 11.5px;
+  color: var(--roji-text-muted);
+  line-height: 1.5;
+  margin: 4px 0 0;
+}
+.roji-auth__legal a { color: var(--roji-text-secondary); }
+.roji-auth__alt {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 13px;
+}
+.roji-auth__alt a {
+  color: var(--roji-accent);
+  text-decoration: none;
+}
+.roji-auth__research {
+  text-align: center;
+  font-size: 11px;
+  color: var(--roji-text-muted);
+  margin: 28px 0 0;
+}
+/* Mobile cart row styling lives in the .roji-mnav-item--cart block above
+   (see "Mobile navigation" section). The Elementor dropdown that this
+   used to target is hidden on screens <= 1024px. */
+
+/* ============================================================
+   Add-to-cart success notice
+   ============================================================
+   Replaces the unstyled "Item added · View cart" link with a
+   proper two-button row: primary "Checkout" + ghost "View cart".
+   Markup defined in inc/header-cart.php via the
+   wc_add_to_cart_message_html filter.
+   ============================================================ */
+.woocommerce-message,
+.woocommerce-info,
+.woocommerce-error {
+  background: var(--roji-card) !important;
+  border: 1px solid var(--roji-border) !important;
+  color: var(--roji-text-primary) !important;
+  border-radius: var(--roji-radius) !important;
+  padding: 14px 18px !important;
+  margin: 0 0 18px !important;
+  font-size: 14px !important;
+}
+.woocommerce-message { border-left: 3px solid var(--roji-success) !important; }
+.woocommerce-info    { border-left: 3px solid var(--roji-accent) !important; }
+.woocommerce-error   { border-left: 3px solid var(--roji-danger) !important; }
+.woocommerce-checkout .woocommerce-info {
+  font-size: 16px !important;
+  font-weight: 500;
+  line-height: 1.65;
+  padding: 20px 22px !important;
+  background: rgba(79,109,245,0.06) !important;
+  border: 1px solid rgba(79,109,245,0.25) !important;
+  border-left: 4px solid var(--roji-accent) !important;
+}
+.woocommerce-message::before,
+.woocommerce-info::before,
+.woocommerce-error::before { display: none !important; }
+
+.roji-cart-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+.roji-cart-notice__msg {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--roji-text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.roji-cart-notice__msg strong { color: var(--roji-text-primary); font-weight: 600; }
+.roji-cart-notice__actions {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+.roji-cart-notice__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: var(--roji-radius);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-decoration: none !important;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+.roji-cart-notice__btn--primary {
+  background: var(--roji-accent);
+  color: #fff !important;
+  border: 1px solid var(--roji-accent);
+}
+.roji-cart-notice__btn--primary:hover {
+  background: var(--roji-accent-hover);
+  border-color: var(--roji-accent-hover);
+  color: #fff !important;
+}
+.roji-cart-notice__btn--ghost {
+  background: transparent;
+  color: var(--roji-text-primary) !important;
+  border: 1px solid var(--roji-border);
+}
+.roji-cart-notice__btn--ghost:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: var(--roji-border-hover);
+}
+@media (max-width: 480px) {
+  .roji-cart-notice { flex-direction: column; align-items: stretch; }
+  .roji-cart-notice__actions { width: 100%; }
+  .roji-cart-notice__btn { flex: 1 1 50%; }
+}
+
+/* ============================================================
+   Research-library inline shop CTAs
+   ============================================================
+   The compound cards on /research-library/ end with a quiet two-
+   line CTA: a primary accent link to the SKU page and a softer
+   "as part of the X Stack" link. Underline on hover only — we
+   don't want this to scream against the reference list above.
+   ============================================================ */
+.roji-rl-cta a {
+  transition: color 0.15s ease;
+}
+.roji-rl-cta a:hover {
+  text-decoration: underline !important;
+  text-underline-offset: 4px;
+}
+.roji-rl-cta a:first-child:hover {
+  color: var(--roji-accent-hover) !important;
+}
+.roji-rl-cta a:last-child:hover {
+  color: var(--roji-text-primary) !important;
+}
+
+/* ============================================================
+   Secondary CTA "link" treatment
+   ============================================================
+   .roji-cta-link is applied to Elementor button widgets that
+   should *read as a link* rather than a bordered button — used
+   for the "Or browse research tools →" hero secondary CTA and
+   the "Autoship −15%" companion to the "One-time" buy button on
+   the home stack cards. We strip the chrome but keep Elementor's
+   underlying <a class="elementor-button"> so analytics, tracking
+   and the dynamic-link feature keep working.
+   ============================================================ */
+.roji-cta-link .elementor-button,
+.roji-cta-link.elementor-widget-button .elementor-button {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 6px 4px !important;
+  color: var(--roji-text-secondary) !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease;
+}
+.roji-cta-link .elementor-button:hover,
+.roji-cta-link.elementor-widget-button .elementor-button:hover {
+  background: transparent !important;
+  color: var(--roji-text-primary) !important;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Autoship variant uses the brand accent so the −15% reads as a
+   value-prop, not just a quiet alt action. */
+.roji-cta-link--autoship .elementor-button,
+.roji-cta-link--autoship.elementor-widget-button .elementor-button {
+  color: var(--roji-accent) !important;
+}
+.roji-cta-link--autoship .elementor-button:hover,
+.roji-cta-link--autoship.elementor-widget-button .elementor-button:hover {
+  color: var(--roji-accent-hover) !important;
+  text-decoration-color: rgba(79, 109, 245, 0.4);
+}
+
+/* ============================================================
+   CTA row vertical alignment
+   ============================================================
+   Elementor flex containers that hold a primary button + a
+   secondary link-style CTA need explicit centering. Without it,
+   the tall padded button and the slim link sit on different
+   baselines. Applies to the hero "Browse the shop / Or browse
+   research tools" row AND the "One-time / Autoship" buy row.
+   ============================================================ */
+.roji-buy-row,
+.roji-cta-row {
+  align-items: center !important;
+}
+.roji-buy-row > .elementor-element,
+.roji-cta-row > .elementor-element,
+.roji-buy-row > .e-con > .elementor-element,
+.roji-cta-row > .e-con > .elementor-element {
+  align-self: center !important;
+}
+.roji-cta-link .elementor-widget-container {
+  display: flex;
+  align-items: center;
+}
+/* Any Elementor flex row containing buttons should center-align
+   children so primary + secondary CTAs don't drift apart. */
+.e-con:has(.roji-cta-link) {
+  align-items: center !important;
+}
+.e-con:has(.roji-cta-link) > .elementor-element {
+  align-self: center !important;
+}
+@media (max-width: 767px) {
+  .roji-buy-row.e-con,
+  .roji-buy-row.elementor-element {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  .roji-buy-row .elementor-widget-button .elementor-button {
+    width: 100%;
+    justify-content: center;
+  }
+  /* The autoship link should sit flush-left, not full-width, so
+     it visually subordinates to the primary "One-time" button. */
+  .roji-buy-row .roji-cta-link .elementor-button {
+    width: auto;
+    justify-content: flex-start;
+    padding-left: 2px !important;
+  }
+}
+
+/* ============================================================
+   Site-wide mobile gutter
+   ============================================================
+   Keeps page content from hugging the viewport edges on phones.
+   Applies a small horizontal pad to the main content wrapper
+   plus Elementor's boxed sections/containers, which is where
+   Roji pages actually render.
+
+   Header, footer, and any element marked with .roji-bleed (or
+   Elementor "full-width" containers) opt out so hero photos and
+   nav bars can still go edge-to-edge.
+
+   The gutter value is exposed as --roji-mobile-gutter in :root
+   so we can dial it up/down from a single place.
+   ============================================================ */
+@media (max-width: 767px) {
+  /* Hello Elementor / Astra / generic theme main wrapper. */
+  body main.site-main,
+  body .site-content > main,
+  body .woocommerce-page main {
+    padding-left: var(--roji-mobile-gutter);
+    padding-right: var(--roji-mobile-gutter);
+  }
+
+  /* Elementor BOXED containers (legacy section + new flexbox).
+     The "boxed" variant is the one meant to align with the page
+     content area, so it's safe to nudge inward. We deliberately
+     skip .e-con-full and .elementor-section-stretched. */
+  .elementor-section.elementor-section-boxed
+    > .elementor-container,
+  .e-con.e-con-boxed > .e-con-inner {
+    padding-left: var(--roji-mobile-gutter);
+    padding-right: var(--roji-mobile-gutter);
+  }
+
+  /* WooCommerce shop / cart / checkout / account wrappers.
+     These are sometimes rendered outside an Elementor container
+     (e.g. when a page falls back to the theme template), so we
+     belt-and-suspenders them too. */
+  .woocommerce,
+  .woocommerce-cart .woocommerce,
+  .woocommerce-checkout .woocommerce,
+  .woocommerce-account .woocommerce {
+    padding-left: var(--roji-mobile-gutter);
+    padding-right: var(--roji-mobile-gutter);
+  }
+
+  /* Avoid double-padding when a WooCommerce wrapper sits inside
+     an already-gutter'd Elementor container. */
+  .e-con.e-con-boxed > .e-con-inner .woocommerce,
+  main.site-main .woocommerce {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Explicit opt-outs: header, footer, anything tagged .roji-bleed,
+     and Elementor's full-width / stretched sections. */
+  header.site-header,
+  footer.site-footer,
+  .roji-bleed,
+  .elementor-section.elementor-section-full_width
+    > .elementor-container,
+  .elementor-section.elementor-section-stretched
+    > .elementor-container,
+  .e-con.e-con-full {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* ============================================================
+   Research library — programmatic /research/* pages
+   ============================================================ */
+
+.roji-research-main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+.roji-research__crumbs {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--roji-text-muted);
+}
+.roji-research__crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.roji-research__crumbs li + li::before {
+  content: "›";
+  margin-right: 6px;
+  color: var(--roji-text-muted);
+}
+.roji-research__crumbs a {
+  color: var(--roji-text-secondary);
+  text-decoration: none;
+}
+.roji-research__crumbs a:hover {
+  color: var(--roji-accent);
+}
+.roji-research__crumbs span[aria-current="page"] {
+  color: var(--roji-text-primary);
+}
+
+.roji-research__header {
+  margin: 0 0 32px;
+  padding: 0 0 24px;
+  border-bottom: 1px solid var(--roji-border);
+}
+.roji-research__category {
+  display: inline-block;
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--roji-accent);
+  background: var(--roji-accent-subtle);
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-bottom: 14px;
+}
+.roji-research__title {
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 0 0 8px;
+  color: var(--roji-text-primary);
+}
+.roji-research__aliases {
+  margin: 4px 0 0;
+  color: var(--roji-text-secondary);
+  font-size: 14px;
+}
+.roji-research__lede {
+  margin: 12px 0 0;
+  color: var(--roji-text-secondary);
+  font-size: 16px;
+  line-height: 1.65;
+  max-width: 720px;
+}
+
+/* Factsheet (chemistry, pharmacology) */
+.roji-research__factsheet {
+  margin: 0 0 32px;
+}
+.roji-research__factsheet h2 {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--roji-text-muted);
+  margin: 0 0 14px;
+}
+.roji-research__dl {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 14px 24px;
+  margin: 0;
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  padding: 22px 24px;
+}
+.roji-research__dl dt {
+  color: var(--roji-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.roji-research__dl dd {
+  margin: 0;
+  color: var(--roji-text-primary);
+  font-size: 14.5px;
+  line-height: 1.55;
+  word-break: break-word;
+}
+.roji-research__dl dd code {
+  font-family: var(--roji-font-mono);
+  font-size: 13px;
+  color: var(--roji-text-primary);
+  background: rgba(255,255,255,0.04);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.roji-research__dl dd a {
+  color: var(--roji-accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.roji-research__dl dd a:hover {
+  border-bottom-color: var(--roji-accent);
+}
+
+@media (max-width: 640px) {
+  .roji-research__dl {
+    grid-template-columns: 1fr;
+    gap: 4px 0;
+    padding: 18px 18px;
+  }
+  .roji-research__dl dt {
+    margin-top: 12px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .roji-research__dl dt:first-child {
+    margin-top: 0;
+  }
+}
+
+/* Research focus + citations */
+.roji-research__focus,
+.roji-research__citations {
+  margin: 0 0 32px;
+}
+.roji-research__focus h2,
+.roji-research__citations h2,
+.roji-research__related h2,
+.roji-research__compounds-grid h2 {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--roji-text-muted);
+  margin: 0 0 14px;
+}
+.roji-research__focus ul,
+.roji-research__citations ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  overflow: hidden;
+}
+.roji-research__focus li,
+.roji-research__citations li {
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--roji-border);
+  font-size: 14.5px;
+  color: var(--roji-text-primary);
+  line-height: 1.55;
+}
+.roji-research__focus li:last-child,
+.roji-research__citations li:last-child {
+  border-bottom: 0;
+}
+.roji-research__focus li::before {
+  content: "·";
+  display: inline-block;
+  width: 16px;
+  margin-right: 8px;
+  color: var(--roji-accent);
+  font-weight: 700;
+}
+.roji-research__citations ol {
+  counter-reset: roji-cit;
+}
+.roji-research__citations li {
+  counter-increment: roji-cit;
+  position: relative;
+  padding-left: 50px;
+}
+.roji-research__citations li::before {
+  content: "[" counter(roji-cit) "]";
+  position: absolute;
+  left: 18px;
+  top: 14px;
+  font-family: var(--roji-font-mono);
+  font-size: 12px;
+  color: var(--roji-text-muted);
+}
+.roji-research__citations a {
+  color: var(--roji-text-primary);
+  text-decoration: none;
+  border-bottom: 1px solid var(--roji-border-hover);
+}
+.roji-research__citations a:hover {
+  color: var(--roji-accent);
+  border-bottom-color: var(--roji-accent);
+}
+.roji-research__cit-year {
+  color: var(--roji-text-muted);
+  font-size: 13px;
+  margin-left: 4px;
+}
+.roji-research__nb {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--roji-text-muted);
+  font-style: italic;
+}
+
+/* Buy / request blocks */
+.roji-research__buy {
+  margin: 32px 0;
+  border-radius: var(--roji-radius-lg);
+  background: linear-gradient(180deg, rgba(79,109,245,0.08), rgba(79,109,245,0.02));
+  border: 1px solid rgba(79,109,245,0.18);
+  padding: 24px 26px;
+}
+.roji-research__buy--in-stock {
+  background: linear-gradient(180deg, rgba(34,197,94,0.07), rgba(34,197,94,0.02));
+  border-color: rgba(34,197,94,0.22);
+}
+.roji-research__buy--combo-mixed {
+  background: var(--roji-card);
+  border-color: var(--roji-border);
+}
+.roji-research__buy-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.roji-research__buy-text {
+  flex: 1 1 320px;
+}
+.roji-research__buy-eyebrow {
+  display: inline-block;
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--roji-text-muted);
+  margin: 0 0 8px;
+}
+.roji-research__buy--in-stock .roji-research__buy-eyebrow {
+  color: var(--roji-success);
+}
+.roji-research__buy-line {
+  margin: 0 0 4px;
+  color: var(--roji-text-primary);
+  font-size: 15px;
+  line-height: 1.55;
+  max-width: 540px;
+}
+.roji-research__buy-line strong {
+  color: var(--roji-text-primary);
+  font-weight: 600;
+}
+.roji-research__buy-nudge {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  color: var(--roji-text-secondary);
+}
+.roji-research__buy-nudge a {
+  color: var(--roji-accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.roji-research__buy-nudge a:hover {
+  border-bottom-color: var(--roji-accent);
+}
+.roji-research__buy-list {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.roji-research__buy-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--roji-border);
+  font-size: 14.5px;
+  color: var(--roji-text-secondary);
+}
+.roji-research__buy-list li:last-child {
+  border-bottom: 0;
+}
+.roji-research__buy-list a {
+  color: var(--roji-accent);
+  text-decoration: none;
+}
+.roji-research__buy-list a:hover {
+  color: var(--roji-accent-hover);
+}
+.roji-research__buy-btn {
+  display: inline-block;
+  background: var(--roji-accent);
+  color: #fff !important;
+  text-decoration: none;
+  padding: 12px 22px;
+  border-radius: var(--roji-radius);
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.roji-research__buy-btn:hover {
+  background: var(--roji-accent-hover);
+  transform: translateY(-1px);
+}
+
+/* Request-stocking form */
+.roji-research__request-form {
+  flex: 0 1 360px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  padding: 16px 18px;
+}
+.roji-research__request-form label {
+  display: block;
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--roji-text-muted);
+  margin: 0 0 10px;
+}
+.roji-research__request-row {
+  display: flex;
+  gap: 8px;
+}
+.roji-research__request-row input {
+  flex: 1;
+  background: var(--roji-darker);
+  color: var(--roji-text-primary);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: var(--roji-font-sans);
+}
+.roji-research__request-row input:focus {
+  outline: none;
+  border-color: var(--roji-accent);
+  box-shadow: 0 0 0 2px var(--roji-accent-subtle);
+}
+.roji-research__request-row button {
+  background: var(--roji-accent);
+  color: #fff;
+  border: 0;
+  border-radius: var(--roji-radius);
+  padding: 10px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.roji-research__request-row button:hover:not(:disabled) {
+  background: var(--roji-accent-hover);
+}
+.roji-research__request-row button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.roji-research__request-status {
+  margin: 10px 0 0;
+  font-size: 13px;
+  min-height: 18px;
+  color: var(--roji-text-muted);
+}
+.roji-research__request-status[data-state="ok"]  { color: var(--roji-success); }
+.roji-research__request-status[data-state="err"] { color: var(--roji-danger); }
+
+/* Combo: side-by-side comparison table */
+.roji-research__sxs-wrap {
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  overflow: hidden;
+}
+.roji-research__sxs {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.roji-research__sxs th,
+.roji-research__sxs td {
+  padding: 14px 18px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--roji-border);
+  color: var(--roji-text-primary);
+}
+.roji-research__sxs thead th {
+  background: var(--roji-dark);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--roji-text-muted);
+}
+.roji-research__sxs tbody th {
+  width: 160px;
+  color: var(--roji-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+.roji-research__sxs tbody tr:last-child th,
+.roji-research__sxs tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Cards (combo grid + index page + related) */
+.roji-research__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+.roji-research__card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius-lg);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.roji-research__card:hover {
+  border-color: var(--roji-border-hover);
+  transform: translateY(-1px);
+}
+.roji-research__card-cat {
+  font-family: var(--roji-font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--roji-text-muted);
+}
+.roji-research__card-name {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--roji-text-primary);
+}
+.roji-research__card-mw {
+  font-family: var(--roji-font-mono);
+  font-size: 12px;
+  color: var(--roji-text-secondary);
+}
+.roji-research__card-mech {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--roji-text-secondary);
+}
+.roji-research__card-badge {
+  display: inline-block;
+  font-family: var(--roji-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--roji-success);
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.2);
+  padding: 2px 8px;
+  border-radius: 999px;
+  width: max-content;
+}
+.roji-research__card--combo {
+  background: linear-gradient(180deg, var(--roji-card), rgba(79,109,245,0.04));
+}
+
+/* Related combos */
+.roji-research__related {
+  margin: 32px 0;
+}
+.roji-research__related-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+.roji-research__related-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  text-decoration: none;
+  color: var(--roji-text-primary);
+  font-size: 14px;
+  transition: border-color 0.15s ease;
+}
+.roji-research__related-list a:hover {
+  border-color: var(--roji-accent);
+}
+.roji-research__related-name { font-weight: 500; }
+.roji-research__related-badge {
+  font-family: var(--roji-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--roji-success);
+}
+
+/* Disclaimer */
+.roji-research__disclaimer {
+  margin: 40px 0 0;
+  padding: 18px 22px;
+  background: var(--roji-darker);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  color: var(--roji-text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.roji-research__disclaimer strong {
+  color: var(--roji-text-primary);
+  margin-right: 6px;
+}
+
+/* Index page */
+.roji-research__index-header {
+  margin: 0 0 36px;
+  padding: 0 0 24px;
+  border-bottom: 1px solid var(--roji-border);
+}
+.roji-research__index-header h1 {
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 0 0 12px;
+}
+.roji-research__index-section {
+  margin: 0 0 40px;
+}
+.roji-research__index-section h2 {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--roji-text-muted);
+  margin: 0 0 16px;
+}
+
+</style>
+</head>
+<body>
+<div class="preview-chrome" style="background:#22222d;color:#c8c8d0;padding:10px 20px;font-family:JetBrains Mono,monospace;font-size:11px;border-bottom:1px solid rgba(255,255,255,0.06);letter-spacing:0.04em;text-transform:uppercase;">
+  preview · https://rojipeptides.com/research/tirzepatide-and-retatrutide/
+</div>
+<main class="roji-research-main">
+<nav class="roji-research__crumbs" aria-label="Breadcrumb"><ol><li><a href="https://rojipeptides.com/">Home</a></li><li><a href="https://rojipeptides.com/research/">Research</a></li><li><span aria-current="page">Tirzepatide + Retatrutide</span></li></ol></nav>
+	<article class="roji-research roji-research--combo">
+		<header class="roji-research__header">
+			<span class="roji-research__category">GLP-1 / Incretin</span>
+			<h1 class="roji-research__title">Tirzepatide + Retatrutide</h1>
+			<p class="roji-research__lede">Tirzepatide (GIP/GLP-1 dual agonist) and Retatrutide (GIP/GLP-1/Glucagon triple agonist) are the two leading incretin-class molecules in current Phase II/III obesity trials and are routinely compared head-to-head in published research.</p>
+		</header>
+
+		<section class="roji-research__compounds-grid">
+			<h2>Compounds in this pairing</h2>
+			<div class="roji-research__cards">
+									<a class="roji-research__card" href="https://rojipeptides.com/research/retatrutide/">
+						<span class="roji-research__card-cat">GLP-1 / Incretin</span>
+						<span class="roji-research__card-name">Retatrutide</span>
+						<span class="roji-research__card-mw">~4731 g/mol</span>
+						<span class="roji-research__card-mech">Triple agonist at GIP, GLP-1, and glucagon receptors; glucagon-arm contributes additional energy-expenditure signaling.</span>
+					</a>
+									<a class="roji-research__card" href="https://rojipeptides.com/research/tirzepatide/">
+						<span class="roji-research__card-cat">GLP-1 / Incretin</span>
+						<span class="roji-research__card-name">Tirzepatide</span>
+						<span class="roji-research__card-mw">4813.50 g/mol</span>
+						<span class="roji-research__card-mech">Dual GIP and GLP-1 receptor agonist; albumin-binding fatty-acid extension provides once-weekly PK.</span>
+					</a>
+							</div>
+		</section>
+
+		<section class="roji-research__factsheet">
+			<h2>Side-by-side</h2>
+			<div class="roji-research__sxs-wrap">
+				<table class="roji-research__sxs">
+					<thead>
+						<tr>
+							<th>Property</th>
+															<th>Retatrutide</th>
+															<th>Tirzepatide</th>
+													</tr>
+					</thead>
+					<tbody>
+													<tr>
+								<th scope="row">Class</th>
+																	<td>GLP-1 / Incretin</td>
+																	<td>GLP-1 / Incretin</td>
+															</tr>
+													<tr>
+								<th scope="row">Sequence</th>
+																	<td>39-aa synthetic peptide; GIP-based backbone with C20 diacid lipidation</td>
+																	<td>39-aa synthetic peptide based on GIP backbone with C20 fatty diacid moiety</td>
+															</tr>
+													<tr>
+								<th scope="row">Molecular wt.</th>
+																	<td>~4731 g/mol</td>
+																	<td>4813.50 g/mol</td>
+															</tr>
+													<tr>
+								<th scope="row">Half-life</th>
+																	<td>~6 days (subcutaneous, Phase II human)</td>
+																	<td>~5 days (subcutaneous, human)</td>
+															</tr>
+													<tr>
+								<th scope="row">Routes studied</th>
+																	<td>Subcutaneous (Phase II/III obesity and T2DM trials)</td>
+																	<td>Subcutaneous (FDA-approved for T2DM and chronic weight management)</td>
+															</tr>
+													<tr>
+								<th scope="row">Mechanism</th>
+																	<td>Triple agonist at GIP, GLP-1, and glucagon receptors; glucagon-arm contributes additional energy-expenditure signaling.</td>
+																	<td>Dual GIP and GLP-1 receptor agonist; albumin-binding fatty-acid extension provides once-weekly PK.</td>
+															</tr>
+											</tbody>
+				</table>
+			</div>
+		</section>
+
+					<section class="roji-research__citations">
+				<h2>Selected literature</h2>
+				<ol>
+											<li>
+							<a href="https://pubmed.ncbi.nlm.nih.gov/37366315/" rel="noopener nofollow" target="_blank">Triple-Hormone-Receptor Agonist Retatrutide for Obesity — A Phase 2 Trial</a>
+															<span class="roji-research__cit-year">· 2023</span>
+													</li>
+											<li>
+							<a href="https://pubmed.ncbi.nlm.nih.gov/35658024/" rel="noopener nofollow" target="_blank">Tirzepatide once weekly for the treatment of obesity (SURMOUNT-1)</a>
+															<span class="roji-research__cit-year">· 2022</span>
+													</li>
+											<li>
+							<a href="https://pubmed.ncbi.nlm.nih.gov/34170647/" rel="noopener nofollow" target="_blank">Tirzepatide versus semaglutide once weekly in patients with type 2 diabetes (SURPASS-2)</a>
+															<span class="roji-research__cit-year">· 2021</span>
+													</li>
+									</ol>
+			</section>
+		
+			<aside class="roji-research__buy roji-research__buy--combo-mixed">
+		<div class="roji-research__buy-inner">
+			<div>
+				<span class="roji-research__buy-eyebrow">Source the compounds</span>
+				<p class="roji-research__buy-line">
+					We don't sell this exact pairing as a stack yet. Source each compound individually:
+				</p>
+				<ul class="roji-research__buy-list">
+											<li>
+							<strong>Retatrutide</strong> —
+															<a href="https://rojipeptides.com/research/retatrutide/">Not stocked — request it</a>
+													</li>
+											<li>
+							<strong>Tirzepatide</strong> —
+															<a href="https://rojipeptides.com/research/tirzepatide/">Not stocked — request it</a>
+													</li>
+									</ul>
+			</div>
+		</div>
+	</aside>
+			<aside class="roji-research__disclaimer"><strong>Research use only.</strong> All compounds described on this page are intended exclusively for laboratory and research use. Roji Peptides does not provide dosing recommendations, usage instructions, or any guidance on human application. Information is sourced from peer-reviewed literature for reference only and is not medical advice.</aside>	</article>
+
+	
+</main>
+</body></html>

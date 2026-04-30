@@ -35,7 +35,7 @@ The script:
 
 1. Loads `GOOGLE_ADS_CLIENT_ID` + `GOOGLE_ADS_CLIENT_SECRET` from `.env.local`.
 2. Prints an OAuth URL — open it in your browser.
-3. **YOU**: sign in with `tomasdaavid@gmail.com` (the account that owns the Ads customer `667-978-0942`) and grant the `adwords` scope.
+3. **YOU**: sign in with `tomasdaavid@gmail.com` (the account that owns the MCC `263-783-2527` and child account `657-303-2286`) and grant the `adwords` scope.
 4. Captures the redirect on `localhost:8765` and prints the refresh token.
 
 Paste the printed token into `roji-ads-dashboard/.env.local`:
@@ -86,11 +86,12 @@ You have a developer token (currently in **Test Account Access** mode), wired in
 **Account topology:**
 
 - Manager (MCC) account: **263-783-2527** (`GOOGLE_ADS_LOGIN_CUSTOMER_ID=2637832527`) — owns the developer token and authorizes calls
-- Operating account: **667-978-0942** (`GOOGLE_ADS_CUSTOMER_ID=6679780942`) — Roji Peptides, the actual ad account
+- Operating account: **657-303-2286** (`GOOGLE_ADS_CUSTOMER_ID=6573032286`) — "Roji Tools", the actual ad account
+  - Previously `667-978-0942` (EstudiantePro). Switched 2026-04-30 once the dedicated Roji Tools sub-account was created so billing and search-term data don't co-mingle.
 
-The operating account must be linked under the MCC. **YOU**: in the MCC, go to **Account access → Sub-accounts** and confirm `667-978-0942` is linked. If not, the API will return `USER_PERMISSION_DENIED` regardless of token state.
+The operating account must be linked under the MCC. **YOU**: in the MCC, go to **Account access → Sub-accounts** and confirm `657-303-2286` is linked. If not, the API will return `USER_PERMISSION_DENIED` regardless of token state.
 
-A test-mode token can only call the API against [Google Ads test accounts](https://developers.google.com/google-ads/api/docs/best-practices/test-accounts), not your production customer `667-978-0942`. To call your real account, **YOU** need to apply for **Basic Access** from the **MCC** (not the operating account):
+A test-mode token can only call the API against [Google Ads test accounts](https://developers.google.com/google-ads/api/docs/best-practices/test-accounts), not your production customer `657-303-2286`. To call your real account, **YOU** need to apply for **Basic Access** from the **MCC** (not the operating account):
 
 1. Go to <https://ads.google.com/aw/apicenter> (sign in with `tomasdaavid@gmail.com`).
 2. In the **Access level** section, click **Apply for Basic Access**.
@@ -193,7 +194,7 @@ Or use the exact records Vercel shows you.
    | `GOOGLE_ADS_CLIENT_SECRET` | rotated value from step 0 |
    | `GOOGLE_ADS_DEVELOPER_TOKEN` | once approved |
    | `GOOGLE_ADS_REFRESH_TOKEN` | from `get-refresh-token.js` |
-   | `GOOGLE_ADS_CUSTOMER_ID` | `6679780942` (operating account: Roji) |
+   | `GOOGLE_ADS_CUSTOMER_ID` | `6573032286` (operating account: Roji Tools) |
    | `GOOGLE_ADS_LOGIN_CUSTOMER_ID` | `2637832527` (manager / MCC) |
    | `ADMIN_USER` | a username you choose |
    | `ADMIN_PASS` | a long random password |

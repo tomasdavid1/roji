@@ -24,6 +24,38 @@ import "server-only";
 
 import { enums } from "google-ads-api";
 
+/**
+ * Format an error from google-ads-api into a useful string. The library
+ * throws plain objects (not Error instances) with an `errors` array of
+ * `{ error_code, message, location }` entries — naive `String(err)` on
+ * those returns "[object Object]" which is useless in operator logs.
+ */
+function fmtErr(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (err && typeof err === "object") {
+    const e = err as {
+      errors?: Array<{ message?: string; error_code?: unknown; location?: unknown }>;
+      message?: string;
+    };
+    if (Array.isArray(e.errors) && e.errors.length > 0) {
+      return e.errors
+        .map((sub) => {
+          const code = sub.error_code ? JSON.stringify(sub.error_code) : "";
+          const loc = sub.location ? ` @ ${JSON.stringify(sub.location)}` : "";
+          return `${sub.message ?? "Google Ads error"}${code ? ` [${code}]` : ""}${loc}`;
+        })
+        .join(" | ");
+    }
+    if (typeof e.message === "string") return e.message;
+    try {
+      return JSON.stringify(err);
+    } catch {
+      return String(err);
+    }
+  }
+  return String(err);
+}
+
 import {
   type BlueprintAdGroup,
   type BlueprintCampaign,
@@ -109,7 +141,7 @@ export async function provisionBlueprint(
       result.campaigns.push(summary);
     } catch (err) {
       result.warnings.push(
-        `[${c.name}] aborted: ${err instanceof Error ? err.message : String(err)}`,
+        `[${c.name}] aborted: ${fmtErr(err)}`,
       );
     }
   }
@@ -166,7 +198,7 @@ async function provisionCampaign(
         summary.negatives_added = added;
       } catch (err) {
         warnings.push(
-          `[${c.name}] negatives partial failure: ${err instanceof Error ? err.message : String(err)}`,
+          `[${c.name}] negatives partial failure: ${fmtErr(err)}`,
         );
       }
     }
@@ -184,7 +216,7 @@ async function provisionCampaign(
       summary.ad_groups.push(agSummary);
     } catch (err) {
       warnings.push(
-        `[${c.name} > ${g.name}] aborted: ${err instanceof Error ? err.message : String(err)}`,
+        `[${c.name} > ${g.name}] aborted: ${fmtErr(err)}`,
       );
     }
   }
@@ -225,22 +257,74 @@ async function provisionAdGroup(
     out.keywords_added = await addKeywords(out.ad_group_id, g.keywords);
   } catch (err) {
     warnings.push(
-      `[${g.name}] keywords partial failure: ${err instanceof Error ? err.message : String(err)}`,
+      `[${g.name}] keywords partial failure: ${fmtErr(err)}`,
     );
   }
 
+  // Idempotency for RSAs: dedup against existing ads in the group by
+  // matching on the first headline + first description signature. Without
+  // this, every re-provision adds another RSA and we hit Google's hard
+  // limit of 3 enabled RSAs per ad group after a few iterations.
+  const existingSigs = live
+    ? await findExistingRsaSignatures(out.ad_group_id)
+    : new Set<string>();
+
   for (const ad of g.ads) {
+    const sig = rsaSignature(ad);
+    if (live && existingSigs.has(sig)) {
+      // Already provisioned with identical first-headline + first-description.
+      // Skip to avoid duplicate. (We deliberately don't update existing RSAs
+      // — Google requires removing + recreating, which resets the ad's
+      // learning. Operators who want to refresh copy should use
+      // scripts/remove-ad.js then re-provision.)
+      continue;
+    }
     try {
       await createResponsiveSearchAd(out.ad_group_id, ad, g.finalUrl);
       out.ads_created += 1;
     } catch (err) {
-      warnings.push(
-        `[${g.name}] RSA failed: ${err instanceof Error ? err.message : String(err)}`,
-      );
+      warnings.push(`[${g.name}] RSA failed: ${fmtErr(err)}`);
     }
   }
 
   return out;
+}
+
+function rsaSignature(ad: BlueprintRSA): string {
+  const h = ad.headlines[0] ?? "";
+  const d = ad.descriptions[0] ?? "";
+  return `${h}|${d}`;
+}
+
+async function findExistingRsaSignatures(
+  adGroupId: string,
+): Promise<Set<string>> {
+  const cust = await getCustomer();
+  const rows = (await cust.query(
+    `SELECT
+       ad_group_ad.ad.responsive_search_ad.headlines,
+       ad_group_ad.ad.responsive_search_ad.descriptions
+     FROM ad_group_ad
+     WHERE ad_group_ad.status != 'REMOVED'
+       AND ad_group.id = ${adGroupId}`,
+  )) as Array<{
+    ad_group_ad?: {
+      ad?: {
+        responsive_search_ad?: {
+          headlines?: Array<{ text?: string }>;
+          descriptions?: Array<{ text?: string }>;
+        };
+      };
+    };
+  }>;
+  const sigs = new Set<string>();
+  for (const r of rows) {
+    const rsa = r.ad_group_ad?.ad?.responsive_search_ad;
+    const h = rsa?.headlines?.[0]?.text ?? "";
+    const d = rsa?.descriptions?.[0]?.text ?? "";
+    sigs.add(`${h}|${d}`);
+  }
+  return sigs;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -310,6 +394,11 @@ async function createCampaignShell(
       target_content_network: false,
       target_partner_search_network: false,
     },
+    // EU advertising compliance flag added by Google late 2025. Required
+    // on every CampaignOperation.create regardless of advertiser geo.
+    // We don't run political ads, so this is always false.
+    contains_eu_political_advertising:
+      enums.EuPoliticalAdvertisingStatus.DOES_NOT_CONTAIN_EU_POLITICAL_ADVERTISING,
   };
   if (bid === "MAXIMIZE_CLICKS") {
     campaignFields.target_spend = {};

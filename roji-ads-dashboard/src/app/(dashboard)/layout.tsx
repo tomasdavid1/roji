@@ -30,7 +30,7 @@ export default function DashboardLayout({
               Test mode
             </strong>
             Your developer token is enabled for Test Account Access only.
-            Production calls (e.g. customer 667-978-0942 via manager
+            Production calls (e.g. customer 657-303-2286 via manager
             263-783-2527) will fail until you apply for Basic Access from the
             manager account at{" "}
             <a

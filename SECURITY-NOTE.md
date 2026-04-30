@@ -6,7 +6,7 @@ During setup, the following credentials were shared in plain chat:
 
 - **Google OAuth Client ID** (not secret)
 - **Google OAuth Client Secret** (**SECRET — rotate**)
-- **Google Ads Customer ID**: `667-978-0942` (not secret)
+- **Google Ads Customer ID**: `657-303-2286` (not secret) — Roji Tools sub-account under MCC `263-783-2527`
 - **Google Ads Developer Token** (**SECRET — rotate**)
 - **Google Ads OAuth Refresh Token** (**SECRET — rotate**)
 

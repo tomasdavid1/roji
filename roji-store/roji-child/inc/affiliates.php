@@ -534,16 +534,46 @@ function roji_aff_handle_signup( $form ) {
 	update_post_meta( $affiliate_id, '_roji_aff_clicks', 0 );
 
 	// Notify admin.
-	wp_mail(
-		get_option( 'admin_email' ),
-		sprintf( '[%s] New affiliate application: %s', ROJI_BRAND_NAME, $display_name ),
-		"New affiliate application:\n\n"
-			. "Name:     {$display_name}\n"
-			. "Email:    {$email}\n"
-			. "Audience: {$audience}\n"
-			. "Code:     {$code}\n\n"
-			. "Approve in WP admin → Affiliates → Pending."
-	);
+	$admin_body = "New affiliate application:\n\n"
+		. "Name:     {$display_name}\n"
+		. "Email:    {$email}\n"
+		. "Audience: {$audience}\n"
+		. "Code:     {$code}\n\n"
+		. "Approve in WP admin → Affiliates → Pending.";
+	if ( function_exists( 'roji_wp_mail_plain' ) ) {
+		roji_wp_mail_plain( get_option( 'admin_email' ), sprintf( '[%s] New affiliate application: %s', ROJI_BRAND_NAME, $display_name ), $admin_body );
+	} else {
+		wp_mail( get_option( 'admin_email' ), sprintf( '[%s] New affiliate application: %s', ROJI_BRAND_NAME, $display_name ), $admin_body );
+	}
+
+	$dash_url = get_permalink( get_page_by_path( 'affiliate-dashboard' ) );
+	if ( ! $dash_url ) {
+		$dash_url = home_url( '/affiliate-dashboard/' );
+	}
+	$applicant_html  = '<p style="margin:0 0 14px;">Thanks for applying to the ' . esc_html( ROJI_BRAND_NAME ) . ' affiliate program.</p>';
+	$applicant_html .= '<p style="margin:0 0 14px;">We received your application and reserved referral code <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:4px;color:#4f6df5;font-family:JetBrains Mono,monospace;">' . esc_html( $code ) . '</code>.</p>';
+	$applicant_html .= '<p style="margin:0 0 14px;">Our team reviews partners by hand — watch your inbox for an approval message (typically within 48 hours).</p>';
+	$applicant_html .= '<p style="margin:0 0 14px;">After approval, your dashboard (stats, link, and payouts) lives here:<br><a href="' . esc_url( $dash_url ) . '" style="color:#4f6df5;">' . esc_html( $dash_url ) . '</a></p>';
+	if ( function_exists( 'roji_wp_mail_branded_html' ) ) {
+		roji_wp_mail_branded_html(
+			$email,
+			sprintf( '[%s] We received your affiliate application', ROJI_BRAND_NAME ),
+			'Application received',
+			$applicant_html
+		);
+	} elseif ( function_exists( 'roji_wp_mail_plain' ) ) {
+		roji_wp_mail_plain(
+			$email,
+			sprintf( '[%s] We received your affiliate application', ROJI_BRAND_NAME ),
+			wp_strip_all_tags( $applicant_html )
+		);
+	} else {
+		wp_mail(
+			$email,
+			sprintf( '[%s] We received your affiliate application', ROJI_BRAND_NAME ),
+			wp_strip_all_tags( $applicant_html )
+		);
+	}
 
 	return $affiliate_id;
 }
@@ -567,18 +597,55 @@ add_action(
 			return;
 		}
 		$ref_link = add_query_arg( 'ref', $code, home_url( '/' ) );
-		wp_mail(
-			$email,
-			sprintf( '[%s] You\'re approved! Here\'s your referral link', ROJI_BRAND_NAME ),
-			"Welcome to the " . ROJI_BRAND_NAME . " affiliate program.\n\n"
-				. "Your referral code: {$code}\n"
-				. "Your referral link: {$ref_link}\n\n"
-				. "You'll start earning " . ROJI_AFF_TIER_DEFAULT_PCT . "% on every sale that comes through your link.\n"
-				. "After \$" . number_format( ROJI_AFF_TIER_2_THRESHOLD ) . " in lifetime referrals you bump to " . ROJI_AFF_TIER_2_PCT . "%, then "
-				. ROJI_AFF_TIER_3_PCT . "% after \$" . number_format( ROJI_AFF_TIER_3_THRESHOLD ) . ".\n\n"
-				. "Subscription renewals also pay (at " . ROJI_AFF_RENEWAL_PCT_OF_TIER . "% of your tier rate).\n\n"
-				. "Track your performance by replying to this email any time — we'll add a self-serve dashboard soon."
-		);
+		$dash_url = get_permalink( get_page_by_path( 'affiliate-dashboard' ) );
+		if ( ! $dash_url ) {
+			$dash_url = home_url( '/affiliate-dashboard/' );
+		}
+		$tier_default = (int) ROJI_AFF_TIER_DEFAULT_PCT;
+		$tier_2_pct   = (int) ROJI_AFF_TIER_2_PCT;
+		$tier_3_pct   = (int) ROJI_AFF_TIER_3_PCT;
+		$tier_2_thr   = number_format( (float) ROJI_AFF_TIER_2_THRESHOLD );
+		$tier_3_thr   = number_format( (float) ROJI_AFF_TIER_3_THRESHOLD );
+		$renewal_pct  = (int) ROJI_AFF_RENEWAL_PCT_OF_TIER;
+
+		$html  = '<p style="margin:0 0 14px;">Welcome to the ' . esc_html( ROJI_BRAND_NAME ) . ' affiliate program — you\'re approved.</p>';
+		$html .= '<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:18px 0;border-collapse:collapse;background:#111118;border:1px solid rgba(255,255,255,0.06);border-radius:8px;">';
+		$html .= '<tr><td style="padding:18px 20px;">';
+		$html .= '<div style="font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:#55556a;margin-bottom:6px;">Referral code</div>';
+		$html .= '<div style="font-family:JetBrains Mono,monospace;font-size:18px;color:#4f6df5;margin-bottom:14px;">' . esc_html( $code ) . '</div>';
+		$html .= '<div style="font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:#55556a;margin-bottom:6px;">Share link</div>';
+		$html .= '<div style="font-family:JetBrains Mono,monospace;font-size:13px;color:#f0f0f5;word-break:break-all;">' . esc_html( $ref_link ) . '</div>';
+		$html .= '</td></tr></table>';
+		$html .= '<p style="margin:0 0 12px;font-weight:600;color:#f0f0f5;">Your tier ladder</p>';
+		$html .= '<ul style="margin:0 0 18px;padding-left:18px;color:#c8c8d0;">';
+		$html .= '<li>Starter — ' . esc_html( $tier_default ) . '% on every sale (from day one)</li>';
+		$html .= '<li>Producer — ' . esc_html( $tier_2_pct ) . '% after $' . esc_html( $tier_2_thr ) . ' in lifetime referrals</li>';
+		$html .= '<li>Partner — ' . esc_html( $tier_3_pct ) . '% after $' . esc_html( $tier_3_thr ) . ' in lifetime referrals</li>';
+		$html .= '<li>Subscription renewals pay ' . esc_html( $renewal_pct ) . '% of your tier rate, on every charge</li>';
+		$html .= '</ul>';
+		$html .= '<p style="margin:0 0 14px;"><a href="' . esc_url( $dash_url ) . '" style="display:inline-block;background:#4f6df5;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:600;">Open your dashboard →</a></p>';
+		$html .= '<p style="margin:0;color:#8a8a9a;font-size:13px;">Commissions lock for 30 days against refunds, then become payable. Payouts via PayPal or Wise.</p>';
+
+		if ( function_exists( 'roji_wp_mail_branded_html' ) ) {
+			roji_wp_mail_branded_html(
+				$email,
+				sprintf( '[%s] You\'re approved! Here\'s your referral link', ROJI_BRAND_NAME ),
+				'You\'re approved',
+				$html
+			);
+		} elseif ( function_exists( 'roji_wp_mail_plain' ) ) {
+			roji_wp_mail_plain(
+				$email,
+				sprintf( '[%s] You\'re approved! Here\'s your referral link', ROJI_BRAND_NAME ),
+				wp_strip_all_tags( $html )
+			);
+		} else {
+			wp_mail(
+				$email,
+				sprintf( '[%s] You\'re approved! Here\'s your referral link', ROJI_BRAND_NAME ),
+				wp_strip_all_tags( $html )
+			);
+		}
 	},
 	10,
 	3

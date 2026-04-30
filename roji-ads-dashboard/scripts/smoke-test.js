@@ -54,7 +54,7 @@ function explain(err) {
     return [
       "EXPECTED FAILURE: developer token is in TEST mode.",
       "  - Auth (client id/secret/refresh token) WORKED.",
-      "  - To call against the real account 6679780942, apply for Basic Access:",
+      "  - To call against the real account 6573032286, apply for Basic Access:",
       "    https://ads.google.com/aw/apicenter (from inside the MCC 263-783-2527).",
       "  - To verify wiring NOW, create a Google Ads test account and use its ID:",
       "    https://ads.google.com/intl/en/aw/anon/SignupTestAccount",
@@ -63,7 +63,7 @@ function explain(err) {
   if (/USER_PERMISSION_DENIED|CUSTOMER_NOT_ENABLED|NOT_AUTHORIZED/i.test(msg)) {
     return [
       "PERMISSION ERROR: the authenticated Google account cannot access " + customerId + ".",
-      "  - Confirm 6679780942 is linked under MCC 2637832527.",
+      "  - Confirm 6573032286 is linked under MCC 2637832527.",
       "    Go to ads.google.com → switch into the MCC → Tools → Account access → Sub-accounts.",
       "  - Confirm GOOGLE_ADS_LOGIN_CUSTOMER_ID is set (currently: " + (loginCustomerId || "NOT SET") + ").",
     ].join("\n");

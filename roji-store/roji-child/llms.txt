@@ -11,7 +11,16 @@
 
 ## Research Resources
 
-- [Research Library](https://rojipeptides.com/research-library/): Compound profiles with PubMed citations
+- [Research Library Index](https://rojipeptides.com/research/): Compound + combination profiles (24 compounds, 16 pairings) with chemistry, half-life, mechanism, and PubMed citations
+- [BPC-157](https://rojipeptides.com/research/bpc-157/): Pentadecapeptide research profile
+- [TB-500](https://rojipeptides.com/research/tb-500/): Thymosin β-4 fragment research profile
+- [CJC-1295](https://rojipeptides.com/research/cjc-1295/): GHRH analog research profile
+- [Ipamorelin](https://rojipeptides.com/research/ipamorelin/): Selective GHS-R1a agonist research profile
+- [MK-677](https://rojipeptides.com/research/mk-677/): Oral ghrelin agonist research profile
+- [Tirzepatide](https://rojipeptides.com/research/tirzepatide/): Dual GIP/GLP-1 agonist research profile
+- [Retatrutide](https://rojipeptides.com/research/retatrutide/): Triple GIP/GLP-1/Glucagon agonist research profile
+- [BPC-157 + TB-500](https://rojipeptides.com/research/bpc-157-and-tb-500/): Tissue-repair research pairing
+- [CJC-1295 + Ipamorelin + MK-677](https://rojipeptides.com/research/cjc-1295-and-ipamorelin-and-mk-677/): GH-axis research stack
 - [Certificate of Analysis Library](https://rojipeptides.com/coa/): Third-party COAs for all products
 - [FAQ](https://rojipeptides.com/faq/): Frequently asked questions about peptide research
 

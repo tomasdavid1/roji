@@ -23,11 +23,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">
 			<tr>
 				<td align="center" valign="top">
-					<div id="template_header_image">
+					<div id="template_header_image" style="padding:24px 0 18px;">
 						<?php
-						$img = get_option( 'woocommerce_email_header_image' );
+						$brand   = defined( 'ROJI_BRAND_NAME' ) ? ROJI_BRAND_NAME : get_bloginfo( 'name', 'display' );
+						$home    = home_url( '/' );
+						$img     = get_option( 'woocommerce_email_header_image' );
 						if ( $img ) {
-							echo '<p style="margin-top:0;"><img src="' . esc_url( $img ) . '" alt="' . esc_attr( get_bloginfo( 'name', 'display' ) ) . '" style="max-height:48px;" /></p>';
+							echo '<p style="margin:0;"><a href="' . esc_url( $home ) . '" style="display:inline-block;text-decoration:none;"><img src="' . esc_url( $img ) . '" alt="' . esc_attr( $brand ) . '" style="max-height:48px;border:0;outline:none;text-decoration:none;" /></a></p>';
+						} else {
+							// Pure-CSS wordmark fallback so emails always carry the Roji
+							// lockup even when no logo image has been uploaded in WC.
+							echo '<a href="' . esc_url( $home ) . '" style="display:inline-block;text-decoration:none;color:#f0f0f5;">'
+								. '<span style="font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;font-size:30px;font-weight:700;letter-spacing:-0.04em;color:#f0f0f5;">roji</span>'
+								. '<span style="display:block;font-family:Inter,sans-serif;font-size:9px;letter-spacing:0.18em;color:#8a8a9a;text-transform:uppercase;margin-top:2px;">research peptides</span>'
+								. '</a>';
 						}
 						?>
 					</div>

@@ -348,19 +348,31 @@ function roji_aff_email_payouts( $comm_ids, $reference ) {
 		if ( ! is_email( $email ) ) {
 			continue;
 		}
-		$post = get_post( $aff_id );
-		$body = "Hi" . ( $post ? ' ' . $post->post_title : '' ) . ",\n\n"
-			. "We just paid out " . $info['count'] . " commission" . ( $info['count'] === 1 ? '' : 's' )
-			. ", totalling $" . number_format( $info['total'], 2 ) . ".\n";
+		$post  = get_post( $aff_id );
+		$first = $post ? $post->post_title : '';
+		$total = number_format( (float) $info['total'], 2 );
+		$count = (int) $info['count'];
+		$dash  = get_permalink( get_page_by_path( ROJI_AFF_DASH_SLUG ) );
+		$subj  = sprintf( '[%s] Commission payout sent — $%s', ROJI_BRAND_NAME, $total );
+
+		$html  = '<p style="margin:0 0 14px;">Hi ' . esc_html( $first ?: 'there' ) . ',</p>';
+		$html .= '<p style="margin:0 0 14px;">We just paid out <strong>' . $count . '</strong> commission' . ( $count === 1 ? '' : 's' ) . ', totaling:</p>';
+		$html .= '<div style="font-family:JetBrains Mono,monospace;font-size:28px;color:#4ade80;margin:0 0 18px;">$' . esc_html( $total ) . '</div>';
 		if ( $reference !== '' ) {
-			$body .= "Payment reference: {$reference}\n";
+			$html .= '<p style="margin:0 0 14px;color:#8a8a9a;font-size:13px;">Payment reference: <code style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:4px;">' . esc_html( $reference ) . '</code></p>';
 		}
-		$dash = get_permalink( get_page_by_path( ROJI_AFF_DASH_SLUG ) );
 		if ( $dash ) {
-			$body .= "\nView details in your affiliate dashboard: {$dash}\n";
+			$html .= '<p style="margin:18px 0;"><a href="' . esc_url( $dash ) . '" style="display:inline-block;background:#4f6df5;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:600;">View commission details →</a></p>';
 		}
-		$body .= "\nThanks for sending people our way.\n— " . ROJI_BRAND_NAME;
-		wp_mail( $email, sprintf( '[%s] Commission payout sent — $%s', ROJI_BRAND_NAME, number_format( $info['total'], 2 ) ), $body );
+		$html .= '<p style="margin:0;color:#c8c8d0;font-size:14px;">Thanks for sending people our way.</p>';
+
+		if ( function_exists( 'roji_wp_mail_branded_html' ) ) {
+			roji_wp_mail_branded_html( $email, $subj, 'Payout sent', $html );
+		} elseif ( function_exists( 'roji_wp_mail_plain' ) ) {
+			roji_wp_mail_plain( $email, $subj, wp_strip_all_tags( $html ) );
+		} else {
+			wp_mail( $email, $subj, wp_strip_all_tags( $html ) );
+		}
 	}
 }
 

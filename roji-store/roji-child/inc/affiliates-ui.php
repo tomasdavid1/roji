@@ -205,11 +205,31 @@ function roji_aff_send_login_link( $email ) {
 	$token  = roji_aff_make_token( $aff_id, HOUR_IN_SECONDS );
 	$link   = add_query_arg( 'roji_aff_token', $token, get_permalink( get_page_by_path( ROJI_AFF_DASH_SLUG ) ) ?: home_url( '/' . ROJI_AFF_DASH_SLUG . '/' ) );
 
-	wp_mail(
-		$email,
-		sprintf( '[%s] Your affiliate dashboard sign-in link', ROJI_BRAND_NAME ),
-		"Click to sign in (link expires in 60 minutes):\n\n{$link}\n\nIf you didn't request this, ignore this message.\n\n— " . ROJI_BRAND_NAME
-	);
+	$html  = '<p style="margin:0 0 14px;">Click the button below to sign in to your affiliate dashboard. The link expires in 60 minutes and can only be used once.</p>';
+	$html .= '<p style="margin:18px 0;"><a href="' . esc_url( $link ) . '" style="display:inline-block;background:#4f6df5;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:600;">Sign in to dashboard →</a></p>';
+	$html .= '<p style="margin:0 0 14px;font-size:13px;color:#8a8a9a;">Or paste this link into your browser:<br><span style="word-break:break-all;color:#c8c8d0;">' . esc_html( $link ) . '</span></p>';
+	$html .= '<p style="margin:0;font-size:13px;color:#8a8a9a;">If you didn\'t request this, you can safely ignore this message — no one can sign in without the link above.</p>';
+
+	if ( function_exists( 'roji_wp_mail_branded_html' ) ) {
+		roji_wp_mail_branded_html(
+			$email,
+			sprintf( '[%s] Your affiliate dashboard sign-in link', ROJI_BRAND_NAME ),
+			'Sign in to your dashboard',
+			$html
+		);
+	} elseif ( function_exists( 'roji_wp_mail_plain' ) ) {
+		roji_wp_mail_plain(
+			$email,
+			sprintf( '[%s] Your affiliate dashboard sign-in link', ROJI_BRAND_NAME ),
+			"Click to sign in (link expires in 60 minutes):\n\n{$link}\n\nIf you didn't request this, ignore this message.\n\n— " . ROJI_BRAND_NAME
+		);
+	} else {
+		wp_mail(
+			$email,
+			sprintf( '[%s] Your affiliate dashboard sign-in link', ROJI_BRAND_NAME ),
+			"Click to sign in (link expires in 60 minutes):\n\n{$link}\n\nIf you didn't request this, ignore this message.\n\n— " . ROJI_BRAND_NAME
+		);
+	}
 	return true;
 }
 

@@ -191,6 +191,8 @@ function biohackerAdGroup(finalUrl: string): BlueprintAdGroup {
       "fitness research tools",
     ].map((text) => ({ text, match: "PHRASE" as KeywordMatchType, risk: "low" as const })),
     ads: [
+      // RSA #1 — "biohacker community / evidence-based" angle.
+      // Tone: belonging, scientific credibility.
       {
         headlines: [
           "Biohacker Research Tools",
@@ -210,10 +212,39 @@ function biohackerAdGroup(finalUrl: string): BlueprintAdGroup {
           "Start Building — Free",
         ],
         descriptions: [
-          "Advanced research tools for biohackers. Input your stats and goals. Get a personalized, evidence-based framework.",
-          "Join the biohacking community using data-driven research tools. Free. Personalized. Evidence-based. Start now.",
-          "Build calibrated optimization frameworks in 60 seconds. Published references included. No signup required.",
-          "Stop guessing. Use Roji Research Tools to build personalized research frameworks. Free, no signup.",
+          "Free research tools built for biohackers. Input your stats, get a personalized framework.",
+          "Skip the spreadsheets. Roji generates evidence-based frameworks in 60 seconds.",
+          "Used by 500+ biohackers to plan recomp, recovery, and performance. Free, referenced, fast.",
+          "Stop guessing recovery windows and recomp math. Calculate it. Free tools, no signup.",
+        ],
+      },
+      // RSA #2 — "productivity / replace spreadsheets" angle.
+      // Tone: practical, time-saving, anti-spreadsheet. Distinct narrative
+      // so Google's RSA optimizer can A/B against RSA #1 on a fundamentally
+      // different value prop.
+      {
+        headlines: [
+          "Stop Spreadsheet Hell",
+          "Replace Your Spreadsheet",
+          "60-Second Research Math",
+          "Calculate, Don't Guess",
+          "Free Optimization Math",
+          "Skip The Spreadsheet",
+          "Roji Research Tools",
+          "Built For Researchers",
+          "Personalized In 60s",
+          "Free Calculator Suite",
+          "Smart Math Tools",
+          "Calibrated, Not Guessed",
+          "Your Stats → Framework",
+          "Recomp Math Made Easy",
+          "Tools That Just Work",
+        ],
+        descriptions: [
+          "Replace your messy spreadsheets with calibrated calculators. Browser-based. Free.",
+          "Input your stats and goals. Roji handles the math. Done in under 60 seconds.",
+          "What used to take 2 hours of forum-hunting now takes 60 seconds. All referenced.",
+          "Built by researchers tired of bad spreadsheets. Free, referenced, no account needed.",
         ],
       },
     ],
@@ -271,10 +302,10 @@ function calculatorIntentAdGroup(finalUrl: string): BlueprintAdGroup {
           "Start Building — Free",
         ],
         descriptions: [
-          "Input your research parameters. Get a personalized, evidence-based research framework in 60 seconds. Free.",
-          "Comprehensive research calculator with published literature references. No account needed. Start now.",
-          "Built by researchers for researchers. Personalized compound research frameworks based on your parameters.",
-          "Join 500+ researchers using our free research tools. Fast, evidence-based, referenced. Try it now.",
+          "Free research calculator. Input parameters, get a calibrated framework in 60 seconds.",
+          "Every output cites the published literature it's built on. No account, no email gate.",
+          "Built by researchers, for researchers. Personalized frameworks, not generic templates.",
+          "Trusted by 500+ in the research community. Save hours of spreadsheet math. Try it free.",
         ],
       },
       {
@@ -296,10 +327,10 @@ function calculatorIntentAdGroup(finalUrl: string): BlueprintAdGroup {
           "Smart Research Tools",
         ],
         descriptions: [
-          "Input your parameters and objectives. Our research tools generate a calibrated framework with literature references.",
-          "Free research calculator. Personalized compound stacks and phase-planning frameworks. Start in seconds.",
-          "Precision matters in research. Our research tools help you build frameworks backed by published data. Free.",
-          "Stop guessing. Use Roji Research Tools to build evidence-based compound frameworks. Free, no signup.",
+          "Free framework calculator. Input your goals, get a calibrated phase-by-phase plan.",
+          "Every framework is referenced to published research. For serious researchers, not bros.",
+          "Personalized output, not a one-size-fits-all template. 60 seconds from input to framework.",
+          "Replace your messy spreadsheets with one calibrated tool. Free, browser-based, no account.",
         ],
       },
       {
@@ -321,10 +352,10 @@ function calculatorIntentAdGroup(finalUrl: string): BlueprintAdGroup {
           "No Guesswork Needed",
         ],
         descriptions: [
-          "Advanced research calculator that generates personalized frameworks. Based on published literature. Free.",
-          "Tell us your research goals and parameters. Get a custom framework with compound selection and timing. Free tool.",
-          "Our research suite has generated 1,000+ frameworks. Personalized, referenced, free. Try it.",
-          "Why guess when you can calculate? Our research tools use published data to build precise frameworks. Free.",
+          "Generate a custom research framework in 60 seconds. Personalized, fully referenced.",
+          "Tell Roji your goals and parameters. We pick the right phase structure and timing for you.",
+          "Over 1,000 frameworks generated by the research community. Free, referenced, no account.",
+          "Why guess when you can calculate? Roji turns published research into precise frameworks.",
         ],
       },
     ],
@@ -360,8 +391,10 @@ function brandAdGroup(storeUrl: string): BlueprintAdGroup {
           "Roji Peptides Official",
         ],
         descriptions: [
-          "The official Roji research tools. Build personalized research frameworks in 60 seconds. Free, evidence-based.",
-          "Roji Peptides — premium research compound stacks with third-party COA verification. Research-driven.",
+          "Official Roji research tools. Build personalized, evidence-based frameworks in 60 seconds.",
+          "Roji — premium research compound stacks with third-party COA verification on every batch.",
+          "Free research calculators trusted by 500+ in the research community. No account required.",
+          "The Roji research suite: framework builders, dose-cost math, recomp planners. All free.",
         ],
       },
     ],
@@ -480,6 +513,21 @@ export interface ValidationIssue {
  * contains a flagged term — and we want a yellow flag for soft-warning
  * patterns ("protocol", "stack", "cycle") so future drift is visible.
  */
+/**
+ * Google Ads RSA character limits (hard-rejected at API time if exceeded):
+ *   - headlines:    max 30
+ *   - descriptions: max 90
+ *   - keywords:     max 80
+ *   - path1/path2:  max 15 (not currently used by us)
+ *
+ * We validate at blueprint-resolution time so a regression in copy can't
+ * silently break provisioning. The check is "error" severity because the
+ * API will refuse the create call with TOO_LONG; warnings would be a lie.
+ */
+const RSA_HEADLINE_MAX = 30;
+const RSA_DESCRIPTION_MAX = 90;
+const KEYWORD_MAX = 80;
+
 export function validateBlueprint(b: ResolvedBlueprint): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   for (const c of b.campaigns) {
@@ -487,17 +535,64 @@ export function validateBlueprint(b: ResolvedBlueprint): ValidationIssue[] {
       g.ads.forEach((ad, idx) => {
         ad.headlines.forEach((h, hi) => {
           pushIssues(issues, h, c.name, g, `ad${idx}.headline${hi}`);
+          pushLengthIssue(
+            issues,
+            h,
+            c.name,
+            g,
+            `ad${idx}.headline${hi}`,
+            RSA_HEADLINE_MAX,
+            "Headline",
+          );
         });
         ad.descriptions.forEach((d, di) => {
           pushIssues(issues, d, c.name, g, `ad${idx}.description${di}`);
+          pushLengthIssue(
+            issues,
+            d,
+            c.name,
+            g,
+            `ad${idx}.description${di}`,
+            RSA_DESCRIPTION_MAX,
+            "Description",
+          );
         });
       });
       g.keywords.forEach((k, ki) => {
         pushIssues(issues, k.text, c.name, g, `keyword[${ki}]`);
+        pushLengthIssue(
+          issues,
+          k.text,
+          c.name,
+          g,
+          `keyword[${ki}]`,
+          KEYWORD_MAX,
+          "Keyword",
+        );
       });
     }
   }
   return issues;
+}
+
+function pushLengthIssue(
+  issues: ValidationIssue[],
+  text: string,
+  campaign: string,
+  g: BlueprintAdGroup,
+  field: string,
+  max: number,
+  label: string,
+) {
+  if (text.length <= max) return;
+  issues.push({
+    severity: "error",
+    campaign,
+    adGroup: g.name,
+    field,
+    text,
+    reason: `${label} exceeds Google Ads limit of ${max} characters (current: ${text.length}).`,
+  });
 }
 
 function pushIssues(

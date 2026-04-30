@@ -89,6 +89,15 @@ if ( ! defined( 'ROJI_GA4_ID' ) ) {
 if ( ! defined( 'ROJI_BRAND_NAME' ) ) {
 	define( 'ROJI_BRAND_NAME', 'Roji Peptides' );
 }
+// Optional: set in wp-config.php so WooCommerce + wp_mail() “From” match
+// your operational inbox (defaults to admin_email).
+if ( ! defined( 'ROJI_TRANSACTIONAL_FROM_EMAIL' ) ) {
+	define( 'ROJI_TRANSACTIONAL_FROM_EMAIL', '' );
+}
+// Temporary launch flag: hide public login/register until members section is ready.
+if ( ! defined( 'ROJI_MEMBERS_AUTH_UNDER_CONSTRUCTION' ) ) {
+	define( 'ROJI_MEMBERS_AUTH_UNDER_CONSTRUCTION', true );
+}
 if ( ! defined( 'ROJI_BILLING_DESCRIPTOR' ) ) {
 	define( 'ROJI_BILLING_DESCRIPTOR', 'ROJI RESEARCH' );
 }

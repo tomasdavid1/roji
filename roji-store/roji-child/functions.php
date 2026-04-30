@@ -11,16 +11,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ROJI_CHILD_VERSION', '1.5.2' );
+define( 'ROJI_CHILD_VERSION', '1.7.0' );
 define( 'ROJI_CHILD_DIR', get_stylesheet_directory() );
 define( 'ROJI_CHILD_URI', get_stylesheet_directory_uri() );
 
 require_once ROJI_CHILD_DIR . '/inc/config.php';
+require_once ROJI_CHILD_DIR . '/inc/emails.php';
 require_once ROJI_CHILD_DIR . '/inc/enqueue.php';
 require_once ROJI_CHILD_DIR . '/inc/branding.php';
 require_once ROJI_CHILD_DIR . '/inc/seo.php';
+require_once ROJI_CHILD_DIR . '/inc/seo-merchant.php';
 require_once ROJI_CHILD_DIR . '/inc/disclaimers.php';
 require_once ROJI_CHILD_DIR . '/inc/woocommerce.php';
+require_once ROJI_CHILD_DIR . '/inc/members-account.php';
 require_once ROJI_CHILD_DIR . '/inc/header-cart.php';
 require_once ROJI_CHILD_DIR . '/inc/mobile-nav.php';
 require_once ROJI_CHILD_DIR . '/inc/checkout-country-lock.php';
@@ -38,3 +41,5 @@ require_once ROJI_CHILD_DIR . '/inc/affiliates-admin.php';
 require_once ROJI_CHILD_DIR . '/inc/cart-upsell.php';
 require_once ROJI_CHILD_DIR . '/inc/gateway-reserve-order.php';
 require_once ROJI_CHILD_DIR . '/inc/llms-txt.php';
+require_once ROJI_CHILD_DIR . '/inc/research-compounds.php';
+require_once ROJI_CHILD_DIR . '/inc/research-pages.php';

@@ -81,13 +81,34 @@ function roji_render_mobile_nav() {
 	}
 
 	$items = roji_mobile_nav_items();
-	if ( empty( $items ) ) {
-		return;
-	}
 
 	$cart_html = function_exists( 'roji_header_cart_link_html' )
 		? roji_header_cart_link_html( false )
 		: '';
+
+	$account_html = '';
+	if ( function_exists( 'wc_get_page_permalink' ) ) {
+		$hide_account = function_exists( 'roji_members_auth_under_construction' ) && roji_members_auth_under_construction() && ! is_user_logged_in();
+		if ( $hide_account ) {
+			$acct_url = '';
+		} else {
+		$acct_url = wc_get_page_permalink( 'myaccount' );
+		}
+		if ( $acct_url ) {
+			$acct_label = is_user_logged_in() ? __( 'Account', 'roji-child' ) : __( 'Log in', 'roji-child' );
+			$acct_here  = function_exists( 'is_account_page' ) && is_account_page();
+			$account_html = '<li class="roji-mnav-item roji-mnav-item--account">'
+				. '<a class="roji-mnav-link' . ( $acct_here ? ' is-current' : '' ) . '" href="' . esc_url( $acct_url ) . '" data-roji-mnav-close-link>'
+				. '<span>' . esc_html( $acct_label ) . '</span>'
+				. '<svg class="roji-mnav-link__chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
+				. '<polyline points="9 18 15 12 9 6"></polyline>'
+				. '</svg></a></li>';
+		}
+	}
+
+	if ( empty( $items ) && ! $cart_html && ! $account_html ) {
+		return;
+	}
 	?>
 	<button
 		type="button"
@@ -147,6 +168,13 @@ function roji_render_mobile_nav() {
 							</a>
 						</li>
 					<?php endforeach; ?>
+
+					<?php
+					if ( $account_html ) {
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built with esc_url/esc_html above.
+						echo $account_html;
+					}
+					?>
 
 					<?php if ( $cart_html ) : ?>
 						<li class="roji-mnav-item roji-mnav-item--cart">

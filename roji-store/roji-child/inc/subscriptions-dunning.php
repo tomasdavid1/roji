@@ -136,10 +136,29 @@ function roji_subs_send_dunning_email( $sub_id, $attempt ) {
 	$body .= $update_url . "\n\n";
 	$body .= "If you've already fixed this, you can ignore this message.\n\n— " . ROJI_BRAND_NAME;
 
-	wp_mail( $customer_email, $subject, $body );
+	$heading = $is_final ? 'Subscription paused' : 'Action needed: payment failed';
+	$lede    = $is_final
+		? '<p style="margin:0 0 14px;">We tried to charge your card a few times and it didn\'t go through. To avoid interrupting your protocol, please update your payment method:</p>'
+		: '<p style="margin:0 0 14px;">Quick heads up — your last subscription renewal payment didn\'t go through. We\'ll automatically retry, but you can fix it now in 30 seconds:</p>';
+	$html  = $lede;
+	$html .= '<p style="margin:18px 0;"><a href="' . esc_url( $update_url ) . '" style="display:inline-block;background:#4f6df5;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:600;">Update payment method →</a></p>';
+	$html .= '<p style="margin:0 0 14px;font-size:13px;color:#8a8a9a;">If you\'ve already fixed this, you can ignore this message.</p>';
+
+	if ( function_exists( 'roji_wp_mail_branded_html' ) ) {
+		roji_wp_mail_branded_html( $customer_email, $subject, $heading, $html );
+	} elseif ( function_exists( 'roji_wp_mail_plain' ) ) {
+		roji_wp_mail_plain( $customer_email, $subject, $body );
+	} else {
+		wp_mail( $customer_email, $subject, $body );
+	}
 
 	if ( $is_final ) {
-		wp_mail( get_option( 'admin_email' ), '[Roji] Subscription paused (dunning exhausted)', "Subscription #{$sub_id} moved to on-hold after exhausting retries." );
+		$admin_note = "Subscription #{$sub_id} moved to on-hold after exhausting retries.";
+		if ( function_exists( 'roji_wp_mail_plain' ) ) {
+			roji_wp_mail_plain( get_option( 'admin_email' ), '[Roji] Subscription paused (dunning exhausted)', $admin_note );
+		} else {
+			wp_mail( get_option( 'admin_email' ), '[Roji] Subscription paused (dunning exhausted)', $admin_note );
+		}
 	}
 }
 

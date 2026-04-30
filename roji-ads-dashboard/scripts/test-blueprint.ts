@@ -216,7 +216,7 @@ function statsSection() {
     eq("tool-only: 1 campaign", s.campaigns, 1);
     eq("tool-only: 1 ad group", s.adGroups, 1);
     eq("tool-only: 15 keywords", s.keywords, 15);
-    eq("tool-only: 1 RSA", s.ads, 1);
+    eq("tool-only: 2 RSAs", s.ads, 2);
     eq("tool-only: 39 negatives", s.negatives, 39);
     eq("tool-only: $30/day", s.totalDailyBudgetUsd, 30);
   }
@@ -225,7 +225,7 @@ function statsSection() {
     eq("full: 2 campaigns", s.campaigns, 2);
     eq("full: 3 ad groups", s.adGroups, 3);
     eq("full: 37 keywords", s.keywords, 37);
-    eq("full: 5 RSAs", s.ads, 5);
+    eq("full: 6 RSAs", s.ads, 6);
     eq("full: $47/day", s.totalDailyBudgetUsd, 47);
   }
 }

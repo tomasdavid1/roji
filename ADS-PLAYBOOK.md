@@ -68,7 +68,7 @@ Thank-you page                                            [purchase event + GAds
 Set on Vercel (project: `roji-tools`):
 
 ```
-NEXT_PUBLIC_GADS_ID=AW-XXXXXXXXXX
+NEXT_PUBLIC_GADS_ID=AW-18130000394
 NEXT_PUBLIC_GA4_ID=G-XXXXXXXXXX
 NEXT_PUBLIC_GTAG_LINKER_DOMAINS=rojipeptides.com,tools.rojipeptides.com
 ```
@@ -92,9 +92,9 @@ No conversion labels are needed on the tools side — `tools.rojipeptides.com` d
 Set in `wp-config.php` on Kinsta:
 
 ```php
-define( 'ROJI_GADS_ID', 'AW-XXXXXXXXXX' );
-define( 'ROJI_GADS_PURCHASE_LABEL', 'aBcDeF1GhIjKlMnO' );          // required to fire purchase conversion
-define( 'ROJI_GADS_ADD_TO_CART_LABEL', 'aBcDeF1GhIjKlMnO' );       // optional, secondary signal
+define( 'ROJI_GADS_ID', 'AW-18130000394' );
+define( 'ROJI_GADS_PURCHASE_LABEL', '5UzRCPbFlqUcEIq0h8VD' );      // required to fire purchase conversion
+define( 'ROJI_GADS_ADD_TO_CART_LABEL', 'zMB-CJPUlqUcEIq0h8VD' );   // optional, secondary signal
 define( 'ROJI_GA4_ID', 'G-XXXXXXXXXX' );
 // Override only when testing non-prod cross-subdomain pairs:
 // define( 'ROJI_GTAG_LINKER_DOMAINS', array( 'staging.rojipeptides.com', 'tools-staging.rojipeptides.com' ) );
@@ -123,11 +123,13 @@ GOOGLE_ADS_DEVELOPER_TOKEN=...                    # Explorer Access — got it
 GOOGLE_ADS_CLIENT_ID=...
 GOOGLE_ADS_CLIENT_SECRET=...
 GOOGLE_ADS_REFRESH_TOKEN=...                      # via scripts/get-refresh-token.js
-GOOGLE_ADS_CUSTOMER_ID=1234567890                 # operating account, no dashes
-GOOGLE_ADS_LOGIN_CUSTOMER_ID=1234567890           # MCC, no dashes (recommended)
+GOOGLE_ADS_CUSTOMER_ID=6573032286                 # Roji Tools (657-303-2286), no dashes
+GOOGLE_ADS_LOGIN_CUSTOMER_ID=2637832527           # MCC (263-783-2527), no dashes
 
 # Client-side (display + tracking-page checks only)
-NEXT_PUBLIC_GADS_ID=AW-XXXXXXXXXX
+NEXT_PUBLIC_GADS_ID=AW-18130000394
+NEXT_PUBLIC_GADS_PURCHASE_LABEL=5UzRCPbFlqUcEIq0h8VD
+NEXT_PUBLIC_GADS_ADD_TO_CART_LABEL=zMB-CJPUlqUcEIq0h8VD
 NEXT_PUBLIC_GA4_ID=G-XXXXXXXXXX
 NEXT_PUBLIC_TOOLS_URL=https://tools.rojipeptides.com
 # Legacy NEXT_PUBLIC_PROTOCOL_URL is still honored as a fallback.
@@ -208,10 +210,11 @@ You don't need the API for these. Create them in **Tools → Conversions → New
 2. Click into the `purchase` action → **Tag setup → Use Google tag** → copy the **conversion label** (the chunk after `/` in `AW-XXXXXXXXXX/abc123def`).
 3. Paste into `wp-config.php`:
    ```php
-   define( 'ROJI_GADS_ID', 'AW-XXXXXXXXXX' );
-   define( 'ROJI_GADS_PURCHASE_LABEL', '<the label>' );
+   define( 'ROJI_GADS_ID', 'AW-18130000394' );
+   define( 'ROJI_GADS_PURCHASE_LABEL', '5UzRCPbFlqUcEIq0h8VD' );
+   define( 'ROJI_GADS_ADD_TO_CART_LABEL', 'zMB-CJPUlqUcEIq0h8VD' );
    ```
-4. Optional: same for `add_to_cart` → `ROJI_GADS_ADD_TO_CART_LABEL`.
+4. (Both `purchase` and `Add to cart` labels above are already pulled from the Roji Tools account `657-303-2286`.)
 5. Deploy the WP change (or just SFTP-edit `wp-config.php` since it's not in version control).
 
 ---
