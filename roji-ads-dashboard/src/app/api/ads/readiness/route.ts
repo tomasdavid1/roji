@@ -72,7 +72,7 @@ export async function GET() {
   checks.tools_test_mode = boolish(
     testMode,
     "Research Tools surface is in TEST mode — buy buttons hidden, lead-capture active. Safe to advertise pre-store.",
-    "Research Tools surface is in LIVE mode — calculators link through to store products. Optimize against tool_complete short-term, switch to purchase once 30+ purchase conversions land.",
+    "Research Tools surface is in LIVE mode — calculators link through to store products. Campaigns optimize against the `purchase` conversion (reserve-order thank-you page on rojipeptides.com).",
   );
 
   const ready =

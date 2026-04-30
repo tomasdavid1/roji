@@ -446,7 +446,8 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
             "Calculator-intent traffic only. One ad group (Biohacker — no compound " +
             "names, no 'protocol' framing). Lands on Roji Research Tools. Goal: " +
             "validate that Google approves the ads, measure CTR, and track " +
-            "tool_complete conversions as the primary intent signal.",
+            "purchase conversions (reserve-order thank-you page) as the primary " +
+            "optimization target.",
           adGroups: [biohackerAdGroup(toolsUrl)],
           negativeKeywords: POLICY_NEGATIVE_KEYWORDS,
         },

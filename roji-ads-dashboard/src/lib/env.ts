@@ -58,3 +58,20 @@ export function gadsToolCompleteLabel(): string | undefined {
 export function gadsLeadLabel(): string | undefined {
   return process.env.NEXT_PUBLIC_GADS_LEAD_LABEL || undefined;
 }
+
+/**
+ * Conversion-action label for the PRIMARY purchase macro-conversion. Fires on
+ * the WooCommerce thank-you page after the reserve-order checkout. This is the
+ * label campaigns optimize against.
+ */
+export function gadsPurchaseLabel(): string | undefined {
+  return process.env.NEXT_PUBLIC_GADS_PURCHASE_LABEL || undefined;
+}
+
+/**
+ * Conversion-action label for the secondary add-to-cart signal. Fires when the
+ * cart is loaded with items (typically via a tools deep-link).
+ */
+export function gadsAddToCartLabel(): string | undefined {
+  return process.env.NEXT_PUBLIC_GADS_ADD_TO_CART_LABEL || undefined;
+}

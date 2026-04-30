@@ -2,8 +2,10 @@ import Link from "next/link";
 
 import {
   ga4Id,
+  gadsAddToCartLabel,
   gadsId,
   gadsLeadLabel,
+  gadsPurchaseLabel,
   gadsToolCompleteLabel,
   storeUrl,
   toolsTestMode,
@@ -25,50 +27,50 @@ function buildProbes(): TrackingProbe[] {
   const store = storeUrl();
   return [
     {
-      name: "Tool completion",
-      expected_event: "tool_complete (+ Google Ads conversion)",
+      name: "Purchase (thank-you page) — PRIMARY",
+      expected_event: "purchase + Google Ads conversion",
       description:
-        "Fires when a user finishes a calculator/framework tool and sees their generated output. The single most important micro-conversion — Google Ads optimizes against this until 30+ purchases have landed.",
-      url_to_check: tools + "/results",
+        "The macro-conversion the campaign optimizes against. Fires on the WooCommerce thank-you page after the reserve-order checkout, with full transaction value and items array. ROJI_GADS_PURCHASE_LABEL must be defined in Kinsta wp-config.php.",
+      url_to_check: "(complete a real reserve-order checkout)",
       how_to_verify:
-        "Open Roji Research Tools in Chrome with Tag Assistant Companion enabled. Complete a calculator. On the results page, Tag Assistant should show a 'tool_complete' event AND (if NEXT_PUBLIC_GADS_TOOL_COMPLETE_LABEL is set) a 'conversion' event going to AW-XXXX/yourLabel. Legacy event name 'protocol_complete' is still emitted in parallel for back-compat.",
-    },
-    {
-      name: "Lead capture (TEST mode only)",
-      expected_event: "lead_capture (+ Google Ads conversion if label set)",
-      description:
-        "Only relevant when the Research Tools surface is in TEST_MODE (pre-store launch). Fires when a visitor submits the 'email me when this stack is ready' form.",
-      url_to_check: tools + "/results",
-      how_to_verify:
-        "Submit a real email through the form on the results page. Check that (a) Tag Assistant shows a 'lead_capture' event, (b) the API responds 201, (c) if ROJI_LEAD_WEBHOOK_URL is set, the webhook receives a JSON payload, (d) if NEXT_PUBLIC_GADS_LEAD_LABEL is set, a Google Ads 'conversion' event fires.",
+        "Add a product to cart on rojipeptides.com, complete the reserve-order checkout. On the thank-you page Tag Assistant should show a 'purchase' event with transaction_id + value + items, AND a Google Ads 'conversion' event firing 'send_to: AW-18130000394/<purchase_label>'.",
     },
     {
       name: "Add-to-cart (tools → store)",
-      expected_event: "add_to_cart (+ optional GAds conversion)",
+      expected_event: "add_to_cart + Google Ads conversion",
       description:
-        "Fires only when the WC cart is loaded via a Research Tools deep-link (?protocol_stack=... — query-param name retained for back-compat with WP wiring). Measures the tools→store transition.",
+        "Secondary signal. Fires when the WC cart is loaded via a Research Tools deep-link (?protocol_stack=... — query-param name retained for back-compat with WP wiring). Measures the tools→store transition.",
       url_to_check:
         store + "/cart/?protocol_stack=wolverine&utm_source=research_tools",
       how_to_verify:
-        "Visit the URL with Tag Assistant. You should see an 'add_to_cart' event with an items array. The Google Ads conversion fires only if ROJI_GADS_ADD_TO_CART_LABEL is defined in wp-config.php.",
+        "Visit the URL with Tag Assistant. You should see an 'add_to_cart' event with an items array AND a Google Ads 'conversion' event firing 'send_to: AW-18130000394/<add_to_cart_label>' (only if ROJI_GADS_ADD_TO_CART_LABEL is defined in wp-config.php).",
     },
     {
-      name: "Purchase (thank-you page)",
-      expected_event: "purchase + conversion",
+      name: "Cross-domain linker (tools ↔ store)",
+      expected_event: "_gl URL parameter on cross-domain navigation",
       description:
-        "The macro-conversion. Fires on the WooCommerce thank-you page with full transaction value and items array. Once 30+ purchases land, switch the campaign primary conversion from tool_complete to purchase.",
-      url_to_check: "(complete a real test order)",
-      how_to_verify:
-        "Place a test order through the full checkout. On the thank-you page Tag Assistant should show a 'purchase' event with transaction_id + value + items, and a Google Ads 'conversion' event using ROJI_GADS_PURCHASE_LABEL.",
-    },
-    {
-      name: "Cross-domain linker",
-      expected_event: "_gl URL parameter",
-      description:
-        "When a user clicks from Research Tools to the store, the gtag linker should append a `_gl=...` query parameter to the destination URL. Preserves gclid + GA4 client_id across subdomains.",
+        "Critical for attribution. When a user clicks from Research Tools to the store, gtag's linker appends a `_gl=...` query parameter to the destination URL. Preserves gclid + GA4 client_id across subdomains so Google Ads can credit the conversion to the originating click.",
       url_to_check: tools,
       how_to_verify:
-        "On the Research Tools results page, complete a tool and click through to the store. The destination URL should contain a `_gl=` parameter. If it doesn't, check that NEXT_PUBLIC_GTAG_LINKER_DOMAINS lists both domains.",
+        "On a tools page, click any 'Buy on Roji' / 'View Stack' CTA that goes to rojipeptides.com. The destination URL should contain a `_gl=...` parameter. If it doesn't, check that NEXT_PUBLIC_GTAG_LINKER_DOMAINS lists both 'rojipeptides.com,tools.rojipeptides.com'.",
+    },
+    {
+      name: "Tool completion (NOT WIRED — soft signal only)",
+      expected_event: "tool_complete (GA4 only, no Google Ads conversion)",
+      description:
+        "Available as a soft mid-funnel signal but NOT currently wired as a Google Ads conversion. Campaigns optimize on `purchase`, not `tool_complete` — tool engagement is a poor proxy for buying intent. The toolComplete() helper exists in roji-tools/src/lib/track.ts for future use if we ever spin up a separate lead-gen campaign.",
+      url_to_check: tools + "/results",
+      how_to_verify:
+        "Currently unused in production campaigns. Skip this probe unless explicitly running a lead-gen experiment.",
+    },
+    {
+      name: "Lead capture (TEST mode only)",
+      expected_event: "lead_capture (+ optional GAds conversion if label set)",
+      description:
+        "Only relevant when the Research Tools surface is in TOOLS_TEST_MODE (pre-store launch). Fires when a visitor submits the 'email me when this stack is ready' form. Skip in production.",
+      url_to_check: tools + "/results",
+      how_to_verify:
+        "Skip in production (LIVE mode). In TEST mode, submit a real email through the form on the results page. Check that (a) Tag Assistant shows a 'lead_capture' event, (b) the API responds 201, (c) if ROJI_LEAD_WEBHOOK_URL is set, the webhook receives a JSON payload, (d) if NEXT_PUBLIC_GADS_LEAD_LABEL is set, a Google Ads 'conversion' event fires.",
     },
   ];
 }
@@ -77,6 +79,8 @@ export default function TrackingPage() {
   const probes = buildProbes();
   const env = {
     GADS_ID: gadsId(),
+    GADS_PURCHASE_LABEL: gadsPurchaseLabel(),
+    GADS_ADD_TO_CART_LABEL: gadsAddToCartLabel(),
     GADS_TOOL_COMPLETE_LABEL: gadsToolCompleteLabel(),
     GADS_LEAD_LABEL: gadsLeadLabel(),
     GA4_ID: ga4Id(),
