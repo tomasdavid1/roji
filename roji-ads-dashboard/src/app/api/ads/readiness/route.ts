@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { toolsTestMode, toolsUrl } from "@/lib/env";
 import { apiMode, isLive } from "@/lib/google-ads";
 
 export const runtime = "nodejs";
@@ -13,7 +14,12 @@ interface CheckResult {
 interface ReadinessReport {
   api_mode: ReturnType<typeof apiMode>;
   ready_to_provision: boolean;
-  /** True if the protocol engine is running in test/lead-capture mode. */
+  /**
+   * True if the tools surface (formerly "protocol engine") is in test mode:
+   * lead-capture only, no commerce surface. Pre-launch advertising posture.
+   */
+  tools_test_mode: boolean;
+  /** @deprecated alias for tools_test_mode — kept for back-compat. */
   protocol_test_mode: boolean;
   checks: Record<string, CheckResult>;
 }
@@ -55,18 +61,18 @@ export async function GET() {
       `Manager (MCC) login_customer_id: ${env.GOOGLE_ADS_LOGIN_CUSTOMER_ID}`,
       "GOOGLE_ADS_LOGIN_CUSTOMER_ID missing — recommended even if your operating account isn't under an MCC yet.",
     ),
-    protocol_url: boolish(
+    tools_url: boolish(
       true,
-      `Lands on ${env.NEXT_PUBLIC_PROTOCOL_URL ?? "https://protocol.rojipeptides.com"} (override with NEXT_PUBLIC_PROTOCOL_URL).`,
+      `Lands on ${toolsUrl()} (override with NEXT_PUBLIC_TOOLS_URL; legacy NEXT_PUBLIC_PROTOCOL_URL still honored).`,
       "n/a",
     ),
   };
 
-  const protocolTestMode = env.NEXT_PUBLIC_PROTOCOL_TEST_MODE === "1";
-  checks.protocol_test_mode = boolish(
-    protocolTestMode,
-    "Protocol engine is in TEST mode — buy buttons are hidden, lead-capture is active. Safe to advertise pre-store.",
-    "Protocol engine is in LIVE mode — buy buttons are visible. If you don't have products listed yet, set NEXT_PUBLIC_PROTOCOL_TEST_MODE=1 on the protocol app before launching ads.",
+  const testMode = toolsTestMode();
+  checks.tools_test_mode = boolish(
+    testMode,
+    "Research Tools surface is in TEST mode — buy buttons hidden, lead-capture active. Safe to advertise pre-store.",
+    "Research Tools surface is in LIVE mode — calculators link through to store products. Optimize against tool_complete short-term, switch to purchase once 30+ purchase conversions land.",
   );
 
   const ready =
@@ -79,7 +85,8 @@ export async function GET() {
   const report: ReadinessReport = {
     api_mode: apiMode(),
     ready_to_provision: ready && isLive(),
-    protocol_test_mode: protocolTestMode,
+    tools_test_mode: testMode,
+    protocol_test_mode: testMode,
     checks,
   };
   return NextResponse.json(report);

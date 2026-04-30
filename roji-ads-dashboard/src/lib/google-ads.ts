@@ -166,7 +166,7 @@ export interface CreateCampaignInput {
 const MOCK_CAMPAIGNS: CampaignRow[] = [
   {
     id: "11111111111",
-    name: "Protocol Engine — Search (US)",
+    name: "Research Tools — Search (US)",
     status: "ENABLED",
     impressions: 48210,
     clicks: 1932,
@@ -176,7 +176,7 @@ const MOCK_CAMPAIGNS: CampaignRow[] = [
   },
   {
     id: "22222222222",
-    name: "Brand Protect — roji peptides",
+    name: "Brand Defense — roji",
     status: "ENABLED",
     impressions: 5120,
     clicks: 412,
@@ -199,10 +199,10 @@ const MOCK_CAMPAIGNS: CampaignRow[] = [
 const MOCK_KEYWORDS: KeywordRow[] = [
   {
     campaign_id: "11111111111",
-    campaign_name: "Protocol Engine — Search (US)",
+    campaign_name: "Research Tools — Search (US)",
     ad_group_id: "ag1",
     ad_group_name: "Calculator",
-    keyword_text: "research protocol calculator",
+    keyword_text: "research calculator",
     match_type: "PHRASE",
     impressions: 14210,
     clicks: 612,
@@ -211,7 +211,7 @@ const MOCK_KEYWORDS: KeywordRow[] = [
   },
   {
     campaign_id: "11111111111",
-    campaign_name: "Protocol Engine — Search (US)",
+    campaign_name: "Research Tools — Search (US)",
     ad_group_id: "ag1",
     ad_group_name: "Calculator",
     keyword_text: "compound research framework",
@@ -223,7 +223,7 @@ const MOCK_KEYWORDS: KeywordRow[] = [
   },
   {
     campaign_id: "22222222222",
-    campaign_name: "Brand Protect — roji peptides",
+    campaign_name: "Brand Defense — roji",
     ad_group_id: "ag2",
     ad_group_name: "Brand",
     keyword_text: "roji peptides",
@@ -486,9 +486,9 @@ export interface RiskySearchTerm extends SearchTermRow {
 const MOCK_SEARCH_TERMS: SearchTermRow[] = [
   // Safe terms — should NOT be flagged
   {
-    search_term: "free research protocol builder",
+    search_term: "free research framework builder",
     campaign_id: "11111111111",
-    campaign_name: "Protocol Engine — Search (US)",
+    campaign_name: "Research Tools — Search (US)",
     ad_group_id: "ag1",
     ad_group_name: "Calculator",
     impressions: 432, clicks: 38, cost_usd: 24.18, conversions: 6, status: "NONE",
@@ -496,7 +496,7 @@ const MOCK_SEARCH_TERMS: SearchTermRow[] = [
   {
     search_term: "biohacking calculator online",
     campaign_id: "11111111111",
-    campaign_name: "Protocol Engine — Search (US)",
+    campaign_name: "Research Tools — Search (US)",
     ad_group_id: "ag1",
     ad_group_name: "Calculator",
     impressions: 318, clicks: 21, cost_usd: 17.03, conversions: 3, status: "NONE",
@@ -505,7 +505,7 @@ const MOCK_SEARCH_TERMS: SearchTermRow[] = [
   {
     search_term: "buy bpc 157 online cheap",
     campaign_id: "11111111111",
-    campaign_name: "Protocol Engine — Search (US)",
+    campaign_name: "Research Tools — Search (US)",
     ad_group_id: "ag1",
     ad_group_name: "Calculator",
     impressions: 89, clicks: 12, cost_usd: 18.40, conversions: 0, status: "NONE",
@@ -513,7 +513,7 @@ const MOCK_SEARCH_TERMS: SearchTermRow[] = [
   {
     search_term: "ozempic vs peptide stack",
     campaign_id: "11111111111",
-    campaign_name: "Protocol Engine — Search (US)",
+    campaign_name: "Research Tools — Search (US)",
     ad_group_id: "ag1",
     ad_group_name: "Calculator",
     impressions: 142, clicks: 8, cost_usd: 11.20, conversions: 0, status: "NONE",
@@ -521,17 +521,17 @@ const MOCK_SEARCH_TERMS: SearchTermRow[] = [
   {
     search_term: "tb 500 injection dosing for humans",
     campaign_id: "11111111111",
-    campaign_name: "Protocol Engine — Search (US)",
+    campaign_name: "Research Tools — Search (US)",
     ad_group_id: "ag2",
-    ad_group_name: "Compound Education",
+    ad_group_name: "Compound Research",
     impressions: 67, clicks: 4, cost_usd: 6.18, conversions: 0, status: "NONE",
   },
   {
     search_term: "research compound steroid stack",
     campaign_id: "11111111111",
-    campaign_name: "Protocol Engine — Search (US)",
+    campaign_name: "Research Tools — Search (US)",
     ad_group_id: "ag2",
-    ad_group_name: "Compound Education",
+    ad_group_name: "Compound Research",
     impressions: 41, clicks: 2, cost_usd: 3.10, conversions: 0, status: "NONE",
   },
 ];

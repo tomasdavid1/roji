@@ -9,7 +9,9 @@ interface ProvisionResult {
   apiMode: "mock" | "test" | "live";
   blueprint: {
     mode: "tool-only" | "full";
-    protocolUrl: string;
+    toolsUrl: string;
+    /** @deprecated alias for toolsUrl */
+    protocolUrl?: string;
     storeUrl: string;
     campaigns: Array<{
       name: string;
@@ -27,7 +29,12 @@ interface ProvisionResult {
       negativeKeywords: string[];
     }>;
   };
-  validation_issues: Array<{ field: string; text: string; reason: string }>;
+  validation_issues: Array<{
+    severity?: "error" | "warning";
+    field: string;
+    text: string;
+    reason: string;
+  }>;
   stats: {
     campaigns: number;
     adGroups: number;
@@ -53,7 +60,9 @@ interface ProvisionResult {
 interface ReadinessReport {
   api_mode: "mock" | "test" | "live";
   ready_to_provision: boolean;
-  protocol_test_mode: boolean;
+  tools_test_mode: boolean;
+  /** @deprecated alias for tools_test_mode */
+  protocol_test_mode?: boolean;
   checks: Record<string, { ok: boolean; detail: string }>;
 }
 
@@ -144,13 +153,13 @@ export function BlueprintCard() {
           checked={mode === "tool-only"}
           onClick={() => setMode("tool-only")}
           name="Tool-only (recommended pre-launch)"
-          desc="Campaign 1 only · Ad Group 3 (Biohacker) · ~$30/day · lands on the protocol engine in TEST mode (lead-capture, no commerce)."
+          desc="Campaign 1 only · Ad Group 3 (Biohacker) · ~$30/day · lands on Roji Research Tools. Optimizes against tool_complete (or lead_capture in TEST mode)."
         />
         <ModeOption
           checked={mode === "full"}
           onClick={() => setMode("full")}
           name="Full blueprint"
-          desc="Campaign 1 (Protocol + Biohacker ad groups, 3 RSAs) + Campaign 3 (Brand Defense). ~$47/day. Compound-specific Ad Group 2 omitted by design."
+          desc="Campaign 1 (Research Calculator + Biohacker ad groups, 3 RSAs) + Campaign 3 (Brand Defense). ~$47/day. Compound-specific Ad Group 2 omitted by design."
         />
       </fieldset>
 
@@ -171,12 +180,22 @@ export function BlueprintCard() {
             <Stat label="Negatives" value={String(preview.stats.negatives)} />
             <Stat
               label="Validation"
-              value={
-                preview.validation_issues.length === 0
-                  ? "✓ clean"
-                  : `${preview.validation_issues.length} issues`
+              value={(() => {
+                const errs = preview.validation_issues.filter(
+                  (i) => (i.severity ?? "error") === "error",
+                ).length;
+                const warns = preview.validation_issues.filter(
+                  (i) => i.severity === "warning",
+                ).length;
+                if (errs === 0 && warns === 0) return "✓ clean";
+                if (errs === 0) return `${warns} warning${warns === 1 ? "" : "s"}`;
+                return `${errs} error${errs === 1 ? "" : "s"}` + (warns ? ` · ${warns} warn` : "");
+              })()}
+              ok={
+                preview.validation_issues.filter(
+                  (i) => (i.severity ?? "error") === "error",
+                ).length === 0
               }
-              ok={preview.validation_issues.length === 0}
             />
           </div>
 

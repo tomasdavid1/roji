@@ -78,7 +78,7 @@ async function main() {
   console.log("\n— Roji blueprint provisioner —");
   console.log(`Mode:           ${mode}`);
   console.log(`Live:           ${live ? "YES" : "no (dry-run)"}`);
-  console.log(`Protocol URL:   ${blueprint.protocolUrl}`);
+  console.log(`Tools URL:      ${blueprint.toolsUrl}`);
   console.log(`Store URL:      ${blueprint.storeUrl}`);
 
   const stats = blueprintStats(blueprint);
@@ -86,14 +86,23 @@ async function main() {
   console.log(`Daily budget:   $${stats.totalDailyBudgetUsd.toFixed(2)}`);
 
   const issues = validateBlueprint(blueprint);
-  if (issues.length > 0) {
+  const errors = issues.filter((i) => i.severity === "error");
+  const warnings = issues.filter((i) => i.severity === "warning");
+  if (errors.length > 0) {
     console.error("\nBlueprint failed safety validation:");
-    for (const i of issues) {
+    for (const i of errors) {
       console.error(`  ✗ ${i.field}: "${i.text}" — ${i.reason}`);
     }
     process.exit(1);
   }
-  console.log("Validation:     ✓ clean (no compound names / therapeutic claims)");
+  if (warnings.length > 0) {
+    console.log(`Validation:     ✓ no errors · ${warnings.length} warning(s):`);
+    for (const w of warnings) {
+      console.log(`  ⚠ ${w.adGroup ?? "?"} / ${w.field}: "${w.text}" — ${w.reason}`);
+    }
+  } else {
+    console.log("Validation:     ✓ clean (no errors, no warnings)");
+  }
 
   console.log("\nProvisioning...");
   const result = await provisionBlueprint(blueprint, { dryRun: !live });

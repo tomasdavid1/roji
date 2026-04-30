@@ -12,6 +12,8 @@ export const dynamic = "force-dynamic";
 interface ReqBody {
   mode?: unknown;
   dry_run?: unknown;
+  tools_url?: unknown;
+  /** @deprecated alias for tools_url */
   protocol_url?: unknown;
   store_url?: unknown;
   campaign1_budget?: unknown;
@@ -40,7 +42,12 @@ export async function POST(req: Request) {
 
   const blueprint = resolveBlueprint({
     mode,
-    protocolUrl: typeof body.protocol_url === "string" ? body.protocol_url : undefined,
+    toolsUrl:
+      typeof body.tools_url === "string"
+        ? body.tools_url
+        : typeof body.protocol_url === "string"
+          ? body.protocol_url
+          : undefined,
     storeUrl: typeof body.store_url === "string" ? body.store_url : undefined,
     campaign1Budget:
       typeof body.campaign1_budget === "number" && body.campaign1_budget > 0

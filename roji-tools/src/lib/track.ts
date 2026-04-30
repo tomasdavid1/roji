@@ -13,12 +13,17 @@
  * -----------------------------------------------------
  *   1. tool_view              — any tool page mounted              (auto via <ToolView/>)
  *   2. <tool>_<action>        — meaningful in-tool action           (manual, per tool)
- *   3. notify_me_submit       — Coming Soon email captured
- *   4. more_tools_click       — cross-tool navigation
- *   5. store_outbound_click   — click on a StoreCTA going to the WP shop
- *   6. ai_message_sent        — AI Research Assistant interactions
- *   7. fake_order_started     — fake-checkout funnel kickoff
- *   8. fake_order_submitted   — fake-checkout funnel conversion
+ *   3. tool_complete          — UNIFIED conversion event for Google Ads
+ *                               optimization. Fired once per session per tool
+ *                               at the moment the user "did the thing"
+ *                               (calculator computed, panel saved, COA
+ *                               analyzed, etc.). See toolComplete() below.
+ *   4. notify_me_submit       — Coming Soon email captured
+ *   5. more_tools_click       — cross-tool navigation
+ *   6. store_outbound_click   — click on a StoreCTA going to the WP shop
+ *   7. ai_message_sent        — AI Research Assistant interactions
+ *   8. fake_order_started     — fake-checkout funnel kickoff
+ *   9. fake_order_submitted   — fake-checkout funnel conversion
  *
  * Anything new should follow that <surface>_<verb> shape.
  */
@@ -58,4 +63,48 @@ export function conversion(
     send_to: `${adsId}/${label}`,
     ...params,
   });
+}
+
+/**
+ * Resolve the tool-completion conversion label.
+ *
+ * Reads NEXT_PUBLIC_GADS_TOOL_COMPLETE_LABEL and falls back to the legacy
+ * NEXT_PUBLIC_GADS_PROTOCOL_LABEL so existing Vercel envs keep working
+ * during the rename. See roji-ads-dashboard/src/lib/env.ts for the
+ * matching helper on the dashboard side.
+ */
+function toolCompleteLabel(): string | undefined {
+  return (
+    process.env.NEXT_PUBLIC_GADS_TOOL_COMPLETE_LABEL ||
+    process.env.NEXT_PUBLIC_GADS_PROTOCOL_LABEL ||
+    undefined
+  );
+}
+
+/**
+ * Fire the unified `tool_complete` macro-event AND the matching Google
+ * Ads conversion in one call.
+ *
+ * NOT CURRENTLY WIRED. The Google Ads campaign optimizes against the
+ * `purchase` event on the WooCommerce thank-you page (reserve-order
+ * funnel), not against tool completion — tool engagement is a poor
+ * proxy for buying intent. This helper exists for future use if we
+ * ever want a softer mid-funnel optimization signal (e.g. a separate
+ * lead-gen campaign).
+ *
+ * If you wire it in, call once per session per tool at the moment the
+ * user clearly "did the thing" (calculator computed, panel saved, COA
+ * analyzed, etc.). Per-tool detail events (`recomp_calculated`, etc.)
+ * stay as the GA4 funnel-analysis layer.
+ *
+ * @param toolSlug e.g. "recomp", "bloodwork", "coa". Recorded as `tool`
+ *                 param so GA4 can break it down.
+ * @param extra    Optional non-PII params (counts, slugs, scores).
+ */
+export function toolComplete(
+  toolSlug: string,
+  extra: GtagEventParams = {},
+) {
+  track("tool_complete", { tool: toolSlug, ...extra });
+  conversion(toolCompleteLabel(), { tool: toolSlug });
 }

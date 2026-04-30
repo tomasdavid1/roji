@@ -6,22 +6,32 @@
  * Google Ads entities — or in mock mode, a deterministic plan you can
  * eyeball before spending a dollar.
  *
- * Two modes:
- *   - "tool-only": Campaign 1, Ad Group 3 only (Biohacker intent — no
- *     compound names anywhere). Single RSA. Full negative-keyword list.
- *     Designed for the pre-store launch: ads send traffic to the protocol
- *     engine in TEST_MODE (lead-capture, no commerce surface).
+ * Compliance framing (2026 rewrite):
+ *   The customer-facing surface is **Research Tools** at
+ *   `tools.rojipeptides.com`. The word "protocol" has been removed from
+ *   ad copy, keywords, and campaign names because:
+ *     1. Our own deploy gate (`roji-store/deploy/assert-compliance.sh`)
+ *        forbids "Protocol Engine" framing on the store.
+ *     2. "Peptide protocol calculator" patterns trigger Google Ads policy
+ *        review at much higher rates than neutral "research calculator"
+ *        framing.
+ *   Use "calculator", "tool", "framework", "planner" instead.
  *
- *   - "full": Campaign 1 (3 ad groups, 3 RSAs, full keyword expansion)
- *     plus Campaign 3 (Brand Defense). Ad Group 2 (compound-specific) is
- *     intentionally excluded by default — the blueprint flags it as high
- *     risk. Add it manually after Ad Group 1 has been running clean for a
- *     week.
+ * Two modes:
+ *   - "tool-only": Campaign 1, Ad Group 3 only (Biohacker intent, no
+ *     compound names). Single RSA. Full negative-keyword list.
+ *
+ *   - "full": Campaign 1 (2 ad groups, 3 RSAs, full keyword expansion)
+ *     plus Campaign 3 (Brand Defense). Compound-specific Ad Group 2 from
+ *     the original strategy doc is intentionally excluded by default —
+ *     add it manually after Ad Group 1 has been clean for a week.
  *
  * Anything sourced from here passes through `safety.ts` before mutation
- * so we cannot accidentally ship a forbidden compound name.
+ * so we cannot accidentally ship a forbidden compound name. Both ad copy
+ * AND keywords are walked.
  */
 
+import { DEFAULT_STORE_URL, DEFAULT_TOOLS_URL } from "./env";
 import { validateAdCopy } from "./safety";
 
 /* -------------------------------------------------------------------------- */
@@ -85,8 +95,16 @@ export interface BlueprintCampaign {
 
 export interface ResolvedBlueprint {
   mode: BlueprintMode;
-  protocolUrl: string;
+  /** Final URL for tool/calculator-intent ad groups. */
+  toolsUrl: string;
+  /** Final URL for the storefront (brand-defense ad group). */
   storeUrl: string;
+  /**
+   * Legacy alias kept for back-compat with the BlueprintCard UI and any
+   * external callers that still read `protocolUrl`. Mirrors `toolsUrl`.
+   * @deprecated Use `toolsUrl`.
+   */
+  protocolUrl: string;
   campaigns: BlueprintCampaign[];
 }
 
@@ -98,7 +116,7 @@ export interface ResolvedBlueprint {
  * Negative keywords from the strategy doc. Applied at campaign level so
  * every ad group inherits them. These exist to keep ads from showing on
  * commerce-intent searches that would (a) flag the policy review and
- * (b) pull traffic that won't convert through the protocol engine.
+ * (b) pull traffic that won't convert through the research tools.
  */
 export const POLICY_NEGATIVE_KEYWORDS: string[] = [
   "buy",
@@ -153,155 +171,160 @@ function biohackerAdGroup(finalUrl: string): BlueprintAdGroup {
     cpcBidCeilingUsd: 3.0,
     finalUrl,
     notes:
-      "Lowest policy risk. No compound names. Lands on the protocol engine. " +
-      "Always launch this first.",
+      "Lowest policy risk. No compound names, no 'protocol' framing. " +
+      "Lands on Roji Research Tools. Always launch this first.",
     keywords: [
       "biohacking tools",
-      "biohacking protocol",
-      "body optimization protocol",
+      "biohacking calculator",
+      "body optimization tools",
       "performance optimization tools",
-      "recovery optimization protocol",
+      "recovery optimization calculator",
       "biohacker calculator",
-      "body recomposition protocol",
-      "advanced recovery protocol",
+      "body recomposition calculator",
+      "advanced recovery planner",
       "performance research tools",
       "optimization framework builder",
       "biohacking stack builder",
-      "recovery stack protocol",
-      "lean mass protocol research",
+      "recovery stack calculator",
+      "lean mass research planner",
       "body composition calculator",
-      "fitness research protocol",
-    ].map((text) => ({ text, match: "PHRASE", risk: "low" })),
+      "fitness research tools",
+    ].map((text) => ({ text, match: "PHRASE" as KeywordMatchType, risk: "low" as const })),
     ads: [
       {
         headlines: [
-          "Biohacker Protocol Builder",
-          "Optimize Your Protocol",
-          "Performance Framework",
+          "Biohacker Research Tools",
+          "Optimize With Data",
+          "Performance Frameworks",
           "Free Optimization Tool",
           "Body Recomp Calculator",
           "Personalized Frameworks",
-          "Protocol Builder — Free",
-          "Smart Research Tools",
+          "Research Tools — Free",
+          "Smart Research Suite",
           "Built For Researchers",
-          "60-Second Protocols",
+          "60-Second Frameworks",
           "Evidence-Based Tools",
           "Calibrated Frameworks",
-          "Roji Protocol Engine",
+          "Roji Research Tools",
           "Data-Driven Precision",
           "Start Building — Free",
         ],
         descriptions: [
-          "Advanced protocol builder for biohackers. Input your stats, goals, and experience. Get a personalized research framework.",
-          "Join the biohacking community using data-driven protocols. Free tool. Personalized. Evidence-based. Start now.",
+          "Advanced research tools for biohackers. Input your stats and goals. Get a personalized, evidence-based framework.",
+          "Join the biohacking community using data-driven research tools. Free. Personalized. Evidence-based. Start now.",
           "Build calibrated optimization frameworks in 60 seconds. Published references included. No signup required.",
-          "Stop guessing. Use our protocol engine to build personalized research frameworks. Free, no signup.",
+          "Stop guessing. Use Roji Research Tools to build personalized research frameworks. Free, no signup.",
         ],
       },
     ],
   };
 }
 
-/** Ad Group 1 — Protocol / Calculator Intent (core, moderate risk). */
-function protocolIntentAdGroup(finalUrl: string): BlueprintAdGroup {
+/**
+ * Ad Group 1 — Calculator / Framework Intent (core, low-moderate risk).
+ *
+ * Replaces the original "Protocol Intent" group from the legacy strategy
+ * doc. Same intent (researchers looking for a calculator), neutral copy.
+ */
+function calculatorIntentAdGroup(finalUrl: string): BlueprintAdGroup {
   return {
-    name: "AG1 — Protocol Intent",
+    name: "AG1 — Research Calculator Intent",
     cpcBidCeilingUsd: 3.5,
     finalUrl,
     notes:
-      "Core ad group. 'peptide protocol calculator' carries moderate risk; " +
-      "monitor first 48h and pause that single keyword if disapproved.",
+      "Core ad group. Neutral 'research calculator' framing. No 'protocol' " +
+      "or compound-name keywords. Monitor first 48h regardless.",
     keywords: [
-      { text: "research protocol builder", match: "PHRASE", risk: "low" },
-      { text: "research protocol calculator", match: "PHRASE", risk: "low" },
-      { text: "research compound protocol", match: "PHRASE", risk: "low" },
-      { text: "peptide protocol calculator", match: "PHRASE", risk: "moderate" },
-      { text: "research protocol generator", match: "PHRASE", risk: "low" },
-      { text: "compound dosing calculator", match: "PHRASE", risk: "low" },
+      { text: "research calculator", match: "PHRASE", risk: "low" },
+      { text: "research framework builder", match: "PHRASE", risk: "low" },
+      { text: "research planner tool", match: "PHRASE", risk: "low" },
+      { text: "research stack calculator", match: "PHRASE", risk: "low" },
+      { text: "compound research calculator", match: "PHRASE", risk: "low" },
+      { text: "research planning tool", match: "PHRASE", risk: "low" },
       { text: "research stack builder", match: "PHRASE", risk: "low" },
-      { text: "biotech protocol tool", match: "PHRASE", risk: "low" },
-      { text: "research protocol framework", match: "PHRASE", risk: "low" },
-      { text: "biohacking protocol builder", match: "PHRASE", risk: "low" },
+      { text: "biotech research tool", match: "PHRASE", risk: "low" },
+      { text: "research framework generator", match: "PHRASE", risk: "low" },
       { text: "biohacking calculator", match: "PHRASE", risk: "low" },
-      { text: "body optimization protocol", match: "PHRASE", risk: "low" },
-      { text: "performance protocol builder", match: "PHRASE", risk: "low" },
-      { text: "recovery research protocol", match: "PHRASE", risk: "low" },
+      { text: "biohacking framework builder", match: "PHRASE", risk: "low" },
+      { text: "body optimization calculator", match: "PHRASE", risk: "low" },
+      { text: "performance framework builder", match: "PHRASE", risk: "low" },
+      { text: "recovery research calculator", match: "PHRASE", risk: "low" },
       { text: "research compound stack builder", match: "PHRASE", risk: "low" },
     ],
     ads: [
       {
         headlines: [
-          "Free Protocol Builder Tool",
-          "Build Your Research Protocol",
-          "Evidence-Based Protocols",
+          "Free Research Calculator",
+          "Build Your Research Plan",
+          "Evidence-Based Frameworks",
           "Personalized In 60 Seconds",
           "Free Research Framework",
-          "Protocol Calculator — Free",
-          "Research Protocol Generator",
-          "Custom Research Protocols",
-          "Data-Driven Protocols",
-          "Input Stats, Get Protocol",
-          "Free Protocol Builder",
-          "Science-Based Framework",
-          "Roji Protocol Engine",
+          "Research Calculator — Free",
+          "Research Framework Builder",
+          "Custom Research Frameworks",
+          "Data-Driven Frameworks",
+          "Input Stats, Get Framework",
+          "Free Research Suite",
+          "Science-Based Frameworks",
+          "Roji Research Tools",
           "Calibrated Research Tools",
           "Start Building — Free",
         ],
         descriptions: [
-          "Input your research parameters. Get a personalized, evidence-based protocol in 60 seconds. Free tool.",
-          "Comprehensive protocol builder with published literature references. No account needed. Start now.",
-          "Built by researchers for researchers. Personalized compound protocols based on your specific parameters.",
-          "Join 500+ researchers using our free protocol engine. Fast, evidence-based, referenced. Try it now.",
+          "Input your research parameters. Get a personalized, evidence-based research framework in 60 seconds. Free.",
+          "Comprehensive research calculator with published literature references. No account needed. Start now.",
+          "Built by researchers for researchers. Personalized compound research frameworks based on your parameters.",
+          "Join 500+ researchers using our free research tools. Fast, evidence-based, referenced. Try it now.",
         ],
       },
       {
         headlines: [
-          "Research Protocol Engine",
-          "Get Your Protocol In 60s",
+          "Roji Research Tools",
+          "Get A Framework In 60s",
           "Free Compound Calculator",
-          "Evidence-Based Protocols",
+          "Evidence-Based Frameworks",
           "Calibrate Your Research",
-          "Protocol Builder — Free",
+          "Research Tool — Free",
           "Personalized Frameworks",
           "Research Stack Calculator",
           "Built For Researchers",
           "Data-Driven Precision",
           "Published References",
-          "Compound Protocol Tool",
+          "Compound Research Tool",
           "No Account Required",
-          "Advanced Protocol Builder",
+          "Advanced Research Suite",
           "Smart Research Tools",
         ],
         descriptions: [
-          "Input your parameters and objectives. Our engine generates a calibrated research protocol with literature references.",
-          "Free protocol builder tool. Personalized compound stacks and cycle planning frameworks. Start in seconds.",
-          "Precision matters in research. Our protocol engine helps you build frameworks backed by published data. Free.",
-          "Stop guessing. Use our research protocol engine to build evidence-based compound frameworks. Free, no signup.",
+          "Input your parameters and objectives. Our research tools generate a calibrated framework with literature references.",
+          "Free research calculator. Personalized compound stacks and phase-planning frameworks. Start in seconds.",
+          "Precision matters in research. Our research tools help you build frameworks backed by published data. Free.",
+          "Stop guessing. Use Roji Research Tools to build evidence-based compound frameworks. Free, no signup.",
         ],
       },
       {
         headlines: [
-          "Smart Protocol Builder",
+          "Smart Research Calculator",
           "Research Framework Tool",
-          "Compound Protocol Maker",
-          "Personalized Protocols",
-          "Free Research Engine",
-          "60-Second Protocols",
+          "Compound Framework Maker",
+          "Personalized Frameworks",
+          "Free Research Suite",
+          "60-Second Frameworks",
           "Built On Published Data",
           "Advanced Calculators",
-          "Custom Stack Protocols",
+          "Custom Stack Frameworks",
           "Research Made Precise",
-          "Protocol Generator",
-          "Roji Research Tools",
+          "Framework Generator",
+          "Roji Research Suite",
           "Framework Builder Free",
           "Evidence-Based Stacks",
           "No Guesswork Needed",
         ],
         descriptions: [
-          "Advanced protocol builder that generates personalized research frameworks. Based on published literature. Free.",
-          "Tell us your research goals and parameters. Get a custom protocol with compound selection and timing. Free tool.",
-          "Our protocol engine has generated 1,000+ research frameworks. Personalized, referenced, free. Try it.",
-          "Why guess when you can calculate? Our protocol engine uses published data to build precise frameworks. Free.",
+          "Advanced research calculator that generates personalized frameworks. Based on published literature. Free.",
+          "Tell us your research goals and parameters. Get a custom framework with compound selection and timing. Free tool.",
+          "Our research suite has generated 1,000+ frameworks. Personalized, referenced, free. Try it.",
+          "Why guess when you can calculate? Our research tools use published data to build precise frameworks. Free.",
         ],
       },
     ],
@@ -322,23 +345,23 @@ function brandAdGroup(storeUrl: string): BlueprintAdGroup {
       { text: "roji", match: "EXACT", risk: "low" },
       { text: "roji peptides", match: "EXACT", risk: "low" },
       { text: "rojipeptides", match: "EXACT", risk: "low" },
-      { text: "roji protocol", match: "EXACT", risk: "low" },
       { text: "roji research", match: "EXACT", risk: "low" },
+      { text: "roji research tools", match: "EXACT", risk: "low" },
       { text: "roji peptides", match: "PHRASE", risk: "low" },
-      { text: "roji protocol builder", match: "PHRASE", risk: "low" },
+      { text: "roji research tools", match: "PHRASE", risk: "low" },
     ],
     ads: [
       {
         headlines: [
           "Roji — Official Site",
-          "Roji Protocol Engine",
+          "Roji Research Tools",
           "Research-Grade Stacks",
-          "Free Protocol Builder",
+          "Free Research Calculator",
           "Roji Peptides Official",
         ],
         descriptions: [
-          "The official Roji protocol engine. Build personalized research protocols in 60 seconds. Free, evidence-based.",
-          "Roji Peptides — premium research compound stacks with third-party COA verification. Protocol-driven research.",
+          "The official Roji research tools. Build personalized research frameworks in 60 seconds. Free, evidence-based.",
+          "Roji Peptides — premium research compound stacks with third-party COA verification. Research-driven.",
         ],
       },
     ],
@@ -351,7 +374,14 @@ function brandAdGroup(storeUrl: string): BlueprintAdGroup {
 
 export interface ResolveOptions {
   mode: BlueprintMode;
-  /** Defaults to https://protocol.rojipeptides.com */
+  /**
+   * Final URL for tool-intent ad groups. Defaults to
+   * `https://tools.rojipeptides.com`. Legacy alias `protocolUrl` is
+   * still accepted for back-compat and takes precedence if both are set
+   * (so an existing caller passing `protocolUrl` doesn't silently break).
+   */
+  toolsUrl?: string;
+  /** @deprecated use `toolsUrl` */
   protocolUrl?: string;
   /** Defaults to https://rojipeptides.com */
   storeUrl?: string;
@@ -362,28 +392,29 @@ export interface ResolveOptions {
 }
 
 export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
-  const protocolUrl = opts.protocolUrl ?? "https://protocol.rojipeptides.com";
-  const storeUrl = opts.storeUrl ?? "https://rojipeptides.com";
+  const toolsUrl = opts.protocolUrl ?? opts.toolsUrl ?? DEFAULT_TOOLS_URL;
+  const storeUrl = opts.storeUrl ?? DEFAULT_STORE_URL;
 
   if (opts.mode === "tool-only") {
     return {
       mode: "tool-only",
-      protocolUrl,
+      toolsUrl,
       storeUrl,
+      protocolUrl: toolsUrl,
       campaigns: [
         {
-          name: "C1 — Protocol Engine — Tool Only [roji-blueprint]",
+          name: "C1 — Research Tools — Calculators [roji-blueprint]",
           dailyBudgetUsd: opts.campaign1Budget ?? 30,
           channel: "SEARCH",
           language: "en",
           geoTargets: ["US"],
           bidStrategy: "MAXIMIZE_CLICKS",
           rationale:
-            "Pre-store launch. One ad group only (Biohacker — no compound names). " +
-            "Lands on the protocol engine running in TEST_MODE (lead-capture, " +
-            "no commerce surface). Goal: validate that Google approves the ads, " +
-            "measure CTR, and capture leads as a real intent signal.",
-          adGroups: [biohackerAdGroup(protocolUrl)],
+            "Calculator-intent traffic only. One ad group (Biohacker — no compound " +
+            "names, no 'protocol' framing). Lands on Roji Research Tools. Goal: " +
+            "validate that Google approves the ads, measure CTR, and track " +
+            "tool_complete conversions as the primary intent signal.",
+          adGroups: [biohackerAdGroup(toolsUrl)],
           negativeKeywords: POLICY_NEGATIVE_KEYWORDS,
         },
       ],
@@ -393,21 +424,23 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
   // Full mode
   return {
     mode: "full",
-    protocolUrl,
+    toolsUrl,
     storeUrl,
+    protocolUrl: toolsUrl,
     campaigns: [
       {
-        name: "C1 — Protocol Engine — Search [roji-blueprint]",
+        name: "C1 — Research Tools — Search [roji-blueprint]",
         dailyBudgetUsd: opts.campaign1Budget ?? 40,
         channel: "SEARCH",
         language: "en",
         geoTargets: ["US"],
         bidStrategy: "MAXIMIZE_CLICKS",
         rationale:
-          "Primary spend. Two ad groups: Protocol Intent (core) + Biohacker Intent " +
-          "(safest). Compound-specific Ad Group 2 from the blueprint is intentionally " +
-          "omitted — add it manually only after Ad Group 1 has been clean for 7+ days.",
-        adGroups: [protocolIntentAdGroup(protocolUrl), biohackerAdGroup(protocolUrl)],
+          "Primary spend. Two ad groups: Research Calculator Intent (core) + " +
+          "Biohacker Intent (safest). Compound-specific Ad Group 2 from the " +
+          "legacy strategy doc is intentionally omitted — add it manually only " +
+          "after Ad Group 1 has been clean for 7+ days.",
+        adGroups: [calculatorIntentAdGroup(toolsUrl), biohackerAdGroup(toolsUrl)],
         negativeKeywords: POLICY_NEGATIVE_KEYWORDS,
       },
       {
@@ -430,7 +463,10 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
 /* Validation                                                                  */
 /* -------------------------------------------------------------------------- */
 
+export type ValidationSeverity = "error" | "warning";
+
 export interface ValidationIssue {
+  severity: ValidationSeverity;
   campaign: string;
   adGroup?: string;
   field: string;
@@ -439,9 +475,10 @@ export interface ValidationIssue {
 }
 
 /**
- * Walk the blueprint and run every headline, description, keyword, and
- * ad-group name through the safety validator. We never want to ship a
- * blueprint that contains a flagged term.
+ * Walk the blueprint and run every headline, description, AND keyword
+ * through the safety validator. We never want to ship a blueprint that
+ * contains a flagged term — and we want a yellow flag for soft-warning
+ * patterns ("protocol", "stack", "cycle") so future drift is visible.
  */
 export function validateBlueprint(b: ResolvedBlueprint): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
@@ -449,46 +486,53 @@ export function validateBlueprint(b: ResolvedBlueprint): ValidationIssue[] {
     for (const g of c.adGroups) {
       g.ads.forEach((ad, idx) => {
         ad.headlines.forEach((h, hi) => {
-          const r = validateAdCopy(h);
-          if (!r.ok) {
-            const filtered = filterBrandIssues(r.issues, g.allowBrandTerms);
-            if (filtered.length > 0) {
-              issues.push({
-                campaign: c.name,
-                adGroup: g.name,
-                field: `ad${idx}.headline${hi}`,
-                text: h,
-                reason: filtered.map((i) => i.reason).join("; "),
-              });
-            }
-          }
+          pushIssues(issues, h, c.name, g, `ad${idx}.headline${hi}`);
         });
         ad.descriptions.forEach((d, di) => {
-          const r = validateAdCopy(d);
-          if (!r.ok) {
-            const filtered = filterBrandIssues(r.issues, g.allowBrandTerms);
-            if (filtered.length > 0) {
-              issues.push({
-                campaign: c.name,
-                adGroup: g.name,
-                field: `ad${idx}.description${di}`,
-                text: d,
-                reason: filtered.map((i) => i.reason).join("; "),
-              });
-            }
-          }
+          pushIssues(issues, d, c.name, g, `ad${idx}.description${di}`);
         });
       });
-      // Keywords intentionally not validated here — brand-defense terms
-      // like "roji peptides" must contain "peptide" by definition, and
-      // Google policy-checks keywords on its own at serve time.
+      g.keywords.forEach((k, ki) => {
+        pushIssues(issues, k.text, c.name, g, `keyword[${ki}]`);
+      });
     }
   }
   return issues;
 }
 
+function pushIssues(
+  issues: ValidationIssue[],
+  text: string,
+  campaign: string,
+  g: BlueprintAdGroup,
+  field: string,
+) {
+  const r = validateAdCopy(text);
+  const errors = filterBrandIssues(r.errors, g.allowBrandTerms);
+  for (const e of errors) {
+    issues.push({
+      severity: "error",
+      campaign,
+      adGroup: g.name,
+      field,
+      text,
+      reason: e.reason,
+    });
+  }
+  for (const w of r.warnings) {
+    issues.push({
+      severity: "warning",
+      campaign,
+      adGroup: g.name,
+      field,
+      text,
+      reason: w.reason,
+    });
+  }
+}
+
 /**
- * If `allowBrandTerms` is true on the ad group, suppress safety issues
+ * If `allowBrandTerms` is true on the ad group, suppress error issues
  * that match only because of the word "peptide". Other forbidden terms
  * (compound names, therapeutic claims, etc.) still flag as normal.
  */

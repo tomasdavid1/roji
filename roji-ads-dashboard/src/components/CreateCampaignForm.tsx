@@ -47,13 +47,14 @@ export function CreateCampaignForm() {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Protocol Engine — Search (US)"
+          placeholder="Research Tools — Search (US)"
           className="roji-input"
           required
           minLength={3}
         />
         <p className="text-[11px] text-roji-dim mt-1.5">
-          Avoid: peptide, compound names, dosing, healing, injection.
+          Avoid: peptide, compound names, dosing, healing, injection,
+          &quot;protocol&quot;.
         </p>
       </div>
 

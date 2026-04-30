@@ -5,7 +5,14 @@
  * health claims, or human-use language. This validator runs before any
  * createCampaign / createAd call and short-circuits with a clear error.
  *
- * Update this list when policies change or you discover new flagged terms.
+ * Two tiers:
+ *   - FORBIDDEN_PATTERNS  → hard errors. Block provisioning.
+ *   - WARN_PATTERNS       → soft warnings. Surface in the dry-run UI but
+ *     don't block. Used for terms that aren't intrinsically banned but are
+ *     known to elevate review risk or violate our internal compliance
+ *     framing (e.g. "protocol" — see roji-store/deploy/assert-compliance.sh).
+ *
+ * Update either list when policies change or you discover new flagged terms.
  */
 
 const FORBIDDEN_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
@@ -31,13 +38,39 @@ const FORBIDDEN_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
   { pattern: /\b(anti[\s-]?aging|anti[\s-]?ageing)\b/i, reason: "Anti-aging claim" },
 ];
 
+/**
+ * Soft-warning patterns. These don't block provisioning but surface in
+ * the dry-run UI so we notice if compliance-drift sneaks back in.
+ */
+const WARN_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
+  {
+    pattern: /\bprotocol(s)?\b/i,
+    reason:
+      "Uses 'protocol' — banned by our store compliance gate; elevated Google Ads review risk. Prefer 'framework', 'calculator', 'planner', or 'tool'.",
+  },
+  {
+    pattern: /\bcycle(s|ing|d)?\b/i,
+    reason: "Uses 'cycle' — moderate policy-review risk in this niche. Prefer 'plan' or 'phase'.",
+  },
+];
+
 export interface SafetyIssue {
   match: string;
   reason: string;
 }
 
 export interface SafetyResult {
+  /** True iff there are no hard errors (warnings don't block). */
   ok: boolean;
+  /** Hard policy violations. Block provisioning. */
+  errors: SafetyIssue[];
+  /** Soft warnings. Surface in UI; don't block. */
+  warnings: SafetyIssue[];
+  /**
+   * Back-compat alias: `issues` === `errors`. Older callers checked
+   * `result.issues` only; keep them working.
+   * @deprecated use `errors`
+   */
   issues: SafetyIssue[];
 }
 
@@ -45,14 +78,22 @@ export interface SafetyResult {
  * Validate a single piece of ad copy (headline, description, callout, etc.).
  */
 export function validateAdCopy(text: string): SafetyResult {
-  const issues: SafetyIssue[] = [];
+  const errors: SafetyIssue[] = [];
   for (const { pattern, reason } of FORBIDDEN_PATTERNS) {
     const m = text.match(pattern);
-    if (m) {
-      issues.push({ match: m[0], reason });
-    }
+    if (m) errors.push({ match: m[0], reason });
   }
-  return { ok: issues.length === 0, issues };
+  const warnings: SafetyIssue[] = [];
+  for (const { pattern, reason } of WARN_PATTERNS) {
+    const m = text.match(pattern);
+    if (m) warnings.push({ match: m[0], reason });
+  }
+  return {
+    ok: errors.length === 0,
+    errors,
+    warnings,
+    issues: errors,
+  };
 }
 
 /**
@@ -69,8 +110,8 @@ export function validateAdCopyBatch(
 }
 
 /**
- * Convenience helper: throw if any field is unsafe.
- * Used by API routes to short-circuit before hitting Google Ads.
+ * Convenience helper: throw if any field is unsafe (errors only — warnings
+ * never throw). Used by API routes to short-circuit before hitting Google Ads.
  */
 export function assertSafeAdCopy(fields: Record<string, string>): void {
   const result = validateAdCopyBatch(fields);
@@ -79,7 +120,7 @@ export function assertSafeAdCopy(fields: Record<string, string>): void {
   const summary = failures
     .map(
       ([field, r]) =>
-        `${field}: ${r.issues.map((i) => `"${i.match}" (${i.reason})`).join("; ")}`,
+        `${field}: ${r.errors.map((i) => `"${i.match}" (${i.reason})`).join("; ")}`,
     )
     .join(" | ");
   throw new Error(`Ad copy failed safety validation: ${summary}`);
