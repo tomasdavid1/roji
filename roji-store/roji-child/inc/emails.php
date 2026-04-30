@@ -67,6 +67,48 @@ add_filter(
 	99
 );
 
+/* -----------------------------------------------------------------------------
+ * Reserve-aware subject + heading for the customer on-hold email.
+ *
+ * WC's stock subject is "Your {site_title} order is on-hold" and the heading
+ * is "Thank you for your order". For Reserve-Order checkouts that copy reads
+ * as "something is wrong with your payment" — but the customer never entered
+ * payment in the first place. We rewrite both to match the truthful "order
+ * received, payment link incoming" framing already in the body template.
+ *
+ * For non-reserve on-hold orders (a future real-payment processor that
+ * drops to on-hold for fraud review), we keep WC's default copy.
+ * -------------------------------------------------------------------------- */
+
+add_filter(
+	'woocommerce_email_subject_customer_on_hold_order',
+	function ( $subject, $order ) {
+		if ( $order instanceof WC_Order && $order->get_meta( '_roji_reserve_order' ) === 'yes' ) {
+			return sprintf(
+				/* translators: 1: brand name, 2: order number */
+				__( '[%1$s] Order #%2$s received — payment link on the way', 'roji-child' ),
+				roji_transactional_from_name(),
+				$order->get_order_number()
+			);
+		}
+		return $subject;
+	},
+	10,
+	2
+);
+
+add_filter(
+	'woocommerce_email_heading_customer_on_hold_order',
+	function ( $heading, $order ) {
+		if ( $order instanceof WC_Order && $order->get_meta( '_roji_reserve_order' ) === 'yes' ) {
+			return __( 'Order received — payment link on the way', 'roji-child' );
+		}
+		return $heading;
+	},
+	10,
+	2
+);
+
 /**
  * Encode display name for RFC 2047 when it contains non-ASCII.
  */
