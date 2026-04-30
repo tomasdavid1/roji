@@ -372,8 +372,14 @@ a:focus {
    `required => true` set. We deliberately don't make this checkbox
    HTML5-required (see disclaimers.php for why), but the label is
    absolutely required via JS + server-side validation. Suppress the
-   misleading "(optional)" for this specific row. */
-.roji-research-confirm label > .optional {
+   misleading "(optional)" for this specific row.
+   WC has rendered this span both as a child of the label AND as a
+   sibling of the label depending on template path (review-order vs.
+   form-row), so the selector has to cover both. */
+.roji-research-confirm .optional,
+.roji-research-confirm label .optional,
+.roji-research-confirm > .optional,
+.roji-research-confirm span.optional {
   display: none !important;
 }
 

@@ -121,8 +121,13 @@ add_filter(
 		 * once. Until then WC excludes it from the available list,
 		 * which is exactly the failure mode we're guarding against.
 		 *
-		 * We instantiate the class directly if necessary, then
-		 * override `enabled` in-memory just for this request.
+		 * We try three injection sources in order:
+		 *   1. The registered instance from WC's gateway registry
+		 *      (most correct — preserves any admin-set settings).
+		 *   2. A fresh instance of the class if it's loaded.
+		 *   3. Defer to a later filter pass after `plugins_loaded`
+		 *      has fully run, in case checkout rendered before our
+		 *      gateway class registration fired.
 		 */
 		$reserve = null;
 		if ( function_exists( 'WC' ) && WC()->payment_gateways() ) {
@@ -137,9 +142,24 @@ add_filter(
 		if ( $reserve ) {
 			// Force-enable for this request; we don't persist the
 			// setting because admins should still be able to flip
-			// it via Settings.
+			// it via Settings. Also force-set the chosen method on
+			// the WC session so the single-gateway radio template
+			// finds a valid `chosen_payment_method` and the form
+			// submits with `payment_method=roji_reserve` instead of
+			// failing validation with "Invalid payment method".
 			$reserve->enabled = 'yes';
 			$gateways['roji_reserve'] = $reserve;
+
+			if ( function_exists( 'WC' ) && WC()->session ) {
+				$current = WC()->session->get( 'chosen_payment_method' );
+				if ( empty( $current ) || ! in_array( $current, array_keys( $gateways ), true ) ) {
+					WC()->session->set( 'chosen_payment_method', 'roji_reserve' );
+				}
+			}
+		} else {
+			// Loud signal so this never silently fails again.
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( '[Roji Checkout] payment-failover: Reserve gateway class not available — checkout will show "no methods" notice. Enable the Reserve gateway in wp-admin → WooCommerce → Settings → Payments.' );
 		}
 
 		return $gateways;
@@ -194,6 +214,52 @@ add_action(
 	},
 	10,
 	3
+);
+
+/**
+ * Backfill `payment_method` on submit when the customer's POST didn't
+ * include one but the only available gateway is `roji_reserve`.
+ *
+ * Why this is needed:
+ *   When `woocommerce_available_payment_gateways` returned an empty list
+ *   on the page render (e.g. before our failover wired things up, or
+ *   during a brief race during deploy/cache warm), WC's `payment.php`
+ *   template prints the "no methods" notice instead of any radios. The
+ *   customer fills the form, clicks Place Order, the AJAX POST arrives
+ *   with `payment_method=` empty, WC validation rejects with "Invalid
+ *   payment method." This filter sees the empty value, confirms Reserve
+ *   is in fact available now (cache warmed, classes loaded, etc.), and
+ *   sets the method before validation runs.
+ *
+ * We only do this when Reserve is the ONLY available gateway — if the
+ * customer had a real choice we never want to silently pick for them.
+ */
+add_filter(
+	'woocommerce_checkout_posted_data',
+	function ( $data ) {
+		if ( ! is_array( $data ) ) {
+			return $data;
+		}
+		if ( ! empty( $data['payment_method'] ) ) {
+			return $data;
+		}
+		if ( ! function_exists( 'WC' ) || ! WC()->payment_gateways() ) {
+			return $data;
+		}
+		$available = WC()->payment_gateways()->get_available_payment_gateways();
+		if ( ! is_array( $available ) || count( $available ) !== 1 ) {
+			return $data;
+		}
+		$only_id = array_keys( $available )[0];
+		if ( 'roji_reserve' !== $only_id ) {
+			return $data;
+		}
+		$data['payment_method'] = 'roji_reserve';
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( '[Roji Checkout] backfilled empty payment_method=roji_reserve on submit (Reserve was sole available gateway).' );
+		return $data;
+	},
+	5
 );
 
 /**
