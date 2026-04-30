@@ -388,4 +388,4 @@ cd roji-tools && npm run dev    # http://localhost:3000
 
 ---
 
-**End of handoff.** When in doubt, search this file first, then `ADS-PLAYBOOK.md` (campaign-specific), then `DEPLOY.md` (env-var reference).
+**End of handoff.** When in doubt, search this file first, then `OPS-ACCESS.md` (SSH/CLI/credentials), then `ADS-PLAYBOOK.md` (campaign-specific), then `DEPLOY.md` (env-var reference).
