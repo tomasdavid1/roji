@@ -437,7 +437,10 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
       campaigns: [
         {
           name: "C1 — Research Tools — Calculators [roji-blueprint]",
-          dailyBudgetUsd: opts.campaign1Budget ?? 30,
+          // $14.29/day = $100/week. Slow-start budget while we validate
+          // the conversion flow on the live AW-18130000394 account.
+          // Override via opts.campaign1Budget once 30+ purchases land.
+          dailyBudgetUsd: opts.campaign1Budget ?? 14.29,
           channel: "SEARCH",
           language: "en",
           geoTargets: ["US"],

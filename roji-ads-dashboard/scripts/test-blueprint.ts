@@ -218,7 +218,7 @@ function statsSection() {
     eq("tool-only: 15 keywords", s.keywords, 15);
     eq("tool-only: 2 RSAs", s.ads, 2);
     eq("tool-only: 39 negatives", s.negatives, 39);
-    eq("tool-only: $30/day", s.totalDailyBudgetUsd, 30);
+    eq("tool-only: $14.29/day ($100/week slow-start)", s.totalDailyBudgetUsd, 14.29);
   }
   {
     const s = blueprintStats(resolveBlueprint({ mode: "full" }));
