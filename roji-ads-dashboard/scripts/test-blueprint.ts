@@ -120,12 +120,76 @@ console.log("\nads-blueprint.resolveBlueprint (back-compat):");
 }
 
 console.log("\nads-blueprint.validateBlueprint (shipped blueprints):");
-for (const mode of ["tool-only", "full"] as BlueprintMode[]) {
+for (const mode of ["tool-only", "full", "peptide-experiment"] as BlueprintMode[]) {
   const issues = validateBlueprint(resolveBlueprint({ mode }));
   const errors = issues.filter((i) => i.severity === "error");
   const warnings = issues.filter((i) => i.severity === "warning");
   eq(`${mode}: 0 errors in shipped blueprint`, errors.length, 0);
   eq(`${mode}: 0 warnings in shipped blueprint`, warnings.length, 0);
+}
+
+console.log("\nads-blueprint.peptide-experiment shape:");
+{
+  const b = resolveBlueprint({ mode: "peptide-experiment" });
+  eq("peptide-experiment: 1 campaign", b.campaigns.length, 1);
+  eq(
+    "peptide-experiment: campaign name flags it as experimental",
+    b.campaigns[0].name.includes("Experiment"),
+    true,
+  );
+  eq("peptide-experiment: 1 ad group", b.campaigns[0].adGroups.length, 1);
+  eq(
+    "peptide-experiment: ad group opts into peptide bypass",
+    b.campaigns[0].adGroups[0].allowPeptideExperiment,
+    true,
+  );
+  eq(
+    "peptide-experiment: $5/day cap by default",
+    b.campaigns[0].dailyBudgetUsd,
+    5,
+  );
+  eq(
+    "peptide-experiment: 2 keywords (tight)",
+    b.campaigns[0].adGroups[0].keywords.length,
+    2,
+  );
+  ok(
+    "peptide-experiment: every keyword references 'peptide' (intent)",
+    b.campaigns[0].adGroups[0].keywords.every((k) => /peptide/i.test(k.text)),
+  );
+  ok(
+    "peptide-experiment: every keyword is PHRASE match",
+    b.campaigns[0].adGroups[0].keywords.every((k) => k.match === "PHRASE"),
+  );
+  ok(
+    "peptide-experiment: 1 RSA only",
+    b.campaigns[0].adGroups[0].ads.length === 1,
+  );
+  ok(
+    "peptide-experiment: lands on tools.rojipeptides.com (not store)",
+    b.campaigns[0].adGroups[0].finalUrl === "https://tools.rojipeptides.com",
+  );
+  // Critical safety guard: opt-in must NOT bypass compound names or
+  // therapeutic claims. Re-add a forbidden term and confirm validator
+  // still flags it even though allowPeptideExperiment is true.
+  const tampered = resolveBlueprint({ mode: "peptide-experiment" });
+  tampered.campaigns[0].adGroups[0].ads[0].headlines[0] = "BPC-157 Calculator";
+  const tIssues = validateBlueprint(tampered);
+  ok(
+    "peptide-experiment: opt-in does NOT bypass compound names (BPC-157 still errors)",
+    tIssues.some(
+      (i) => i.severity === "error" && /bpc/i.test(i.text),
+    ),
+  );
+  const tampered2 = resolveBlueprint({ mode: "peptide-experiment" });
+  tampered2.campaigns[0].adGroups[0].ads[0].headlines[0] = "Healing With Peptides";
+  const t2Issues = validateBlueprint(tampered2);
+  ok(
+    "peptide-experiment: opt-in does NOT bypass therapeutic claims ('healing' still errors)",
+    t2Issues.some(
+      (i) => i.severity === "error" && /heal/i.test(i.reason),
+    ),
+  );
 }
 
 console.log("\nads-blueprint.validateBlueprint (walks keywords):");
@@ -203,6 +267,24 @@ async function provisionerSection() {
     }
     ok("hard-error blueprint throws", threw);
   }
+  {
+    // peptide-experiment dry-run → succeeds (the allowPeptideExperiment
+    // bypass on AG4 lets the word `peptide` through; everything else
+    // still validates clean).
+    const b = resolveBlueprint({ mode: "peptide-experiment" });
+    try {
+      const r = await provisionBlueprint(b, { dryRun: true });
+      ok("peptide-experiment dry-run succeeds", r.mode === "mock");
+      eq(
+        "peptide-experiment dry-run → 0 validation_issues",
+        r.validation_issues.length,
+        0,
+      );
+      ok("peptide-experiment dry-run → 1 campaign", r.campaigns.length === 1);
+    } catch (err) {
+      ok("peptide-experiment dry-run succeeds", false, String(err));
+    }
+  }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -227,6 +309,14 @@ function statsSection() {
     eq("full: 37 keywords", s.keywords, 37);
     eq("full: 6 RSAs", s.ads, 6);
     eq("full: $47/day", s.totalDailyBudgetUsd, 47);
+  }
+  {
+    const s = blueprintStats(resolveBlueprint({ mode: "peptide-experiment" }));
+    eq("peptide-experiment: 1 campaign", s.campaigns, 1);
+    eq("peptide-experiment: 1 ad group", s.adGroups, 1);
+    eq("peptide-experiment: 2 keywords", s.keywords, 2);
+    eq("peptide-experiment: 1 RSA", s.ads, 1);
+    eq("peptide-experiment: $5/day cap", s.totalDailyBudgetUsd, 5);
   }
 }
 

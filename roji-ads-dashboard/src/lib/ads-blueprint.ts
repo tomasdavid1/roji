@@ -38,7 +38,7 @@ import { validateAdCopy } from "./safety";
 /* Types                                                                       */
 /* -------------------------------------------------------------------------- */
 
-export type BlueprintMode = "tool-only" | "full";
+export type BlueprintMode = "tool-only" | "full" | "peptide-experiment";
 
 export type KeywordMatchType = "EXACT" | "PHRASE" | "BROAD";
 
@@ -71,6 +71,14 @@ export interface BlueprintAdGroup {
    *  "Roji Peptides". Use only on Brand Defense ad groups where the
    *  brand name is the legitimate, intended subject. */
   allowBrandTerms?: boolean;
+  /** When true, the safety validator ignores the standalone `peptide`
+   *  pattern for THIS ad group only — used by the deliberate
+   *  "peptide-experiment" mode to test whether Google approves
+   *  research-framed ads using the word `peptide`. Compound names
+   *  (BPC-157, TB-500, etc.) and therapeutic claims still flag.
+   *  Worst case: the ad group / its parent campaign is disapproved
+   *  and we pause it. Bounded experiment, scoped per ad group. */
+  allowPeptideExperiment?: boolean;
 }
 
 export interface BlueprintCampaign {
@@ -362,6 +370,91 @@ function calculatorIntentAdGroup(finalUrl: string): BlueprintAdGroup {
   };
 }
 
+/**
+ * Ad Group 4 — Peptide Research Intent (DELIBERATE EXPERIMENT).
+ *
+ * The word `peptide` is on our `safety.ts` FORBIDDEN list because it's
+ * the highest-risk policy trigger in this niche. We're nonetheless
+ * shipping ONE small phrase-match ad group on a SEPARATE low-budget
+ * campaign so we can answer the question: "Does Google's automated
+ * review approve research-framed ads that contain the word `peptide`?"
+ *
+ * Risk profile:
+ *   - Worst case: the ad group / campaign is disapproved. We pause it.
+ *     C1 (AG3) keeps running, conversion infra keeps tracking, account
+ *     stays clean. **Compound NAMES are what trip account-level strikes
+ *     — not the standalone word "peptide".**
+ *   - Best case: ads approve, we get real-intent traffic with much
+ *     higher conversion potential than AG3 and a real CAC number.
+ *
+ * Constraints kept tight on purpose:
+ *   - 2 phrase-match keywords only (no broad). Tight intent.
+ *   - $5/day campaign budget. Bounded spend even on a runaway week.
+ *   - Lower CPC ceiling than AG3 ($2 vs $3) — we don't want to
+ *     over-bid into uncertain territory before we know the ads serve.
+ *   - Single RSA. Less surface area for review issues.
+ *   - Final URL: tools.rojipeptides.com (NOT the store) — landing on
+ *     a tool reduces "Unapproved Pharmaceuticals" classifier risk
+ *     vs. a store product page.
+ *   - `allowPeptideExperiment: true` opts THIS ad group out of the
+ *     standalone-`peptide` safety check. Compound names + therapeutic
+ *     claims are still hard errors.
+ *
+ * Pause criteria (for future-me):
+ *   - Disapproved by Google → pause campaign, log the reason in
+ *     ADS-PLAYBOOK.md, never re-enable without copy changes.
+ *   - >100 clicks with 0 conversions over 7 days → also pause,
+ *     refund the experiment, conclude "intent ≠ buy here" for now.
+ */
+function peptideExperimentAdGroup(finalUrl: string): BlueprintAdGroup {
+  return {
+    name: "AG4 — Peptide Research Intent (experiment)",
+    cpcBidCeilingUsd: 2.0,
+    finalUrl,
+    allowPeptideExperiment: true,
+    notes:
+      "DELIBERATE POLICY EXPERIMENT. Tests whether research-framed ads " +
+      "containing the word `peptide` clear Google's automated review. " +
+      "Bounded: $5/day campaign budget, 2 phrase-match keywords, single " +
+      "RSA, lands on Research Tools (not store). Pause if disapproved.",
+    keywords: [
+      { text: "peptide research calculator", match: "PHRASE", risk: "high" },
+      { text: "peptide research tools", match: "PHRASE", risk: "high" },
+    ],
+    ads: [
+      {
+        // RSA — neutral research framing. No compound names, no
+        // therapeutic claims, no "buy", no "dosing". Mirrors the AG3
+        // structural patterns the existing approved RSA uses, just
+        // with the word `peptide` swapped in where natural.
+        headlines: [
+          "Peptide Research Tools",
+          "Free Research Calculator",
+          "Built For Researchers",
+          "Research Framework Builder",
+          "Peptide Research Suite",
+          "Evidence-Based Tools",
+          "Roji Research Tools",
+          "Peptide Research Math",
+          "60-Second Frameworks",
+          "Calibrated Calculators",
+          "Personalized Frameworks",
+          "Free Research Suite",
+          "Data-Driven Precision",
+          "Smart Research Tools",
+          "Start Building — Free",
+        ],
+        descriptions: [
+          "Free research calculators for peptide researchers. Input parameters, get a framework.",
+          "Skip the spreadsheet math. Roji turns research into precise frameworks in 60 seconds.",
+          "For researchers, not patients. Every output cites the published literature.",
+          "Calibrated research math. Free, browser-based, referenced. Built by researchers.",
+        ],
+      },
+    ],
+  };
+}
+
 /** Brand Defense ad group — exact-match brand keywords. */
 function brandAdGroup(storeUrl: string): BlueprintAdGroup {
   return {
@@ -422,11 +515,44 @@ export interface ResolveOptions {
   campaign1Budget?: number;
   /** Override Brand campaign daily budget (USD). */
   brandBudget?: number;
+  /** Override the peptide-experiment campaign daily budget (USD). */
+  peptideExperimentBudget?: number;
 }
 
 export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
   const toolsUrl = opts.protocolUrl ?? opts.toolsUrl ?? DEFAULT_TOOLS_URL;
   const storeUrl = opts.storeUrl ?? DEFAULT_STORE_URL;
+
+  if (opts.mode === "peptide-experiment") {
+    return {
+      mode: "peptide-experiment",
+      toolsUrl,
+      storeUrl,
+      protocolUrl: toolsUrl,
+      campaigns: [
+        {
+          // Separate campaign on purpose: budget isolation, blast-radius
+          // isolation (a disapproval here can't pause C1), and clean
+          // per-campaign reporting in the Google Ads UI.
+          name: "C2 — Peptide Research — Experiment [roji-blueprint]",
+          dailyBudgetUsd: opts.peptideExperimentBudget ?? 5,
+          channel: "SEARCH",
+          language: "en",
+          geoTargets: ["US"],
+          bidStrategy: "MAXIMIZE_CLICKS",
+          rationale:
+            "DELIBERATE POLICY EXPERIMENT. Single ad group with two " +
+            "phrase-match keywords containing 'peptide research'. $5/day " +
+            "cap. Tests whether Google's automated review approves " +
+            "research-framed ads using the word `peptide`. Disapproval = " +
+            "expected outcome we tolerate; we pause and learn. Compound " +
+            "names + therapeutic claims still blocked by safety.ts.",
+          adGroups: [peptideExperimentAdGroup(toolsUrl)],
+          negativeKeywords: POLICY_NEGATIVE_KEYWORDS,
+        },
+      ],
+    };
+  }
 
   if (opts.mode === "tool-only") {
     return {
@@ -607,7 +733,7 @@ function pushIssues(
   field: string,
 ) {
   const r = validateAdCopy(text);
-  const errors = filterBrandIssues(r.errors, g.allowBrandTerms);
+  const errors = filterAllowedIssues(r.errors, g);
   for (const e of errors) {
     issues.push({
       severity: "error",
@@ -631,15 +757,24 @@ function pushIssues(
 }
 
 /**
- * If `allowBrandTerms` is true on the ad group, suppress error issues
- * that match only because of the word "peptide". Other forbidden terms
- * (compound names, therapeutic claims, etc.) still flag as normal.
+ * Suppress safety errors that the ad group has explicitly opted into.
+ *
+ * - `allowBrandTerms`: brand-defense ad groups where "Roji Peptides" is
+ *   the legitimate subject. Filters `peptide` matches.
+ * - `allowPeptideExperiment`: deliberate peptide-experiment ad group
+ *   testing whether Google's policy review approves the word `peptide`
+ *   in research-framed ads. Filters `peptide` matches only.
+ *
+ * Compound names (BPC-157 etc.), therapeutic claims, dosing/injection
+ * language, and punctuation violations are NEVER filtered — those
+ * remain hard errors regardless of any opt-in flag.
  */
-function filterBrandIssues(
+function filterAllowedIssues(
   issues: Array<{ reason: string; match: string }>,
-  allowBrandTerms: boolean | undefined,
+  g: BlueprintAdGroup,
 ) {
-  if (!allowBrandTerms) return issues;
+  const peptideExempt = g.allowBrandTerms || g.allowPeptideExperiment;
+  if (!peptideExempt) return issues;
   return issues.filter((i) => !/peptide/i.test(i.match));
 }
 

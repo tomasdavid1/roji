@@ -30,18 +30,21 @@ import {
 } from "../src/lib/ads-blueprint";
 import { provisionBlueprint } from "../src/lib/ads-provisioner";
 
+const VALID_MODES: BlueprintMode[] = ["tool-only", "full", "peptide-experiment"];
+
 function parseArgs(argv: string[]) {
   let mode: BlueprintMode = "tool-only";
   let live = false;
   let campaign1Budget: number | undefined;
   let brandBudget: number | undefined;
+  let peptideExperimentBudget: number | undefined;
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--mode" && argv[i + 1]) {
       const m = argv[i + 1] as BlueprintMode;
-      if (m !== "tool-only" && m !== "full") {
-        throw new Error("--mode must be 'tool-only' or 'full'");
+      if (!VALID_MODES.includes(m)) {
+        throw new Error(`--mode must be one of: ${VALID_MODES.join(", ")}`);
       }
       mode = m;
       i += 1;
@@ -53,27 +56,39 @@ function parseArgs(argv: string[]) {
     } else if (a === "--brand-budget" && argv[i + 1]) {
       brandBudget = Number(argv[i + 1]);
       i += 1;
+    } else if (a === "--peptide-budget" && argv[i + 1]) {
+      peptideExperimentBudget = Number(argv[i + 1]);
+      i += 1;
     } else if (a === "--help" || a === "-h") {
       console.log(`Roji blueprint provisioner
 
 Usage:
-  provision-blueprint.ts [--mode tool-only|full] [--live] [--budget USD] [--brand-budget USD]
+  provision-blueprint.ts [--mode <mode>] [--live] [--budget USD] [--brand-budget USD] [--peptide-budget USD]
+
+Modes:
+  tool-only            Campaign 1 / Ad Group 3 only (current live setup)
+  full                 Campaign 1 (2 ad groups) + Brand Defense
+  peptide-experiment   Campaign 2 only — DELIBERATE peptide-keyword test ($5/day cap)
 
 Defaults:
-  --mode tool-only   (Campaign 1 / Ad Group 3 only)
-  dry-run            (use --live to actually create resources in Google Ads)`);
+  --mode tool-only
+  dry-run              (use --live to actually create resources in Google Ads)`);
       process.exit(0);
     }
   }
-  return { mode, live, campaign1Budget, brandBudget };
+  return { mode, live, campaign1Budget, brandBudget, peptideExperimentBudget };
 }
 
 async function main() {
-  const { mode, live, campaign1Budget, brandBudget } = parseArgs(
-    process.argv.slice(2),
-  );
+  const { mode, live, campaign1Budget, brandBudget, peptideExperimentBudget } =
+    parseArgs(process.argv.slice(2));
 
-  const blueprint = resolveBlueprint({ mode, campaign1Budget, brandBudget });
+  const blueprint = resolveBlueprint({
+    mode,
+    campaign1Budget,
+    brandBudget,
+    peptideExperimentBudget,
+  });
 
   console.log("\n— Roji blueprint provisioner —");
   console.log(`Mode:           ${mode}`);
