@@ -32,7 +32,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'plugins_loaded', 'roji_reserve_init_gateway', 11 );
+/*
+ * Theme files are loaded on `after_setup_theme`, which runs AFTER
+ * `plugins_loaded` has already fired. So registering on the
+ * `plugins_loaded` hook here would silently never run (latent bug
+ * since the theme's first day) — the gateway class never gets
+ * declared, the WC payment_gateways filter at the bottom of this
+ * file therefore can't reference it, and the failover in
+ * payment-failover.php has nothing to fall back to either.
+ *
+ * Strategy: run the init now if plugins_loaded already fired
+ * (the normal theme-load path), otherwise queue it on the hook
+ * (defensive — covers any future load path where this file
+ * happens to be required earlier, e.g. an mu-plugin chain).
+ */
+if ( did_action( 'plugins_loaded' ) ) {
+	roji_reserve_init_gateway();
+} else {
+	add_action( 'plugins_loaded', 'roji_reserve_init_gateway', 11 );
+}
 function roji_reserve_init_gateway() {
 	if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
 		return;
