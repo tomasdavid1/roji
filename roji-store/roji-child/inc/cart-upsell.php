@@ -140,8 +140,27 @@ add_action(
 // Cart page — sits below the cart table, above the cross-sells.
 add_action( 'woocommerce_after_cart_table', 'roji_render_cart_upsell', 5 );
 
-// Checkout page — sits above the order review so it's impossible to miss.
-add_action( 'woocommerce_checkout_before_order_review_heading', 'roji_render_cart_upsell', 5 );
+// Checkout page — render BEFORE the checkout <form> opens so our two
+// inner <form method="post"> upsell blocks aren't nested inside it.
+//
+// Why this matters (this caused a nasty silent regression):
+//
+// - HTML5 forbids nested <form> elements. When the parser sees a <form>
+//   inside another <form>, it silently drops the inner opening tag.
+// - The upsell's <input type="hidden" name="roji_add_supplies" value="1">
+//   and <button type="submit"> then become direct children of the outer
+//   <form class="checkout">.
+// - When the customer clicked "Place Order", the form serialized
+//   `roji_add_supplies=1` by accident, the `template_redirect` handler
+//   above caught it BEFORE WC's checkout handler ran, and redirected
+//   straight back to /checkout/ with no order created. Symptom: button
+//   looks stale, no network request, no error, no animation.
+//
+// The earlier hook `woocommerce_checkout_before_order_review_heading`
+// fires INSIDE the checkout <form>. We use `woocommerce_before_checkout_form`
+// instead so the upsell renders ABOVE the checkout form, in its own
+// HTML scope, where its inner POST forms are valid.
+add_action( 'woocommerce_before_checkout_form', 'roji_render_cart_upsell', 5 );
 
 /**
  * Render the supply upsell card. No-op when no stack is in the cart, or

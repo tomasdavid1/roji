@@ -368,6 +368,14 @@ a:focus {
   accent-color: var(--roji-accent);
   cursor: pointer;
 }
+/* WC injects a "(optional)" span on every checkbox that doesn't have
+   `required => true` set. We deliberately don't make this checkbox
+   HTML5-required (see disclaimers.php for why), but the label is
+   absolutely required via JS + server-side validation. Suppress the
+   misleading "(optional)" for this specific row. */
+.roji-research-confirm label > .optional {
+  display: none !important;
+}
 
 /* Place order — match Proceed-to-checkout treatment */
 .woocommerce-checkout #place_order,

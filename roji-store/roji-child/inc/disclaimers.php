@@ -52,6 +52,23 @@ add_action(
 
 /**
  * Mandatory checkout checkbox.
+ *
+ * We deliberately do NOT pass `required => true` to woocommerce_form_field.
+ * WC translates that into the HTML5 `required` attribute, which makes the
+ * browser silently block form submission when unchecked — no JS fires, no
+ * AJAX request, nothing in the network/console tab. The customer just
+ * clicks Place Order and "nothing happens." Instead we validate this
+ * checkbox client-side (with a visible error + scroll) and server-side
+ * (woocommerce_checkout_process below).
+ *
+ * BUT we do need to neutralize WC's auto-appended "(optional)" suffix —
+ * because the field has no `required` attribute, WC marks the label as
+ * optional, which is misleading. We render the label ourselves (with no
+ * (optional) tag, but also no HTML5 required) by passing the visible
+ * mandatory marker INSIDE the label string and then suppressing WC's
+ * auto-suffix with `custom_attributes => array('data-roji-required' => '1')`
+ * combined with our CSS in style.css that hides the .optional span on
+ * `.roji-research-confirm`.
  */
 add_action(
 	'woocommerce_review_order_before_submit',
@@ -59,13 +76,6 @@ add_action(
 		if ( ! function_exists( 'woocommerce_form_field' ) ) {
 			return;
 		}
-		// We deliberately do NOT pass `required => true` to woocommerce_form_field.
-		// WC translates that into the HTML5 `required` attribute, which makes
-		// the browser silently block form submission when unchecked — no JS
-		// fires, no AJAX request, nothing in the network/console tab. The
-		// customer just clicks Place Order and "nothing happens." Instead we
-		// validate this checkbox client-side (with a visible error + scroll)
-		// and server-side (woocommerce_checkout_process below).
 		woocommerce_form_field(
 			'research_use_confirm',
 			array(
@@ -73,7 +83,7 @@ add_action(
 				'class' => array( 'roji-research-confirm', 'form-row-wide' ),
 				'label' => sprintf(
 					/* translators: %d: minimum age requirement */
-					__( 'I confirm these products are for research use only and I am %d+.', 'roji-child' ),
+					__( 'I confirm these products are for research use only and I am %d+. (required)', 'roji-child' ),
 					(int) ROJI_AGE_REQUIREMENT
 				),
 			)
