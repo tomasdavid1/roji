@@ -236,7 +236,7 @@ function biohackerAdGroup(finalUrl: string): BlueprintAdGroup {
           "Free Calculator Suite",
           "Smart Math Tools",
           "Calibrated, Not Guessed",
-          "Your Stats → Framework",
+          "Stats To Framework Fast",
           "Recomp Math Made Easy",
           "Tools That Just Work",
         ],

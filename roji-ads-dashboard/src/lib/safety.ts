@@ -36,6 +36,21 @@ const FORBIDDEN_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
   { pattern: /\b(weight[\s-]?loss|fat[\s-]?loss)\b/i, reason: "Weight/fat-loss claim" },
   { pattern: /\bmuscle gain(s)?\b/i, reason: "Body-modification claim" },
   { pattern: /\b(anti[\s-]?aging|anti[\s-]?ageing)\b/i, reason: "Anti-aging claim" },
+
+  // Google's "Punctuation and symbols" policy — disapproves ad copy with
+  // nonstandard / repetitive punctuation. We've been bitten by → in a
+  // headline; pre-empt the whole class.
+  // https://support.google.com/adspolicy/answer/14367389
+  {
+    pattern: /[→←↑↓⇒⇐⇨⇦«»►◄▶◀✓✔✗✘★☆♥♦♣♠]/u,
+    reason:
+      "Nonstandard symbol (→ ← ★ ✓ etc.) — Google Ads disapproves. Spell it out instead.",
+  },
+  { pattern: /!{2,}/, reason: "Repeated exclamation points are disapproved." },
+  { pattern: /\?{2,}/, reason: "Repeated question marks are disapproved." },
+  // Allow exactly one `!` — Google permits it in body text but not in
+  // headlines as a stylistic emphasis. Headlines are length-validated
+  // separately in ads-blueprint; here we just block the egregious case.
 ];
 
 /**
