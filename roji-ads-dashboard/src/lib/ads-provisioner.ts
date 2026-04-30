@@ -73,15 +73,25 @@ export async function provisionBlueprint(
   opts: { dryRun?: boolean } = {},
 ): Promise<ProvisionResult> {
   const issues = validateBlueprint(blueprint);
-  if (issues.length > 0) {
+  // Only hard errors block provisioning. Warnings (e.g. "protocol", "cycle")
+  // are surfaced in the result + dashboard UI but don't abort. Otherwise a
+  // single soft-warning term in copy/keywords would brick the provisioner.
+  const errors = issues.filter((i) => i.severity === "error");
+  if (errors.length > 0) {
     throw new Error(
       "Blueprint failed safety validation. Refusing to provision: " +
-        issues.map((i) => `${i.field}: "${i.text}" (${i.reason})`).join(" | "),
+        errors.map((i) => `${i.field}: "${i.text}" (${i.reason})`).join(" | "),
     );
   }
 
   const live = isLive() && !opts.dryRun;
   const mode: ProvisionResult["mode"] = live ? "live" : "mock";
+
+  // Surface warnings to the result so the dashboard UI can show them
+  // alongside provisioning warnings without conflating the two.
+  const warningStrings = issues
+    .filter((i) => i.severity === "warning")
+    .map((i) => `[validation] ${i.adGroup ?? "?"} / ${i.field}: "${i.text}" — ${i.reason}`);
 
   const result: ProvisionResult = {
     mode,
@@ -90,7 +100,7 @@ export async function provisionBlueprint(
     validation_issues: issues,
     stats: blueprintStats(blueprint),
     campaigns: [],
-    warnings: [],
+    warnings: [...warningStrings],
   };
 
   for (const c of blueprint.campaigns) {
