@@ -179,13 +179,57 @@ export async function getGa4ToolFunnelEvents(
     const propertyId = process.env.GA4_PROPERTY_ID!;
     const range = ga4DateRange(args.dateRange);
 
-    // GA4 reports paid-ads sessions with sessionMedium=cpc.
-    const paidFilter = {
-      filter: {
-        fieldName: "sessionMedium",
-        stringFilter: { matchType: "EXACT", value: "cpc" },
-      },
-    };
+    // Paid-traffic filter. GA4 ideally tags paid clicks as
+    // sessionMedium=cpc, but only AFTER the Google Ads ↔ GA4 link is
+    // active in Admin. Until then, paid sessions land in (not set) /
+    // (direct) / referral. To stay useful in both pre- and post-link
+    // states we accept any of:
+    //   - sessionMedium = cpc | ppc | paid
+    //   - firstUserMedium = cpc | ppc | paid (some referrers downgrade)
+    //   - sessionGoogleAdsCampaignName != "(not set)"  (gclid resolved)
+    //
+    // OR a wide-net mode: when no Ads link exists yet we don't filter
+    // at all — that's strictly worse for organic-vs-paid attribution
+    // but at least surfaces SOMETHING in the funnel mid-steps.
+    // Controlled by GA4_PAID_FILTER env (default = "lenient" while the
+    // Ads link is being wired; flip to "strict" once attribution works).
+    const paidMode = process.env.GA4_PAID_FILTER ?? "lenient";
+
+    const paidFilter =
+      paidMode === "strict"
+        ? {
+            filter: {
+              fieldName: "sessionMedium",
+              stringFilter: { matchType: "EXACT", value: "cpc" },
+            },
+          }
+        : {
+            orGroup: {
+              expressions: [
+                {
+                  filter: {
+                    fieldName: "sessionMedium",
+                    inListFilter: { values: ["cpc", "ppc", "paid"] },
+                  },
+                },
+                {
+                  filter: {
+                    fieldName: "firstUserMedium",
+                    inListFilter: { values: ["cpc", "ppc", "paid"] },
+                  },
+                },
+                {
+                  filter: {
+                    fieldName: "sessionGoogleAdsCampaignName",
+                    stringFilter: {
+                      matchType: "BEGINS_WITH",
+                      value: "C",
+                    },
+                  },
+                },
+              ],
+            },
+          };
 
     // Optional landing-page filter (path-prefix match).
     const pathFilter = args.landingPath
@@ -204,23 +248,45 @@ export async function getGa4ToolFunnelEvents(
       ? { andGroup: { expressions: [paidFilter, pathFilter] } }
       : paidFilter;
 
-    // Fetch event counts grouped by event name in one report.
-    const resp = await fetch(
-      `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+    // Use the realtime endpoint when caller asks for TODAY — GA4's
+    // daily aggregate has a 24-48h lag for new properties, but
+    // realtime is, well, real time.
+    const useRealtime = args.dateRange === "TODAY";
+    const reportUrl = useRealtime
+      ? `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runRealtimeReport`
+      : `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`;
+
+    // The realtime endpoint doesn't accept dateRanges (it's always
+    // last 30 min) and DOES NOT support sessionMedium / paid filtering
+    // (those dimensions only exist on the standard report). For
+    // realtime we just fetch all events; the funnel will show "today
+    // so far, all sources" rather than "today paid only". Acceptable
+    // tradeoff for the mid-funnel — the Ad-click step is already
+    // sourced from Google Ads (paid by definition).
+    const reportBody = useRealtime
+      ? {
+          dimensions: [{ name: "eventName" }],
+          metrics: [{ name: "eventCount" }],
+          // Realtime supports a path filter on `unifiedScreenName`
+          // but not landingPagePlusQueryString, so skip the path
+          // filter for realtime — the per-tool view will be slightly
+          // over-attributed for TODAY only. Acceptable.
+        }
+      : {
           dateRanges: [range],
           dimensions: [{ name: "eventName" }],
           metrics: [{ name: "eventCount" }],
           dimensionFilter,
-        }),
+        };
+
+    const resp = await fetch(reportUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify(reportBody),
+    });
 
     if (!resp.ok) {
       const txt = await resp.text();

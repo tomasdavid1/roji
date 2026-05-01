@@ -523,6 +523,20 @@ We use the **same OAuth client** as Google Ads. No Google Cloud service-account 
 
 The dashboard authenticates as **you personally**, not as a service account — same auth model as Google Ads. If you ever revoke consent at https://myaccount.google.com/permissions you'll need to re-run the helper.
 
+### Critical follow-up: link Google Ads to GA4 (one-time, ~30s)
+
+For paid-traffic attribution on the funnel mid-steps to work properly, GA4 needs to know which sessions came from Google Ads. Without the link, paid sessions land in `sessionMedium=(not set)` instead of `cpc`, which breaks every paid-only filter.
+
+1. GA4 → **Admin** (gear, bottom-left)
+2. **Property** column → **Product links** → **Google Ads links**
+3. Click **Link** → choose your Google Ads account `657-303-2286` (Roji)
+4. Enable "Personalized advertising" + "Auto-tagging" — leave defaults
+5. Click **Submit**. Backfill for the previous 90 days populates within an hour.
+
+**Why this matters:** the dashboard funnel currently uses a **lenient paid filter** (env `GA4_PAID_FILTER=lenient` is the default) that accepts any of `sessionMedium=cpc/ppc/paid`, OR `sessionGoogleAdsCampaignName` matching, OR `firstUserMedium=cpc`. Once the link is active, flip the env to `GA4_PAID_FILTER=strict` for cleaner numbers.
+
+Until you do this, "TODAY" date range on the funnel uses the GA4 **realtime** endpoint (last 30 min, all sources, no path filter) so the mid-funnel actually shows current activity. Realtime can't filter by paid attribution, so it slightly over-counts; that's fine while we have low volume and the link isn't set up.
+
 ### WooCommerce REST API — DEFERRED (May 2026)
 
 **Status:** keys generated and stored on Vercel, but the integration is **deliberately deferred**. Note from May 1, 2026 audit:
