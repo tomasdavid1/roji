@@ -338,6 +338,57 @@ export async function getKeywordPerformance(
   });
 }
 
+/**
+ * Per-ad-group conversions, segmented by conversion action name.
+ *
+ * The Google Ads classic conversion-count metric (`metrics.conversions`)
+ * collapses ALL primary conversion actions into a single number, which is
+ * useless when "Add to cart" and "Purchase" are both primary (Roji's setup).
+ * This helper unpicks them so the funnel can show each step accurately.
+ *
+ * Returns a map keyed by ad-group name → conversion-action name → count.
+ */
+export async function getConversionsByAdGroupAndAction(
+  dateRange: DateRange = "LAST_30_DAYS",
+): Promise<Map<string, Map<string, number>>> {
+  const out = new Map<string, Map<string, number>>();
+  if (!isLive()) {
+    return out;
+  }
+  const c = customer();
+  // Raw GAQL — the report() builder doesn't expose conversion-action segments
+  // alongside ad_group attributes cleanly.
+  const rows = (await wrapApiCall(
+    "getConversionsByAdGroupAndAction",
+    () =>
+      c.query(`
+        SELECT
+          ad_group.name,
+          segments.conversion_action_name,
+          metrics.conversions,
+          metrics.all_conversions
+        FROM ad_group
+        WHERE segments.date DURING ${dateRange}
+          AND metrics.all_conversions > 0
+      `),
+  )) as Array<{
+    ad_group: { name: string };
+    segments: { conversion_action_name: string };
+    metrics: { conversions: number; all_conversions: number };
+  }>;
+
+  for (const r of rows) {
+    const ag = r.ad_group?.name;
+    const action = r.segments?.conversion_action_name;
+    if (!ag || !action) continue;
+    if (!out.has(ag)) out.set(ag, new Map());
+    const inner = out.get(ag)!;
+    const prev = inner.get(action) ?? 0;
+    inner.set(action, prev + Number(r.metrics?.all_conversions ?? 0));
+  }
+  return out;
+}
+
 /* -------------------------------------------------------------------------- */
 /* Write API                                                                  */
 /* -------------------------------------------------------------------------- */

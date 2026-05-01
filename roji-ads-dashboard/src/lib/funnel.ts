@@ -28,6 +28,7 @@ import "server-only";
 import {
   getCampaignPerformance,
   getKeywordPerformance,
+  getConversionsByAdGroupAndAction,
   isLive as gadsIsLive,
   type DateRange,
 } from "./google-ads";
@@ -100,14 +101,22 @@ export const TOOLS: ToolDefinition[] = [
     adGroupNames: ["AG-Recomp", "AG5 — Fitness Calculator Intent"],
   },
   {
+    id: "peptide-research",
+    label: "C2 — Peptide Research (experiment)",
+    toolsPath: "",
+    adGroupNames: ["AG4 — Peptide Research Intent (experiment)"],
+  },
+  {
+    id: "biohacker",
+    label: "C1 — Biohacker Intent",
+    toolsPath: "",
+    adGroupNames: ["AG3 — Biohacker Intent"],
+  },
+  {
     id: "generic",
     label: "Generic / Homepage",
     toolsPath: "",
-    adGroupNames: [
-      "AG-Generic",
-      "AG3 — Biohacker Intent",
-      "AG4 — Peptide Research Intent (experiment)",
-    ],
+    adGroupNames: ["AG-Generic"],
   },
   {
     id: "brand",
@@ -211,7 +220,24 @@ export async function getFunnelForTool(
   const ad_clicks = filtered.reduce((sum, r) => sum + r.clicks, 0);
   const ad_impressions = filtered.reduce((sum, r) => sum + r.impressions, 0);
   const ad_spend = filtered.reduce((sum, r) => sum + r.cost_usd, 0);
-  const ad_conversions = filtered.reduce((sum, r) => sum + r.conversions, 0);
+
+  // Conversions, segmented by action name. Roji currently has TWO primary
+  // conversion actions configured ("Purchase" and "Add to cart") — collapsing
+  // them via metrics.conversions is misleading, so we segment them here.
+  const convsByAgAction = await getConversionsByAdGroupAndAction(dateRange);
+  let ads_add_to_cart = 0;
+  let ads_purchases = 0;
+  for (const [agName, actionMap] of convsByAgAction.entries()) {
+    if (!matchAdGroup(agName)) continue;
+    for (const [actionName, count] of actionMap.entries()) {
+      const lc = actionName.toLowerCase();
+      if (lc.includes("purchase") || lc.includes("reserve")) {
+        ads_purchases += count;
+      } else if (lc.includes("cart") || lc.includes("checkout")) {
+        ads_add_to_cart += count;
+      }
+    }
+  }
 
   /* ---- Steps 2-6: GA4 mid-funnel ------------------------------------- */
   // GA4 returns null per step if not configured. When configured, it
@@ -237,11 +263,11 @@ export async function getFunnelForTool(
     }
   }
 
-  /* ---- Step 7: purchase (Google Ads conversion count) ---------------- */
-  // The `purchase` conversion fires on every reserve-order thank-you
-  // page (per ADS-PLAYBOOK.md). Conversion count from Google Ads is
-  // our best paid-attribution number until WC REST is wired.
-  const purchases = ad_conversions; // already includes purchase conv
+  /* ---- Step 7: purchase (Google Ads `Purchase` action only) ---------- */
+  // We deliberately use the segmented "Purchase" count, not the
+  // metrics.conversions roll-up, because "Add to cart" is also primary
+  // and would otherwise inflate this number.
+  const purchases = ads_purchases;
 
   /* ---- Compose steps ------------------------------------------------- */
   const steps: FunnelStep[] = [
@@ -285,9 +311,27 @@ export async function getFunnelForTool(
     {
       id: "add_to_cart",
       label: "Add to cart",
-      source: "ga4",
-      count: ga4.add_to_cart,
-      note: ga4.add_to_cart === null ? "GA4 not connected" : undefined,
+      // Prefer GA4 (more granular, paid-search filtered). Fall back to
+      // Google Ads' "Add to cart" conversion action when GA4 is empty
+      // or not connected — that way we still see signal at this step.
+      source:
+        ga4.add_to_cart !== null && ga4.add_to_cart > 0
+          ? "ga4"
+          : ads_add_to_cart > 0
+            ? "google_ads"
+            : "ga4",
+      count:
+        ga4.add_to_cart !== null && ga4.add_to_cart > 0
+          ? ga4.add_to_cart
+          : ads_add_to_cart > 0
+            ? ads_add_to_cart
+            : ga4.add_to_cart,
+      note:
+        ga4.add_to_cart === null && ads_add_to_cart === 0
+          ? "GA4 not connected"
+          : ga4.add_to_cart === null && ads_add_to_cart > 0
+            ? "From Google Ads `Add to cart` conversion (GA4 not yet flowing)"
+            : undefined,
     },
     {
       id: "checkout_view",
@@ -303,8 +347,8 @@ export async function getFunnelForTool(
       count: purchases,
       note:
         purchases === 0
-          ? "Zero conversions on this tool/window"
-          : "Google Ads `purchase` conversion count",
+          ? "Zero `Purchase` conversions on this tool/window"
+          : "Google Ads `Purchase` conversion (segmented; excludes `Add to cart`)",
     },
   ];
 
