@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { STORE_URL } from "@/lib/tools";
+import { track } from "@/lib/track";
 
 /**
  * Roji R monogram - kept exported for use in places like breadcrumbs
@@ -45,8 +46,11 @@ export function RojiMark({ className }: { className?: string }) {
  * Compliance considerations:
  *   - No "Protocol Engine" link (the protocol subdomain is being
  *     killed in favor of this app being the canonical entrypoint).
- *   - No Shop link in the primary nav. The store has exactly one
- *     subtle reference: the rojipeptides.com text mark on the right.
+ *   - One Shop CTA on the right. Bumped from a quiet "rojipeptides.com →"
+ *     text mark (2026-04) to an accent-pill "Shop →" (2026-05-01) after
+ *     funnel data showed paid clickers landing here weren't converting.
+ *     Still single, still clearly labeled — just visible enough that
+ *     researchers who *do* want to buy don't have to scroll for it.
  *   - No tool-name dropdown. The directory page is the entry point
  *     and the only place the tool catalog should be enumerated.
  */
@@ -77,11 +81,17 @@ export function SiteHeader() {
         )}
 
         <a
-          href={STORE_URL}
-          className="inline-flex items-center gap-1 text-xs font-mono uppercase tracking-wider text-roji-muted hover:text-roji-text transition-colors"
+          href={`${STORE_URL}/shop/?utm_source=tools&utm_medium=header&utm_campaign=site_header`}
+          onClick={() => track("header_shop_click", { surface: "site_header" })}
+          className={[
+            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-roji",
+            "bg-roji-accent/10 border border-roji-accent/30 text-roji-accent",
+            "hover:bg-roji-accent/15 hover:border-roji-accent/50 transition-colors",
+            "text-xs sm:text-sm font-medium",
+          ].join(" ")}
+          aria-label="Shop research stacks at rojipeptides.com"
         >
-          <span className="hidden sm:inline">rojipeptides.com</span>
-          <span className="sm:hidden">Shop</span>
+          <span>Shop</span>
           <span aria-hidden="true">→</span>
         </a>
       </div>

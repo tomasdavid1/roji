@@ -1,3 +1,4 @@
+import { HeroToolPicker } from "@/components/HeroToolPicker";
 import { ToolCard } from "@/components/ToolCard";
 import { TrustSignals } from "@/components/TrustSignals";
 import { TypewriterRotator } from "@/components/TypewriterRotator";
@@ -39,7 +40,7 @@ export default function HomePage() {
         }}
       />
 
-      <div className="relative px-5 pt-10 pb-12 sm:pt-24 lg:pt-32">
+      <div className="relative px-5 pt-8 pb-12 sm:pt-16 lg:pt-20">
         {/* ── HERO ────────────────────────────────────────────────── */}
         <section className="max-w-3xl mx-auto text-center">
           <span
@@ -56,7 +57,7 @@ export default function HomePage() {
             Roji Peptides · Research Tools
           </span>
 
-          <h1 className="text-[44px] sm:text-[60px] lg:text-[68px] font-semibold mt-5 leading-[1.05] tracking-tightest">
+          <h1 className="text-[36px] sm:text-[52px] lg:text-[60px] font-semibold mt-4 leading-[1.05] tracking-tightest">
             Free research tools,
             <br />
             built for{" "}
@@ -67,17 +68,22 @@ export default function HomePage() {
           </h1>
 
           <p
-            className="mt-7 text-roji-muted text-base sm:text-lg leading-relaxed mx-auto"
+            className="mt-5 text-roji-muted text-base sm:text-lg leading-relaxed mx-auto"
             style={{ maxWidth: "520px" }}
           >
-            Calculators, analyzers, and databases. No signup. No cost. Built by
-            researchers who understand the science.
+            Calculators, analyzers, and databases. No signup. No cost.
           </p>
         </section>
 
+        {/* ── ABOVE-THE-FOLD TOOL PICKER ─────────────────────────── */}
+        {/* Paid clickers from Google Ads should be able to self-route
+            to the right tool in 1 click without scrolling. The full
+            8-tool grid still lives below for browsers. */}
+        <HeroToolPicker />
+
         {/* ── TOOL GRID ───────────────────────────────────────────── */}
         <section
-          className="mt-20 max-w-4xl mx-auto"
+          className="mt-16 max-w-4xl mx-auto"
           aria-labelledby="tools-heading"
         >
           <h2
