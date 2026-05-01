@@ -287,19 +287,20 @@ console.log("\nads-blueprint.peptide-experiment shape:");
     true,
   );
   eq(
-    "peptide-experiment: $5/day cap by default",
+    "peptide-experiment: $35/day default (was $5, scaled after 18% CTR on `research peptide`)",
     b.campaigns[0].dailyBudgetUsd,
-    5,
+    35,
   );
   eq(
-    // Expanded 2026-05-01 from 2 to 15 keywords. The 2-keyword
-    // "tight experiment" framing is over — C2 is approved and
-    // serving. See C2-KEYWORD-EXPANSION.md for the rationale on
-    // each addition (5 user-added on 2026-05-01 plus 8 Tier 1
-    // close-variant promotions from the search-term report).
-    "peptide-experiment: 15 keywords (post-expansion)",
+    // Expanded 2026-05-01 across two passes:
+    //   AM: 2 → 15 keywords (Tier 1 close-variant promotions from
+    //       the search-term report).
+    //   PM: 15 → 25 keywords (`research peptide` family expansion
+    //       after that keyword hit 18.18% CTR).
+    // See C2-KEYWORD-EXPANSION.md for full rationale.
+    "peptide-experiment: 25 keywords (post-expansion)",
     b.campaigns[0].adGroups[0].keywords.length,
-    15,
+    25,
   );
   ok(
     // Intent invariant: every C2 keyword must match the peptide-research
@@ -532,9 +533,9 @@ function statsSection() {
     const s = blueprintStats(resolveBlueprint({ mode: "peptide-experiment" }));
     eq("peptide-experiment: 1 campaign", s.campaigns, 1);
     eq("peptide-experiment: 1 ad group", s.adGroups, 1);
-    eq("peptide-experiment: 15 keywords (expanded)", s.keywords, 15);
+    eq("peptide-experiment: 25 keywords (expanded)", s.keywords, 25);
     eq("peptide-experiment: 1 RSA", s.ads, 1);
-    eq("peptide-experiment: $5/day cap", s.totalDailyBudgetUsd, 5);
+    eq("peptide-experiment: $35/day", s.totalDailyBudgetUsd, 35);
   }
 }
 

@@ -897,19 +897,19 @@ function peptideExperimentAdGroup(finalUrl: string): BlueprintAdGroup {
     allowPeptideExperiment: true,
     notes:
       "DELIBERATE POLICY EXPERIMENT — now SCALING. Originally launched " +
-      "with 2 PHRASE keywords as a $5/day test. As of 2026-05-01 the " +
-      "campaign is approved (Eligible/Learning), serving real " +
-      "impressions, and capturing organic close-variant matches in " +
-      "Spanish/German/Portuguese. Tier 1 expansion below promotes the " +
-      "highest-signal close variants from the search-term report into " +
-      "first-class keywords. See: C2-KEYWORD-EXPANSION.md for the full " +
-      "rationale, negative-keyword recommendations, and Tier 2/3 " +
-      "follow-ups.",
+      "with 2 PHRASE keywords as a $5/day test. As of 2026-05-01 PM " +
+      "the campaign is the strongest performer in the account: " +
+      "`research peptide` (PHRASE) hit 18.18% CTR @ $0.70 CPC after " +
+      "Quality Score kicked in. Budget bumped to $25/day. Keyword " +
+      "set expanded with the `research peptide` variant family " +
+      "(highest-confidence additions because they're orthogonal " +
+      "extensions of a proven winner). See: C2-KEYWORD-EXPANSION.md " +
+      "for the full rationale.",
     keywords: [
       // Original 2 — proven, keep.
       { text: "peptide research calculator", match: "PHRASE", risk: "high" },
       { text: "peptide research tools", match: "PHRASE", risk: "high" },
-      // User-added on 2026-05-01 (already serving):
+      // User-added on 2026-05-01 AM (already serving):
       { text: "peptide calculator", match: "EXACT", risk: "high" },
       { text: "research peptide", match: "PHRASE", risk: "high" },
       { text: "peptide quality", match: "PHRASE", risk: "high" },
@@ -939,6 +939,21 @@ function peptideExperimentAdGroup(finalUrl: string): BlueprintAdGroup {
       { text: "calculadora de peptidos", match: "EXACT", risk: "high" },
       { text: "peptide half life calculator", match: "PHRASE", risk: "high" },
       { text: "peptide half life database", match: "PHRASE", risk: "high" },
+      // Tier 2 — `research peptide` family expansion (added 2026-05-01 PM).
+      // `research peptide` PHRASE is hitting 18.18% CTR; these are the
+      // closest variants and should perform similarly. EXACT match used
+      // for the highest-commercial-intent variants ("research grade")
+      // to capture them at the lowest possible CPC.
+      { text: "research peptides", match: "PHRASE", risk: "high" },
+      { text: "research grade peptide", match: "EXACT", risk: "high" },
+      { text: "research grade peptides", match: "EXACT", risk: "high" },
+      { text: "peptide for research", match: "PHRASE", risk: "high" },
+      { text: "peptides for research", match: "PHRASE", risk: "high" },
+      { text: "research peptide vendor", match: "PHRASE", risk: "high" },
+      { text: "research peptide vendors", match: "PHRASE", risk: "high" },
+      { text: "research peptide reviews", match: "PHRASE", risk: "high" },
+      { text: "research peptide guide", match: "PHRASE", risk: "high" },
+      { text: "research peptide compounds", match: "PHRASE", risk: "high" },
     ],
     ads: [
       {
@@ -1117,7 +1132,13 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
           // isolation (a disapproval here can't pause C1), and clean
           // per-campaign reporting in the Google Ads UI.
           name: "C2 — Peptide Research — Experiment [roji-blueprint]",
-          dailyBudgetUsd: opts.peptideExperimentBudget ?? 5,
+          // Bumped from $5 → $15 → $35 across 2026-05-01. C2 is the
+          // strongest performer in the account (18.18% CTR on
+          // `research peptide`, $0.70 CPC and dropping as Quality
+          // Score kicks in). $35/day is the project's stated ad
+          // budget ceiling — every dollar at this CTR is going
+          // farther than anywhere else.
+          dailyBudgetUsd: opts.peptideExperimentBudget ?? 35,
           channel: "SEARCH",
           language: "en",
           geoTargets: ["US"],
