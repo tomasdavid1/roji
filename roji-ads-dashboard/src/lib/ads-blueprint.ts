@@ -255,8 +255,11 @@ export const POLICY_NEGATIVE_KEYWORDS: string[] = [
  *   - No "before you ever touch a vial" — sounds operational/preparatory.
  *   - "Vial" is allowed as a research lab term but used sparingly.
  *   - Lead with "Research Concentration Math" framing.
- *   - Keep references to BAC water + concentration math, drop the
- *     practical-use flavor that triggered policy concerns.
+ *   - Do NOT echo "BAC water" in ad copy (Google flagged this under
+ *     "Unapproved substances" 2026-04-30). Keep the keyword `"bac water
+ *     calculator"` because it represents real user search intent — we
+ *     just don't repeat the term back in our own asset copy.
+ *   - Focus on concentration math / volume calculator framing instead.
  */
 function reconstitutionAdGroup(toolsUrl: string): BlueprintAdGroup {
   return {
@@ -275,9 +278,14 @@ function reconstitutionAdGroup(toolsUrl: string): BlueprintAdGroup {
     ads: [
       {
         headlines: [
+          // "BAC Water Math — Free" removed 2026-04-30 after Google
+          // flagged "BAC water" in the Reconstitution sitelink under
+          // "Unapproved substances." The keyword "bac water calculator"
+          // stays (represents user search intent), but we don't echo
+          // the term back in our own copy.
           "Reconstitution Calculator",
           "Free Research Concentration",
-          "BAC Water Math — Free",
+          "Free Volume Calculator",
           "Concentration Calculator",
           "Research Math Calculator",
           "Free Reconstitution Tool",
@@ -325,13 +333,20 @@ function halfLifeAdGroup(toolsUrl: string): BlueprintAdGroup {
     ],
     ads: [
       {
+        // Rewritten 2026-04-30 after Google flagged the sitelink
+        // "Compare compound half-lives" under Unapproved Substances.
+        // The pairing of "compound" + "half-life" (especially plural)
+        // reads as pharmacokinetic claims about unapproved substances.
+        // Stripped "compound half-lives", "research compounds",
+        // "compound decay curves" — replaced with research-database /
+        // reference-data framing that describes the TOOL, not the
+        // substances it covers.
         headlines: [
           "Half-Life Database — Free",
-          "Compare Compound Half-Lives",
+          "Free Research Database",
           "Decay Curves, Visualized",
           "Cited Research Data",
           "PubMed-Cited References",
-          "Free Research Database",
           "20+ Research Entries",
           "Research Comparison Tool",
           "Roji Research Tools",
@@ -340,13 +355,14 @@ function halfLifeAdGroup(toolsUrl: string): BlueprintAdGroup {
           "Browse — Free",
           "Evidence-Based Tools",
           "No Signup Required",
-          "Compound Comparison Free",
+          "Research Reference Data",
+          "Referenced Half-Life Data",
         ],
         descriptions: [
-          "Half-life ranges, MW, and reference data for 20+ research compounds. Free, cited.",
-          "Compare decay curves and reference profiles across compounds. Free, browser-based.",
-          "PubMed-cited half-life data for the most-researched compounds. No paywall, no account.",
-          "Visualize compound decay curves with referenced data. Built for researchers, free.",
+          "Referenced half-life ranges and reference data for 20+ research entries. Free, cited.",
+          "Compare decay curves and reference profiles in one free research database. Browser-based.",
+          "PubMed-cited reference data in a free research database. No paywall, no account needed.",
+          "Visualize referenced decay curves in a free research database. Built for researchers.",
         ],
       },
     ],
@@ -1094,17 +1110,22 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
     ],
     negativeKeywords: POLICY_NEGATIVE_KEYWORDS,
     sitelinks: [
+      // Descriptions rewritten 2026-04-30 after Google flagged the
+      // Reconstitution and Half-Life sitelinks under "Unapproved
+      // substances." "BAC water" and "compound half-lives" are the two
+      // triggers (now blocked by safety.ts). Safer, more neutral
+      // research-tool framing below.
       {
         text: "Reconstitution Calc",
         finalUrl: `${toolsUrl}/reconstitution`,
-        description1: "Calculate reconstitution volumes",
-        description2: "Precise BAC water math, free",
+        description1: "Free concentration calculator",
+        description2: "Browser-based lab math tool",
       },
       {
         text: "Half-Life Database",
         finalUrl: `${toolsUrl}/half-life`,
-        description1: "Compare compound half-lives",
-        description2: "Published data, referenced",
+        description1: "Referenced research database",
+        description2: "Free, no signup needed",
       },
       {
         text: "COA Analyzer",
