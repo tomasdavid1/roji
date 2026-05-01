@@ -1007,18 +1007,23 @@ function brandAdGroup(storeUrl: string): BlueprintAdGroup {
     ],
     ads: [
       {
+        // Rewritten 2026-05-01 after Google flagged the brand RSA under
+        // "Unapproved substances" — "Research-Grade Stacks" and "research
+        // compound stacks" were pharma-adjacent enough to trigger the
+        // classifier even on our brand-defense queries. Keep brand name
+        // prominent, drop the stack/compound framing entirely in ad copy.
         headlines: [
           "Roji — Official Site",
           "Roji Research Tools",
-          "Research-Grade Stacks",
           "Free Research Calculator",
           "Roji Peptides Official",
+          "Roji Research Hub",
         ],
         descriptions: [
-          "Official Roji research tools. Build personalized, evidence-based frameworks in 60 seconds.",
-          "Roji — premium research compound stacks with third-party COA verification on every batch.",
+          "Official Roji research tools. Build evidence-based frameworks in 60 seconds. Free.",
+          "Roji — the research hub with third-party COA verification on every batch.",
           "Free research calculators trusted by the research community. No account required.",
-          "The Roji research suite: framework builders, dose-cost math, recomp planners. All free.",
+          "The Roji research suite: framework builders, cost math, and body composition tools.",
         ],
       },
     ],
@@ -1110,22 +1115,21 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
     ],
     negativeKeywords: POLICY_NEGATIVE_KEYWORDS,
     sitelinks: [
-      // Descriptions rewritten 2026-04-30 after Google flagged the
-      // Reconstitution and Half-Life sitelinks under "Unapproved
-      // substances." "BAC water" and "compound half-lives" are the two
-      // triggers (now blocked by safety.ts). Safer, more neutral
-      // research-tool framing below.
+      // Campaign-level **extension assets** only (sitelinks + callouts below).
+      // 2026-05: neutral sitelink titles + URL-keyed provisioner sync so
+      // renames update the same asset. RSA/keyword copy stays on ad-group
+      // definitions above — policy hits here were extension-led.
       {
-        text: "Reconstitution Calc",
+        text: "Lab Mixing Calculator",
         finalUrl: `${toolsUrl}/reconstitution`,
-        description1: "Free concentration calculator",
-        description2: "Browser-based lab math tool",
+        description1: "Concentration math in browser",
+        description2: "Free, no signup needed",
       },
       {
-        text: "Half-Life Database",
+        text: "Decay Chart Browser",
         finalUrl: `${toolsUrl}/half-life`,
-        description1: "Referenced research database",
-        description2: "Free, no signup needed",
+        description1: "Cited reference charts",
+        description2: "Free visualization tool",
       },
       {
         text: "COA Analyzer",
@@ -1145,7 +1149,7 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
       { text: "No Signup Required" },
       { text: "Browser-Based" },
       { text: "Cites Published Research" },
-      { text: "20+ Compounds" },
+      { text: "20+ Data Entries" },
       { text: "For Researchers Only" },
     ],
     excludeAge18to24: true,

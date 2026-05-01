@@ -9,9 +9,16 @@
  *   - Campaigns and ad groups are looked up by name (with a
  *     `[roji-blueprint]` suffix). If a name already exists, we reuse it
  *     instead of creating a duplicate.
- *   - Keywords / ad-copy variants are *not* deduped within an existing
- *     ad group — the assumption is "if you re-provisioned, you wanted
- *     fresh copy" — but the campaign shell + budget survive.
+ *   - RSAs: existing responsive search ads in a reused ad group are
+ *     **synced** to the blueprint — we update the oldest unmatched RSA
+ *     in place (via `adGroupAds.update`) when copy differs, and only
+ *     `create` when the group needs more ads than exist. This avoids
+ *     piling up duplicate RSAs and lets operators iterate copy from
+ *     `ads-blueprint.ts` + `--live` without hand-editing the Google Ads UI.
+ *   - Sitelinks: campaign sitelink **assets** are matched by link text;
+ *     descriptions / URLs are updated in place when the blueprint changes.
+ *     New sitelink rows in the blueprint still create new assets + links.
+ *   - Keywords are still additive (not deduped) on re-provision.
  *
  * Mock mode:
  *   - When env vars are missing, every call returns deterministic mock
@@ -91,9 +98,11 @@ export interface ProvisionResult {
       reused: boolean;
       keywords_added: number;
       ads_created: number;
+      ads_updated: number;
     }>;
     negatives_added: number;
     sitelinks_added: number;
+    sitelinks_updated: number;
     callouts_added: number;
     demographics_excluded: number;
   }>;
@@ -171,6 +180,7 @@ async function provisionCampaign(
     ad_groups: [],
     negatives_added: 0,
     sitelinks_added: 0,
+    sitelinks_updated: 0,
     callouts_added: 0,
     demographics_excluded: 0,
   };
@@ -212,13 +222,20 @@ async function provisionCampaign(
     }
   }
 
-  // Sitelink extensions
+  // Sitelink extensions — create missing rows; update in place when link
+  // text matches but descriptions or URL drift from the blueprint.
   if (c.sitelinks && c.sitelinks.length > 0) {
     if (!live) {
       summary.sitelinks_added = c.sitelinks.length;
+      summary.sitelinks_updated = 0;
     } else {
       try {
-        summary.sitelinks_added = await addCampaignSitelinks(summary.campaign_id, c.sitelinks);
+        const { added, updated } = await syncCampaignSitelinks(
+          summary.campaign_id,
+          c.sitelinks,
+        );
+        summary.sitelinks_added = added;
+        summary.sitelinks_updated = updated;
       } catch (err) {
         warnings.push(`[${c.name}] sitelinks failed: ${fmtErr(err)}`);
       }
@@ -283,12 +300,14 @@ async function provisionAdGroup(
     reused: false,
     keywords_added: 0,
     ads_created: 0,
+    ads_updated: 0,
   };
 
   if (!live) {
     out.ad_group_id = "mock-ag-" + slug(g.name);
     out.keywords_added = g.keywords.length;
     out.ads_created = g.ads.length;
+    out.ads_updated = 0;
     return out;
   }
 
@@ -308,70 +327,192 @@ async function provisionAdGroup(
     );
   }
 
-  // Idempotency for RSAs: dedup against existing ads in the group by
-  // matching on the first headline + first description signature. Without
-  // this, every re-provision adds another RSA and we hit Google's hard
-  // limit of 3 enabled RSAs per ad group after a few iterations.
-  const existingSigs = live
-    ? await findExistingRsaSignatures(out.ad_group_id)
-    : new Set<string>();
-
-  for (const ad of g.ads) {
-    const sig = rsaSignature(ad);
-    if (live && existingSigs.has(sig)) {
-      // Already provisioned with identical first-headline + first-description.
-      // Skip to avoid duplicate. (We deliberately don't update existing RSAs
-      // — Google requires removing + recreating, which resets the ad's
-      // learning. Operators who want to refresh copy should use
-      // scripts/remove-ad.js then re-provision.)
-      continue;
-    }
-    try {
-      await createResponsiveSearchAd(out.ad_group_id, ad, g.finalUrl);
-      out.ads_created += 1;
-    } catch (err) {
-      warnings.push(`[${g.name}] RSA failed: ${fmtErr(err)}`);
-    }
+  try {
+    const { created, updated, note } = await syncResponsiveSearchAdsInGroup(
+      out.ad_group_id,
+      g.ads,
+      g.finalUrl,
+      g.name,
+    );
+    out.ads_created = created;
+    out.ads_updated = updated;
+    if (note) warnings.push(note);
+  } catch (err) {
+    warnings.push(`[${g.name}] RSA sync failed: ${fmtErr(err)}`);
   }
 
   return out;
 }
 
-function rsaSignature(ad: BlueprintRSA): string {
-  const h = ad.headlines[0] ?? "";
-  const d = ad.descriptions[0] ?? "";
-  return `${h}|${d}`;
+/** Order-insensitive compare of RSA text slots (headlines / descriptions). */
+function rsaMultisetEqual(a: string[], b: string[]): boolean {
+  const na = [...a].map((s) => s.trim()).filter(Boolean).sort();
+  const nb = [...b].map((s) => s.trim()).filter(Boolean).sort();
+  if (na.length !== nb.length) return false;
+  return na.every((v, i) => v === nb[i]);
 }
 
-async function findExistingRsaSignatures(
-  adGroupId: string,
-): Promise<Set<string>> {
+function rsaMatchesBlueprint(
+  ad: BlueprintRSA,
+  finalUrl: string,
+  row: {
+    headlines: Array<{ text?: string }>;
+    descriptions: Array<{ text?: string }>;
+    final_urls?: string[];
+    path1?: string;
+    path2?: string;
+  },
+): boolean {
+  const h = (row.headlines ?? []).map((x) => (x.text ?? "").trim()).filter(Boolean);
+  const d = (row.descriptions ?? []).map((x) => (x.text ?? "").trim()).filter(Boolean);
+  const url = (row.final_urls?.[0] ?? "").trim();
+  const p1 = (row.path1 ?? "").trim();
+  const p2 = (row.path2 ?? "").trim();
+  const bp1 = (ad.path1 ?? "").trim();
+  const bp2 = (ad.path2 ?? "").trim();
+  return (
+    url === finalUrl.trim() &&
+    p1 === bp1 &&
+    p2 === bp2 &&
+    rsaMultisetEqual(ad.headlines, h) &&
+    rsaMultisetEqual(ad.descriptions, d)
+  );
+}
+
+type RsaRow = {
+  resource_name: string;
+  ad_id: string;
+  status: number;
+  headlines: Array<{ text?: string }>;
+  descriptions: Array<{ text?: string }>;
+  final_urls?: string[];
+  path1?: string;
+  path2?: string;
+};
+
+async function listRsasInAdGroup(adGroupId: string): Promise<RsaRow[]> {
   const cust = await getCustomer();
   const rows = (await cust.query(
     `SELECT
+       ad_group_ad.resource_name,
+       ad_group_ad.status,
+       ad_group_ad.ad.id,
+       ad_group_ad.ad.final_urls,
        ad_group_ad.ad.responsive_search_ad.headlines,
-       ad_group_ad.ad.responsive_search_ad.descriptions
+       ad_group_ad.ad.responsive_search_ad.descriptions,
+       ad_group_ad.ad.responsive_search_ad.path1,
+       ad_group_ad.ad.responsive_search_ad.path2
      FROM ad_group_ad
-     WHERE ad_group_ad.status != 'REMOVED'
-       AND ad_group.id = ${adGroupId}`,
+     WHERE ad_group.id = ${adGroupId}
+       AND ad_group_ad.status != REMOVED
+       AND ad_group_ad.ad.type = RESPONSIVE_SEARCH_AD`,
   )) as Array<{
     ad_group_ad?: {
+      resource_name?: string;
+      status?: number;
       ad?: {
+        id?: string | number;
+        final_urls?: string[];
         responsive_search_ad?: {
           headlines?: Array<{ text?: string }>;
           descriptions?: Array<{ text?: string }>;
+          path1?: string;
+          path2?: string;
         };
       };
     };
   }>;
-  const sigs = new Set<string>();
+  const out: RsaRow[] = [];
   for (const r of rows) {
-    const rsa = r.ad_group_ad?.ad?.responsive_search_ad;
-    const h = rsa?.headlines?.[0]?.text ?? "";
-    const d = rsa?.descriptions?.[0]?.text ?? "";
-    sigs.add(`${h}|${d}`);
+    const aga = r.ad_group_ad;
+    const ad = aga?.ad;
+    const rsa = ad?.responsive_search_ad;
+    if (!aga?.resource_name || ad?.id == null || !rsa) continue;
+    out.push({
+      resource_name: aga.resource_name,
+      ad_id: String(ad.id),
+      status: Number(aga.status ?? enums.AdGroupAdStatus.ENABLED),
+      headlines: rsa.headlines ?? [],
+      descriptions: rsa.descriptions ?? [],
+      final_urls: ad.final_urls,
+      path1: rsa.path1,
+      path2: rsa.path2,
+    });
   }
-  return sigs;
+  out.sort((a, b) => Number(a.ad_id) - Number(b.ad_id));
+  return out;
+}
+
+async function updateResponsiveSearchAd(
+  resourceName: string,
+  status: number,
+  ad: BlueprintRSA,
+  finalUrl: string,
+): Promise<void> {
+  const cust = await getCustomer();
+  const rsa: Record<string, unknown> = {
+    headlines: ad.headlines.slice(0, 15).map((h) => ({ text: h })),
+    descriptions: ad.descriptions.slice(0, 4).map((d) => ({ text: d })),
+  };
+  if (ad.path1) rsa.path1 = ad.path1;
+  if (ad.path2) rsa.path2 = ad.path2;
+
+  await cust.adGroupAds.update([
+    {
+      resource_name: resourceName,
+      status,
+      ad: {
+        final_urls: [finalUrl],
+        responsive_search_ad: rsa,
+      },
+    },
+  ] as never);
+}
+
+async function syncResponsiveSearchAdsInGroup(
+  adGroupId: string,
+  ads: BlueprintRSA[],
+  finalUrl: string,
+  adGroupName: string,
+): Promise<{ created: number; updated: number; note?: string }> {
+  if (ads.length === 0) return { created: 0, updated: 0 };
+
+  const pool = await listRsasInAdGroup(adGroupId);
+  const used = new Set<string>();
+  let created = 0;
+  let updated = 0;
+
+  for (const ad of ads) {
+    const matchIdx = pool.findIndex(
+      (r) => !used.has(r.resource_name) && rsaMatchesBlueprint(ad, finalUrl, r),
+    );
+    if (matchIdx >= 0) {
+      used.add(pool[matchIdx].resource_name);
+      continue;
+    }
+    const freeIdx = pool.findIndex((r) => !used.has(r.resource_name));
+    if (freeIdx >= 0) {
+      const target = pool[freeIdx];
+      used.add(target.resource_name);
+      await updateResponsiveSearchAd(
+        target.resource_name,
+        target.status,
+        ad,
+        finalUrl,
+      );
+      updated += 1;
+    } else {
+      await createResponsiveSearchAd(adGroupId, ad, finalUrl);
+      created += 1;
+    }
+  }
+
+  const orphans = pool.filter((r) => !used.has(r.resource_name));
+  let note: string | undefined;
+  if (orphans.length > 0) {
+    note = `[${adGroupName}] ${orphans.length} RSA(s) not referenced by the current blueprint (ad id(s): ${orphans.map((o) => o.ad_id).join(", ")}). Consider pausing or removing extras in the Google Ads UI.`;
+  }
+  return { created, updated, note };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -487,34 +628,154 @@ async function addCampaignNegatives(
   return operations.length;
 }
 
-async function addCampaignSitelinks(
+type LinkedSitelinkRow = {
+  asset_resource_name: string;
+  link_text: string;
+  description1: string;
+  description2: string;
+  final_urls: string[];
+};
+
+async function listLinkedSitelinksForCampaign(
   campaignId: string,
-  sitelinks: BlueprintSitelink[],
-): Promise<number> {
+): Promise<LinkedSitelinkRow[]> {
+  const cust = await getCustomer();
+  const rows = (await cust.query(
+    `SELECT
+       asset.resource_name,
+       asset.sitelink_asset.link_text,
+       asset.sitelink_asset.description1,
+       asset.sitelink_asset.description2,
+       asset.final_urls
+     FROM campaign_asset
+     WHERE campaign.id = ${campaignId}
+       AND campaign_asset.field_type = SITELINK
+       AND campaign_asset.status != REMOVED`,
+  )) as Array<{
+    asset?: {
+      resource_name?: string;
+      sitelink_asset?: {
+        link_text?: string;
+        description1?: string;
+        description2?: string;
+      };
+      final_urls?: string[];
+    };
+  }>;
+  const out: LinkedSitelinkRow[] = [];
+  for (const r of rows) {
+    const a = r.asset;
+    const sl = a?.sitelink_asset;
+    if (!a?.resource_name) continue;
+    out.push({
+      asset_resource_name: a.resource_name,
+      link_text: (sl?.link_text ?? "").trim(),
+      description1: sl?.description1 ?? "",
+      description2: sl?.description2 ?? "",
+      final_urls: a.final_urls ?? [],
+    });
+  }
+  return out;
+}
+
+async function createOneSitelinkAndLink(
+  campaignId: string,
+  sl: BlueprintSitelink,
+): Promise<void> {
   const cust = await getCustomer();
   const customerId = process.env.GOOGLE_ADS_CUSTOMER_ID!;
 
-  const assetOps = sitelinks.map((sl) => ({
-    sitelink_asset: {
-      link_text: sl.text,
-      description1: sl.description1 ?? "",
-      description2: sl.description2 ?? "",
+  const assetResp = await cust.assets.create([
+    {
+      sitelink_asset: {
+        link_text: sl.text,
+        description1: sl.description1 ?? "",
+        description2: sl.description2 ?? "",
+      },
+      final_urls: [sl.finalUrl],
     },
-    final_urls: [sl.finalUrl],
-  }));
+  ] as never);
+  const assetResource =
+    (assetResp as { results?: Array<{ resource_name?: string }> }).results?.[0]
+      ?.resource_name ?? "";
 
-  const assetResp = await cust.assets.create(assetOps as never);
-  const assetResources = (assetResp as { results?: Array<{ resource_name?: string }> })
-    .results?.map((r) => r.resource_name ?? "") ?? [];
+  await cust.campaignAssets.create([
+    {
+      asset: assetResource,
+      campaign: `customers/${customerId}/campaigns/${campaignId}`,
+      field_type: enums.AssetFieldType.SITELINK,
+    },
+  ] as never);
+}
 
-  const linkOps = assetResources.map((resource) => ({
-    asset: resource,
-    campaign: `customers/${customerId}/campaigns/${campaignId}`,
-    field_type: enums.AssetFieldType.SITELINK,
-  }));
+async function updateSitelinkAsset(
+  assetResourceName: string,
+  sl: BlueprintSitelink,
+): Promise<void> {
+  const cust = await getCustomer();
+  await cust.assets.update([
+    {
+      resource_name: assetResourceName,
+      sitelink_asset: {
+        link_text: sl.text,
+        description1: sl.description1 ?? "",
+        description2: sl.description2 ?? "",
+      },
+      final_urls: [sl.finalUrl],
+    },
+  ] as never);
+}
 
-  await cust.campaignAssets.create(linkOps as never);
-  return sitelinks.length;
+function sitelinkPrimaryUrl(row: LinkedSitelinkRow): string {
+  return (row.final_urls[0] ?? "").trim();
+}
+
+/**
+ * Ensures each blueprint sitelink exists and matches copy. Matches assets
+ * by **final URL first** (so we can rename link text without orphaning old
+ * assets), then by link text. Updates every matching linked asset.
+ */
+async function syncCampaignSitelinks(
+  campaignId: string,
+  sitelinks: BlueprintSitelink[],
+): Promise<{ added: number; updated: number }> {
+  const existing = await listLinkedSitelinksForCampaign(campaignId);
+  let added = 0;
+  let updated = 0;
+
+  for (const sl of sitelinks) {
+    const wantUrl = sl.finalUrl.trim();
+    const wantText = sl.text.trim();
+    const d1 = sl.description1 ?? "";
+    const d2 = sl.description2 ?? "";
+
+    const byUrl = existing.filter((e) => sitelinkPrimaryUrl(e) === wantUrl);
+    const byText = existing.filter((e) => e.link_text === wantText);
+    const merged = new Map<string, LinkedSitelinkRow>();
+    for (const e of [...byUrl, ...byText]) merged.set(e.asset_resource_name, e);
+    const matches = [...merged.values()];
+
+    if (matches.length === 0) {
+      await createOneSitelinkAndLink(campaignId, sl);
+      added += 1;
+      continue;
+    }
+    for (const m of matches) {
+      const curUrl = sitelinkPrimaryUrl(m);
+      if (
+        m.link_text === wantText &&
+        (m.description1 ?? "") === d1 &&
+        (m.description2 ?? "") === d2 &&
+        curUrl === wantUrl
+      ) {
+        continue;
+      }
+      await updateSitelinkAsset(m.asset_resource_name, sl);
+      updated += 1;
+    }
+  }
+
+  return { added, updated };
 }
 
 async function addCampaignCallouts(

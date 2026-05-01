@@ -51,8 +51,11 @@ interface ProvisionResult {
       name: string;
       keywords_added: number;
       ads_created: number;
+      ads_updated?: number;
     }>;
     negatives_added: number;
+    sitelinks_added?: number;
+    sitelinks_updated?: number;
   }>;
   warnings: string[];
 }
@@ -290,10 +293,16 @@ export function BlueprintCard() {
               </div>
               <ul className="text-[11px] text-roji-muted mt-1 space-y-0.5">
                 <li>↳ {c.negatives_added} negatives added</li>
+                {(c.sitelinks_added ?? 0) > 0 || (c.sitelinks_updated ?? 0) > 0 ? (
+                  <li>
+                    ↳ sitelinks: +{c.sitelinks_added ?? 0} / ~{c.sitelinks_updated ?? 0}
+                  </li>
+                ) : null}
                 {c.ad_groups.map((g) => (
                   <li key={g.name}>
                     ↳ <span className="text-roji-text">{g.name}</span>:{" "}
-                    {g.keywords_added} kw, {g.ads_created} ads
+                    {g.keywords_added} kw, +{g.ads_created} RSA
+                    {(g.ads_updated ?? 0) > 0 ? `, ~${g.ads_updated} sync` : ""}
                   </li>
                 ))}
               </ul>
