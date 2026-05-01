@@ -55,7 +55,12 @@ if (!CLIENT_ID || !CLIENT_SECRET) {
   process.exit(1);
 }
 
-const PORT = 8766; // different from Google Ads helper's 8765
+// Distinct from the Google Ads helper's 8765 so the two flows have
+// independent loopback URIs in the OAuth client config. Add
+// `http://127.0.0.1:8766/` as an authorized redirect URI in
+// Google Cloud Console → APIs & Services → Credentials → Roji OAuth
+// client → Authorized redirect URIs → + Add URI.
+const PORT = 8766;
 const REDIRECT = `http://127.0.0.1:${PORT}/`;
 
 // Read-only access to GA4 property data. NO write scopes — this token
@@ -76,7 +81,7 @@ const authUrl =
 console.log("\nOpen this URL in your browser (sign in with the Google account that has Viewer access to the GA4 property):\n");
 console.log(authUrl + "\n");
 console.log(`Waiting for redirect on ${REDIRECT} ...\n`);
-console.log("If you see 'redirect_uri_mismatch', the OAuth client needs http://127.0.0.1:8766/ added as an authorized redirect URI in Google Cloud Console → APIs & Services → Credentials.\n");
+console.log("If you see 'redirect_uri_mismatch', add http://127.0.0.1:8766/ as an Authorized redirect URI on the Roji OAuth client at https://console.cloud.google.com/apis/credentials\n");
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, REDIRECT);
@@ -155,9 +160,10 @@ server.listen(PORT, "127.0.0.1");
 server.on("error", (err) => {
   if (err && err.code === "EADDRINUSE") {
     console.error(
-      `\nPort ${PORT} is already in use. Either:\n` +
+      `\nPort ${PORT} is already in use (probably by a still-running\n` +
+        `get-refresh-token.js). Either:\n` +
         `  - Kill the process using it: lsof -ti tcp:${PORT} | xargs kill\n` +
-        `  - Or edit PORT in scripts/get-ga4-refresh-token.js to a free port\n`,
+        `  - Or wait a few seconds and try again.\n`,
     );
     process.exit(1);
   }
