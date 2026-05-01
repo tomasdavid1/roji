@@ -31,6 +31,7 @@ async function main() {
       ad_group.name,
       ad_group_ad.ad.id,
       ad_group_ad.ad.type,
+      ad_group_ad.status,
       ad_group_ad.policy_summary.approval_status,
       ad_group_ad.policy_summary.review_status,
       ad_group_ad.policy_summary.policy_topic_entries,
@@ -38,6 +39,7 @@ async function main() {
       ad_group_ad.ad.responsive_search_ad.descriptions
     FROM ad_group_ad
     WHERE ad_group_ad.policy_summary.approval_status != 'APPROVED'
+      AND ad_group_ad.status != 'REMOVED'
   `);
 
   if (adRows.length === 0) {
@@ -80,6 +82,9 @@ async function main() {
 
   console.log("\n=== Disapproved / under-review ASSETS ===\n");
 
+  // Only assets currently linked to a non-REMOVED campaign_asset count.
+  // Unlinking via campaignAssets.remove() takes them out of impressions
+  // even if asset.policy_summary still shows 'DISAPPROVED'.
   const assetRows = await customer.query(`
     SELECT
       asset.id,
@@ -92,9 +97,12 @@ async function main() {
       asset.final_urls,
       asset.policy_summary.approval_status,
       asset.policy_summary.review_status,
-      asset.policy_summary.policy_topic_entries
-    FROM asset
+      asset.policy_summary.policy_topic_entries,
+      campaign.name,
+      campaign_asset.field_type
+    FROM campaign_asset
     WHERE asset.policy_summary.approval_status != 'APPROVED'
+      AND campaign_asset.status != 'REMOVED'
   `);
 
   if (assetRows.length === 0) {

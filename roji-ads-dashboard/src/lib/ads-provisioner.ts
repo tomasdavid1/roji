@@ -99,12 +99,31 @@ export interface ProvisionResult {
       keywords_added: number;
       ads_created: number;
       ads_updated: number;
+      /**
+       * RSAs that were live in the ad group but not in the current
+       * blueprint — typically stale copy from a previous run. Removed by
+       * the orphan-RSA sweep so disapproved old creatives don't sit
+       * around dragging the campaign down.
+       */
+      ads_removed: number;
     }>;
     negatives_added: number;
     sitelinks_added: number;
     sitelinks_updated: number;
+    /**
+     * Sitelink **assets** that were linked to the campaign but do not
+     * map to any blueprint sitelink (matched by final URL). Unlinked
+     * by the sitelink sweep; the underlying assets are also removed
+     * if they are not linked anywhere else.
+     */
+    sitelinks_removed: number;
     callouts_added: number;
     demographics_excluded: number;
+    /** Country-level location targets added this run. */
+    geo_targets_added: number;
+    /** Country-level location targets removed this run (e.g. an old GB
+     *  target the blueprint no longer wants). */
+    geo_targets_removed: number;
   }>;
   /** Errors that didn't abort the whole provision (per-resource). */
   warnings: string[];
@@ -181,8 +200,11 @@ async function provisionCampaign(
     negatives_added: 0,
     sitelinks_added: 0,
     sitelinks_updated: 0,
+    sitelinks_removed: 0,
     callouts_added: 0,
     demographics_excluded: 0,
+    geo_targets_added: 0,
+    geo_targets_removed: 0,
   };
 
   if (!live) {
@@ -222,20 +244,63 @@ async function provisionCampaign(
     }
   }
 
-  // Sitelink extensions — create missing rows; update in place when link
-  // text matches but descriptions or URL drift from the blueprint.
-  if (c.sitelinks && c.sitelinks.length > 0) {
-    if (!live) {
-      summary.sitelinks_added = c.sitelinks.length;
-      summary.sitelinks_updated = 0;
+  // Geo targeting — sync the country-level criteria so the live
+  // campaign matches `c.geoTargets`. Idempotent: missing targets are
+  // added, surplus positive targets are removed, negatives are left
+  // alone. This is the protection layer that prevents a recreated or
+  // newly-spun-up campaign from defaulting to "all countries."
+  //
+  // The geo *mode* (PRESENCE vs PRESENCE_OR_INTEREST) is set on
+  // CampaignOperation.create — see `createCampaignShell`. We don't
+  // re-mutate it here because changing it on a live campaign mid-flight
+  // can cause Google's bid ML to relearn from scratch.
+  {
+    const geoTargets = c.geoTargets ?? [];
+    if (geoTargets.length === 0) {
+      warnings.push(
+        `[${c.name}] no geoTargets in blueprint — campaign will serve to ALL COUNTRIES.`,
+      );
+    } else if (!live) {
+      summary.geo_targets_added = geoTargets.length;
     } else {
       try {
-        const { added, updated } = await syncCampaignSitelinks(
+        const { added, removed } = await syncCampaignGeoTargets(
           summary.campaign_id,
-          c.sitelinks,
+          geoTargets,
+        );
+        summary.geo_targets_added = added;
+        summary.geo_targets_removed = removed;
+      } catch (err) {
+        warnings.push(
+          `[${c.name}] geo targeting failed: ${fmtErr(err)}`,
+        );
+      }
+    }
+  }
+
+  // Sitelink extensions — sync is true bidirectional:
+  //   - Create blueprint sitelinks that aren't live yet.
+  //   - Update existing sitelinks whose copy or URL drifted.
+  //   - Remove (unlink) live sitelinks that are not in the blueprint
+  //     (incl. duplicates pointing at the same URL) so disapproved old
+  //     assets can't keep impressing.
+  // We always run the sync — even when the blueprint has no sitelinks —
+  // so removing a sitelink from the blueprint also removes it live.
+  {
+    const blueprintSitelinks = c.sitelinks ?? [];
+    if (!live) {
+      summary.sitelinks_added = blueprintSitelinks.length;
+      summary.sitelinks_updated = 0;
+      summary.sitelinks_removed = 0;
+    } else {
+      try {
+        const { added, updated, removed } = await syncCampaignSitelinks(
+          summary.campaign_id,
+          blueprintSitelinks,
         );
         summary.sitelinks_added = added;
         summary.sitelinks_updated = updated;
+        summary.sitelinks_removed = removed;
       } catch (err) {
         warnings.push(`[${c.name}] sitelinks failed: ${fmtErr(err)}`);
       }
@@ -301,6 +366,7 @@ async function provisionAdGroup(
     keywords_added: 0,
     ads_created: 0,
     ads_updated: 0,
+    ads_removed: 0,
   };
 
   if (!live) {
@@ -308,6 +374,7 @@ async function provisionAdGroup(
     out.keywords_added = g.keywords.length;
     out.ads_created = g.ads.length;
     out.ads_updated = 0;
+    out.ads_removed = 0;
     return out;
   }
 
@@ -328,7 +395,7 @@ async function provisionAdGroup(
   }
 
   try {
-    const { created, updated, note } = await syncResponsiveSearchAdsInGroup(
+    const { created, updated, removed, note } = await syncResponsiveSearchAdsInGroup(
       out.ad_group_id,
       g.ads,
       g.finalUrl,
@@ -336,6 +403,7 @@ async function provisionAdGroup(
     );
     out.ads_created = created;
     out.ads_updated = updated;
+    out.ads_removed = removed;
     if (note) warnings.push(note);
   } catch (err) {
     warnings.push(`[${g.name}] RSA sync failed: ${fmtErr(err)}`);
@@ -464,13 +532,15 @@ async function syncResponsiveSearchAdsInGroup(
   ads: BlueprintRSA[],
   finalUrl: string,
   adGroupName: string,
-): Promise<{ created: number; updated: number; note?: string }> {
-  if (ads.length === 0) return { created: 0, updated: 0 };
+): Promise<{ created: number; updated: number; removed: number; note?: string }> {
+  // Note: we still run the sweep even when ads.length === 0, so a
+  // blueprint that drops all RSAs in an ad group will clean live ones.
 
   const pool = await listRsasInAdGroup(adGroupId);
   const used = new Set<string>();
   let created = 0;
   let updated = 0;
+  let removed = 0;
 
   for (const ad of ads) {
     const matchIdx = pool.findIndex(
@@ -498,12 +568,24 @@ async function syncResponsiveSearchAdsInGroup(
     }
   }
 
+  // Orphans: live RSAs not referenced by the current blueprint. We
+  // remove them so disapproved old creatives stop dragging the ad
+  // group's policy and quality scores. Removal preserves history in
+  // Google Ads' "Removed" filter — this is reversible from the UI.
   const orphans = pool.filter((r) => !used.has(r.resource_name));
   let note: string | undefined;
   if (orphans.length > 0) {
-    note = `[${adGroupName}] ${orphans.length} RSA(s) not referenced by the current blueprint (ad id(s): ${orphans.map((o) => o.ad_id).join(", ")}). Consider pausing or removing extras in the Google Ads UI.`;
+    const cust = await getCustomer();
+    const orphanResources = orphans.map((o) => o.resource_name);
+    try {
+      await cust.adGroupAds.remove(orphanResources);
+      removed = orphans.length;
+      note = `[${adGroupName}] removed ${orphans.length} orphan RSA(s) (ad id(s): ${orphans.map((o) => o.ad_id).join(", ")}) — old/unused creatives swept by the blueprint sync.`;
+    } catch (err) {
+      note = `[${adGroupName}] failed to remove ${orphans.length} orphan RSA(s) (ad id(s): ${orphans.map((o) => o.ad_id).join(", ")}): ${fmtErr(err)}. Remove manually in the Google Ads UI.`;
+    }
   }
-  return { created, updated, note };
+  return { created, updated, removed, note };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -578,6 +660,19 @@ async function createCampaignShell(
     // We don't run political ads, so this is always false.
     contains_eu_political_advertising:
       enums.EuPoliticalAdvertisingStatus.DOES_NOT_CONTAIN_EU_POLITICAL_ADVERTISING,
+    // Geo-targeting MODE — "PRESENCE" means we only serve to people
+    // physically in our targeted countries. The default
+    // ("PRESENCE_OR_INTEREST") would also serve to e.g. someone in
+    // Mexico Googling "US peptides," which is exactly what we don't
+    // want for a US-only research vendor. The actual *country list*
+    // is configured separately via campaign_criterion (see
+    // `setCampaignGeoTargets` below).
+    geo_target_type_setting: {
+      positive_geo_target_type:
+        enums.PositiveGeoTargetType?.PRESENCE ?? 5,
+      negative_geo_target_type:
+        enums.NegativeGeoTargetType?.PRESENCE ?? 2,
+    },
   };
   if (bid === "MAXIMIZE_CLICKS") {
     campaignFields.target_spend = {};
@@ -601,6 +696,120 @@ async function createCampaignShell(
   };
 }
 
+/**
+ * ISO country code → Google Ads geoTargetConstant ID.
+ *
+ * Reference: <https://developers.google.com/google-ads/api/data/geotargets>
+ *
+ * We only list what we currently use. Add more here if you want to
+ * expand a campaign's geo footprint via the blueprint instead of the
+ * UI. Country-level constants are stable and don't change.
+ */
+const GEO_TARGET_CONSTANTS: Record<string, string> = {
+  US: "geoTargetConstants/2840",
+  GB: "geoTargetConstants/2826",
+  CA: "geoTargetConstants/2124",
+  AU: "geoTargetConstants/2036",
+  IE: "geoTargetConstants/2372",
+  NZ: "geoTargetConstants/2554",
+};
+
+interface LocationCriterionRow {
+  resource_name: string;
+  geo_target_constant: string;
+  negative: boolean;
+}
+
+/** Pull every LOCATION criterion currently on the campaign. */
+async function listCampaignLocations(
+  campaignId: string,
+): Promise<LocationCriterionRow[]> {
+  const cust = await getCustomer();
+  const rows = (await cust.query(
+    `SELECT
+       campaign.id,
+       campaign_criterion.resource_name,
+       campaign_criterion.location.geo_target_constant,
+       campaign_criterion.negative
+     FROM campaign_criterion
+     WHERE campaign.id = ${campaignId}
+       AND campaign_criterion.type = 'LOCATION'
+       AND campaign_criterion.status != 'REMOVED'`,
+  )) as Array<{
+    campaign_criterion?: {
+      resource_name?: string;
+      negative?: boolean;
+      location?: { geo_target_constant?: string };
+    };
+  }>;
+  const out: LocationCriterionRow[] = [];
+  for (const r of rows) {
+    const c = r.campaign_criterion;
+    if (!c?.resource_name || !c?.location?.geo_target_constant) continue;
+    out.push({
+      resource_name: c.resource_name,
+      geo_target_constant: c.location.geo_target_constant,
+      negative: !!c.negative,
+    });
+  }
+  return out;
+}
+
+/**
+ * Sync a campaign's positive location-targeting criteria to match
+ * the blueprint's `geoTargets` list.
+ *
+ * Idempotent and bidirectional:
+ *   - Creates missing target countries.
+ *   - Removes positive-targeting criteria for countries NOT in the
+ *     blueprint (so deleting "GB" from `geoTargets` actually unmasks
+ *     the GB-targeting on Google's side).
+ *   - Leaves negative-targeting criteria alone (handled separately).
+ *
+ * Returns `{ added, removed }` for the report. We DON'T return
+ * "kept" because the user only cares about deltas.
+ */
+async function syncCampaignGeoTargets(
+  campaignId: string,
+  geoTargets: readonly string[],
+): Promise<{ added: number; removed: number }> {
+  const cust = await getCustomer();
+  const customerId = process.env.GOOGLE_ADS_CUSTOMER_ID!;
+
+  const wantConstants = new Set(
+    geoTargets
+      .map((iso) => GEO_TARGET_CONSTANTS[iso])
+      .filter((v): v is string => !!v),
+  );
+
+  const live = await listCampaignLocations(campaignId);
+  const liveConstants = new Set(
+    live.filter((l) => !l.negative).map((l) => l.geo_target_constant),
+  );
+
+  // Add anything wanted but not live.
+  const toAdd = [...wantConstants].filter((c) => !liveConstants.has(c));
+  // Remove anything live (positive) but not wanted. We deliberately
+  // leave negatives untouched — those are managed elsewhere.
+  const toRemove = live.filter(
+    (l) => !l.negative && !wantConstants.has(l.geo_target_constant),
+  );
+
+  if (toAdd.length > 0) {
+    const ops = toAdd.map((constant) => ({
+      campaign: `customers/${customerId}/campaigns/${campaignId}`,
+      location: { geo_target_constant: constant },
+    }));
+    await cust.campaignCriteria.create(ops as never);
+  }
+  if (toRemove.length > 0) {
+    await cust.campaignCriteria.remove(
+      toRemove.map((l) => l.resource_name) as never,
+    );
+  }
+  return { added: toAdd.length, removed: toRemove.length };
+}
+
 async function addCampaignNegatives(
   campaignId: string,
   negatives: string[],
@@ -621,6 +830,7 @@ async function addCampaignNegatives(
 
 type LinkedSitelinkRow = {
   asset_resource_name: string;
+  campaign_asset_resource_name: string;
   link_text: string;
   description1: string;
   description2: string;
@@ -634,6 +844,7 @@ async function listLinkedSitelinksForCampaign(
   const rows = (await cust.query(
     `SELECT
        campaign.id,
+       campaign_asset.resource_name,
        asset.resource_name,
        asset.sitelink_asset.link_text,
        asset.sitelink_asset.description1,
@@ -645,6 +856,7 @@ async function listLinkedSitelinksForCampaign(
        AND campaign_asset.status != REMOVED`,
   )) as Array<{
     campaign?: { id?: string | number };
+    campaign_asset?: { resource_name?: string };
     asset?: {
       resource_name?: string;
       sitelink_asset?: {
@@ -659,9 +871,10 @@ async function listLinkedSitelinksForCampaign(
   for (const r of rows) {
     const a = r.asset;
     const sl = a?.sitelink_asset;
-    if (!a?.resource_name) continue;
+    if (!a?.resource_name || !r.campaign_asset?.resource_name) continue;
     out.push({
       asset_resource_name: a.resource_name,
+      campaign_asset_resource_name: r.campaign_asset.resource_name,
       link_text: (sl?.link_text ?? "").trim(),
       description1: sl?.description1 ?? "",
       description2: sl?.description2 ?? "",
@@ -724,51 +937,97 @@ function sitelinkPrimaryUrl(row: LinkedSitelinkRow): string {
 }
 
 /**
- * Ensures each blueprint sitelink exists and matches copy. Matches assets
- * by **final URL first** (so we can rename link text without orphaning old
- * assets), then by link text. Updates every matching linked asset.
+ * Bidirectional sitelink sync. The blueprint is the source of truth.
+ *
+ *   - For each blueprint sitelink, match by **final URL** (URL-keyed,
+ *     so renaming link text updates the same asset). If multiple live
+ *     assets share the URL (duplicates from earlier runs), keep the
+ *     first match and unlink the rest.
+ *   - Update copy in place when the matching asset's link text or
+ *     descriptions drift.
+ *   - Create the asset + link if no live asset exists at that URL.
+ *   - Unlink every live sitelink that isn't in the blueprint
+ *     (orphans). The underlying asset is left in the account but
+ *     no longer impresses on this campaign.
+ *
+ * Removal granularity: we remove the *campaign_asset link*, not the
+ * underlying asset, because assets can be linked from multiple
+ * campaigns and Google rejects asset removals while still linked.
  */
 async function syncCampaignSitelinks(
   campaignId: string,
   sitelinks: BlueprintSitelink[],
-): Promise<{ added: number; updated: number }> {
+): Promise<{ added: number; updated: number; removed: number }> {
+  const cust = await getCustomer();
   const existing = await listLinkedSitelinksForCampaign(campaignId);
+  const used = new Set<string>(); // asset_resource_name set
   let added = 0;
   let updated = 0;
+  let removed = 0;
 
+  // First pass: ensure every blueprint sitelink is present and current.
   for (const sl of sitelinks) {
     const wantUrl = sl.finalUrl.trim();
     const wantText = sl.text.trim();
     const d1 = sl.description1 ?? "";
     const d2 = sl.description2 ?? "";
 
-    const byUrl = existing.filter((e) => sitelinkPrimaryUrl(e) === wantUrl);
-    const byText = existing.filter((e) => e.link_text === wantText);
-    const merged = new Map<string, LinkedSitelinkRow>();
-    for (const e of [...byUrl, ...byText]) merged.set(e.asset_resource_name, e);
-    const matches = [...merged.values()];
+    // URL-keyed lookup; "live" duplicates are picked off into the orphan
+    // set below.
+    const byUrl = existing.filter(
+      (e) => sitelinkPrimaryUrl(e) === wantUrl && !used.has(e.asset_resource_name),
+    );
 
-    if (matches.length === 0) {
+    if (byUrl.length === 0) {
       await createOneSitelinkAndLink(campaignId, sl);
       added += 1;
       continue;
     }
-    for (const m of matches) {
-      const curUrl = sitelinkPrimaryUrl(m);
-      if (
-        m.link_text === wantText &&
-        (m.description1 ?? "") === d1 &&
-        (m.description2 ?? "") === d2 &&
-        curUrl === wantUrl
-      ) {
-        continue;
-      }
-      await updateSitelinkAsset(m.asset_resource_name, sl);
+
+    // Keep the first match; mark the others as orphans (unlinked below).
+    const [keep, ...dupes] = byUrl;
+    used.add(keep.asset_resource_name);
+    if (
+      keep.link_text !== wantText ||
+      (keep.description1 ?? "") !== d1 ||
+      (keep.description2 ?? "") !== d2
+    ) {
+      await updateSitelinkAsset(keep.asset_resource_name, sl);
       updated += 1;
+    }
+    if (dupes.length > 0) {
+      const dupeLinks = dupes.map((d) => d.campaign_asset_resource_name);
+      try {
+        await cust.campaignAssets.remove(dupeLinks);
+        removed += dupes.length;
+      } catch (err) {
+        throw new Error(
+          `failed to unlink ${dupes.length} duplicate sitelink(s) for ${wantUrl}: ${fmtErr(err)}`,
+        );
+      }
     }
   }
 
-  return { added, updated };
+  // Second pass: unlink any remaining live sitelink assets that aren't
+  // referenced by the blueprint at all (e.g. assets we just dropped
+  // from the blueprint, like the disapproved /reconstitution and
+  // /half-life sitelinks on 2026-05-01).
+  const stragglers = existing.filter((e) => !used.has(e.asset_resource_name));
+  if (stragglers.length > 0) {
+    const stragglerLinks = stragglers.map((s) => s.campaign_asset_resource_name);
+    try {
+      await cust.campaignAssets.remove(stragglerLinks);
+      removed += stragglers.length;
+    } catch (err) {
+      throw new Error(
+        `failed to unlink ${stragglers.length} sitelink(s) not in blueprint (urls: ${stragglers
+          .map((s) => sitelinkPrimaryUrl(s))
+          .join(", ")}): ${fmtErr(err)}`,
+      );
+    }
+  }
+
+  return { added, updated, removed };
 }
 
 async function addCampaignCallouts(

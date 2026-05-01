@@ -220,6 +220,14 @@ export const POLICY_NEGATIVE_KEYWORDS: string[] = [
   "therapy",
   "cure",
   "heal",
+  // Sourcing / unverified-vendor framing — added 2026-05-01 after C2's
+  // search-term report showed `chinese peptides` was firing (5 imps,
+  // 0 clicks). Pure shopping intent for unverified sources; we don't
+  // want this anywhere near our tools landing pages.
+  "chinese",
+  "china",
+  "wholesale",
+  "bulk",
   // Junk calculator traffic — especially important with AG5 fitness keywords
   "bmi",
   "mortgage",
@@ -888,13 +896,49 @@ function peptideExperimentAdGroup(finalUrl: string): BlueprintAdGroup {
     finalUrl,
     allowPeptideExperiment: true,
     notes:
-      "DELIBERATE POLICY EXPERIMENT. Tests whether research-framed ads " +
-      "containing the word `peptide` clear Google's automated review. " +
-      "Bounded: $5/day campaign budget, 2 phrase-match keywords, single " +
-      "RSA, lands on Research Tools (not store). Pause if disapproved.",
+      "DELIBERATE POLICY EXPERIMENT — now SCALING. Originally launched " +
+      "with 2 PHRASE keywords as a $5/day test. As of 2026-05-01 the " +
+      "campaign is approved (Eligible/Learning), serving real " +
+      "impressions, and capturing organic close-variant matches in " +
+      "Spanish/German/Portuguese. Tier 1 expansion below promotes the " +
+      "highest-signal close variants from the search-term report into " +
+      "first-class keywords. See: C2-KEYWORD-EXPANSION.md for the full " +
+      "rationale, negative-keyword recommendations, and Tier 2/3 " +
+      "follow-ups.",
     keywords: [
+      // Original 2 — proven, keep.
       { text: "peptide research calculator", match: "PHRASE", risk: "high" },
       { text: "peptide research tools", match: "PHRASE", risk: "high" },
+      // User-added on 2026-05-01 (already serving):
+      { text: "peptide calculator", match: "EXACT", risk: "high" },
+      { text: "research peptide", match: "PHRASE", risk: "high" },
+      { text: "peptide quality", match: "PHRASE", risk: "high" },
+      { text: "peptide coa", match: "PHRASE", risk: "high" },
+      { text: "peptide reconstitution", match: "PHRASE", risk: "high" },
+      // Tier 1 expansion (close-variant promotions backed by C2's
+      // own search-term report). All match-types chosen to balance
+      // reach vs. CPC discipline; Exact is reserved for terms with
+      // confirmed positive CTR in the report.
+      {
+        text: "peptide reconstitution calculator",
+        match: "PHRASE",
+        risk: "high",
+      },
+      { text: "peptide dosage calculator", match: "PHRASE", risk: "high" },
+      { text: "peptides calculator", match: "PHRASE", risk: "high" },
+      {
+        text: "peptide concentration calculator",
+        match: "PHRASE",
+        risk: "high",
+      },
+      // German keyword — `peptid rechner` had 50% CTR on 2 imps in
+      // the search-term report. Promote to Exact for low CPC.
+      { text: "peptide rechner", match: "EXACT", risk: "high" },
+      // Spanish keyword — already firing as a close variant of
+      // `peptide calculator`.
+      { text: "calculadora de peptidos", match: "EXACT", risk: "high" },
+      { text: "peptide half life calculator", match: "PHRASE", risk: "high" },
+      { text: "peptide half life database", match: "PHRASE", risk: "high" },
     ],
     ads: [
       {
@@ -1115,22 +1159,21 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
     ],
     negativeKeywords: POLICY_NEGATIVE_KEYWORDS,
     sitelinks: [
-      // Campaign-level **extension assets** only (sitelinks + callouts below).
-      // 2026-05: neutral sitelink titles + URL-keyed provisioner sync so
-      // renames update the same asset. RSA/keyword copy stays on ad-group
-      // definitions above — policy hits here were extension-led.
-      {
-        text: "Lab Mixing Calculator",
-        finalUrl: `${toolsUrl}/reconstitution`,
-        description1: "Concentration math in browser",
-        description2: "Free, no signup needed",
-      },
-      {
-        text: "Decay Chart Browser",
-        finalUrl: `${toolsUrl}/half-life`,
-        description1: "Cited reference charts",
-        description2: "Free visualization tool",
-      },
+      // Campaign-level **extension assets**. Sync is URL-keyed.
+      //
+      // 2026-05-01: Sitelinks pointing at /reconstitution and /half-life
+      // were disapproved under "Unapproved substances" twice in a row,
+      // even with progressively softer text ("Reconstitution Calc" →
+      // "Lab Mixing Calculator"; "Half-Life Database" → "Decay Chart
+      // Browser"). Google's classifier reads the URL + sitelink + brand
+      // context together — the link text is fine, the URL semantics on
+      // a peptide-research advertiser trip the topic. Pulled both for
+      // now; the provisioner will unlink any leftover live assets at
+      // those URLs. COA + Cost Comparison stayed APPROVED_LIMITED in
+      // the same campaign so we keep them as the visible extension set.
+      // Revisit if/when we want to reintroduce these via Google policy
+      // appeal or a different sitelink angle (e.g. linking to a
+      // landing page that doesn't carry peptide context in the URL).
       {
         text: "COA Analyzer",
         finalUrl: `${toolsUrl}/coa`,

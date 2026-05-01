@@ -10,19 +10,11 @@ const { GoogleAdsApi } = require("google-ads-api");
 const C1_NAME = "C1 — Research Tools — Calculators [roji-blueprint]";
 const TOOLS = "https://tools.rojipeptides.com";
 
+// Updated 2026-05-01: /reconstitution and /half-life sitelinks were
+// pulled from the blueprint after Google disapproved them under
+// "Unapproved substances" (twice — link-text rewrite didn't help).
+// Only COA + Cost Comparison should remain on C1.
 const EXPECTED = [
-  {
-    url: `${TOOLS}/reconstitution`,
-    text: "Lab Mixing Calculator",
-    d1: "Concentration math in browser",
-    d2: "Free, no signup needed",
-  },
-  {
-    url: `${TOOLS}/half-life`,
-    text: "Decay Chart Browser",
-    d1: "Cited reference charts",
-    d2: "Free visualization tool",
-  },
   {
     url: `${TOOLS}/coa`,
     text: "COA Analyzer",

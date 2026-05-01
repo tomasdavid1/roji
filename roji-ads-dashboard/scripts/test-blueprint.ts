@@ -292,17 +292,38 @@ console.log("\nads-blueprint.peptide-experiment shape:");
     5,
   );
   eq(
-    "peptide-experiment: 2 keywords (tight)",
+    // Expanded 2026-05-01 from 2 to 15 keywords. The 2-keyword
+    // "tight experiment" framing is over — C2 is approved and
+    // serving. See C2-KEYWORD-EXPANSION.md for the rationale on
+    // each addition (5 user-added on 2026-05-01 plus 8 Tier 1
+    // close-variant promotions from the search-term report).
+    "peptide-experiment: 15 keywords (post-expansion)",
     b.campaigns[0].adGroups[0].keywords.length,
-    2,
+    15,
   );
   ok(
-    "peptide-experiment: every keyword references 'peptide' (intent)",
-    b.campaigns[0].adGroups[0].keywords.every((k) => /peptide/i.test(k.text)),
+    // Intent invariant: every C2 keyword must match the peptide-research
+    // intent class. We accept the English root `peptide`, the Spanish/
+    // Portuguese root `peptid` (`peptidos`, `peptideo`), and the
+    // German root `peptid` as well — all confirmed to fire as close
+    // variants of our seeds in C2's own search-term report. If a
+    // future contributor adds something in another intent class
+    // (e.g. `recomp calculator`), this fires.
+    "peptide-experiment: every keyword references peptide-intent root",
+    b.campaigns[0].adGroups[0].keywords.every((k) =>
+      /\bpeptid/i.test(k.text),
+    ),
   );
   ok(
-    "peptide-experiment: every keyword is PHRASE match",
-    b.campaigns[0].adGroups[0].keywords.every((k) => k.match === "PHRASE"),
+    // Match-type invariant: PHRASE for the broader expansion keywords,
+    // EXACT for the cheapest/closest-intent ones (specifically the
+    // user-added `peptide calculator` and the multilingual close
+    // variants `peptide rechner` and `calculadora de peptidos`).
+    // BROAD match is forbidden — too policy-risky in this campaign.
+    "peptide-experiment: every keyword is PHRASE or EXACT (no BROAD)",
+    b.campaigns[0].adGroups[0].keywords.every(
+      (k) => k.match === "PHRASE" || k.match === "EXACT",
+    ),
   );
   ok(
     "peptide-experiment: 1 RSA only",
@@ -380,9 +401,37 @@ async function provisionerSection() {
     try {
       const r = await provisionBlueprint(b, { dryRun: true });
       const c1 = r.campaigns.find((c) => c.name.includes("C1"));
-      ok("tool-only dry-run: C1 has sitelinks", (c1?.sitelinks_added ?? 0) === 4);
+      ok("tool-only dry-run: C1 has sitelinks", (c1?.sitelinks_added ?? 0) === 2);
       ok("tool-only dry-run: C1 has callouts", (c1?.callouts_added ?? 0) === 6);
       ok("tool-only dry-run: C1 has demo exclusion", (c1?.demographics_excluded ?? 0) === 1);
+      // ProvisionResult shape regression: each ad-group summary must
+      // expose ads_removed (the orphan-RSA cleanup counter) and each
+      // campaign must expose sitelinks_removed. Mock mode reports 0 for
+      // both, but the FIELDS must exist or downstream consumers
+      // (BlueprintCard, provision-blueprint CLI, dashboards) crash.
+      ok(
+        "tool-only dry-run: ad_groups expose ads_removed",
+        (c1?.ad_groups ?? []).every((g) => typeof g.ads_removed === "number"),
+      );
+      ok(
+        "tool-only dry-run: campaigns expose sitelinks_removed",
+        typeof c1?.sitelinks_removed === "number",
+      );
+      // Regression guard for the 2026-05-01 sitelink pruning: the
+      // /reconstitution and /half-life sitelinks were disapproved by
+      // Google twice and removed from the blueprint. If anyone
+      // re-introduces them without coordinating with the policy plan,
+      // this assertion catches it.
+      const c1Resolved = b.campaigns.find((c) => c.name.includes("C1"));
+      const slUrls = (c1Resolved?.sitelinks ?? []).map((s) => s.finalUrl);
+      ok(
+        "C1 has no /reconstitution sitelink (pulled 2026-05-01 — disapproved)",
+        !slUrls.some((u) => u.endsWith("/reconstitution")),
+      );
+      ok(
+        "C1 has no /half-life sitelink (pulled 2026-05-01 — disapproved)",
+        !slUrls.some((u) => u.endsWith("/half-life")),
+      );
     } catch (err) {
       ok("tool-only extensions dry-run succeeds", false, String(err));
     }
@@ -459,9 +508,9 @@ function statsSection() {
     eq("tool-only: 6 ad groups", s.adGroups, 6);
     eq("tool-only: 26 keywords", s.keywords, 26);
     eq("tool-only: 6 RSAs", s.ads, 6);
-    eq("tool-only: 59 negatives", s.negatives, 59);
+    eq("tool-only: 63 negatives", s.negatives, 63);
     eq("tool-only: $30/day", s.totalDailyBudgetUsd, 30);
-    eq("tool-only: 4 sitelinks", s.sitelinks, 4);
+    eq("tool-only: 2 sitelinks (Recon+HalfLife pulled 2026-05-01)", s.sitelinks, 2);
     eq("tool-only: 6 callouts", s.callouts, 6);
   }
   {
@@ -474,16 +523,16 @@ function statsSection() {
     eq("full: 7 ad groups", s.adGroups, 7);
     eq("full: 34 keywords", s.keywords, 34);
     eq("full: 7 RSAs", s.ads, 7);
-    eq("full: 118 negatives", s.negatives, 118);
+    eq("full: 126 negatives", s.negatives, 126);
     eq("full: $35/day", s.totalDailyBudgetUsd, 35);
-    eq("full: 4 sitelinks", s.sitelinks, 4);
+    eq("full: 2 sitelinks (Recon+HalfLife pulled 2026-05-01)", s.sitelinks, 2);
     eq("full: 6 callouts", s.callouts, 6);
   }
   {
     const s = blueprintStats(resolveBlueprint({ mode: "peptide-experiment" }));
     eq("peptide-experiment: 1 campaign", s.campaigns, 1);
     eq("peptide-experiment: 1 ad group", s.adGroups, 1);
-    eq("peptide-experiment: 2 keywords", s.keywords, 2);
+    eq("peptide-experiment: 15 keywords (expanded)", s.keywords, 15);
     eq("peptide-experiment: 1 RSA", s.ads, 1);
     eq("peptide-experiment: $5/day cap", s.totalDailyBudgetUsd, 5);
   }
