@@ -59,6 +59,8 @@ function fmtErr(err: unknown): string {
 import {
   type BlueprintAdGroup,
   type BlueprintCampaign,
+  type BlueprintSitelink,
+  type BlueprintCallout,
   type ResolvedBlueprint,
   type BlueprintRSA,
   type BlueprintKeyword,
@@ -91,6 +93,9 @@ export interface ProvisionResult {
       ads_created: number;
     }>;
     negatives_added: number;
+    sitelinks_added: number;
+    callouts_added: number;
+    demographics_excluded: number;
   }>;
   /** Errors that didn't abort the whole provision (per-resource). */
   warnings: string[];
@@ -165,6 +170,9 @@ async function provisionCampaign(
     reused: false,
     ad_groups: [],
     negatives_added: 0,
+    sitelinks_added: 0,
+    callouts_added: 0,
+    demographics_excluded: 0,
   };
 
   if (!live) {
@@ -200,6 +208,45 @@ async function provisionCampaign(
         warnings.push(
           `[${c.name}] negatives partial failure: ${fmtErr(err)}`,
         );
+      }
+    }
+  }
+
+  // Sitelink extensions
+  if (c.sitelinks && c.sitelinks.length > 0) {
+    if (!live) {
+      summary.sitelinks_added = c.sitelinks.length;
+    } else {
+      try {
+        summary.sitelinks_added = await addCampaignSitelinks(summary.campaign_id, c.sitelinks);
+      } catch (err) {
+        warnings.push(`[${c.name}] sitelinks failed: ${fmtErr(err)}`);
+      }
+    }
+  }
+
+  // Callout extensions
+  if (c.callouts && c.callouts.length > 0) {
+    if (!live) {
+      summary.callouts_added = c.callouts.length;
+    } else {
+      try {
+        summary.callouts_added = await addCampaignCallouts(summary.campaign_id, c.callouts);
+      } catch (err) {
+        warnings.push(`[${c.name}] callouts failed: ${fmtErr(err)}`);
+      }
+    }
+  }
+
+  // Demographic exclusion (18-24 age range)
+  if (c.excludeAge18to24) {
+    if (!live) {
+      summary.demographics_excluded = 1;
+    } else {
+      try {
+        summary.demographics_excluded = await excludeAge18to24(summary.campaign_id);
+      } catch (err) {
+        warnings.push(`[${c.name}] age exclusion failed: ${fmtErr(err)}`);
       }
     }
   }
@@ -438,6 +485,77 @@ async function addCampaignNegatives(
   }));
   await cust.campaignCriteria.create(operations as never);
   return operations.length;
+}
+
+async function addCampaignSitelinks(
+  campaignId: string,
+  sitelinks: BlueprintSitelink[],
+): Promise<number> {
+  const cust = await getCustomer();
+  const customerId = process.env.GOOGLE_ADS_CUSTOMER_ID!;
+
+  const assetOps = sitelinks.map((sl) => ({
+    sitelink_asset: {
+      link_text: sl.text,
+      description1: sl.description1 ?? "",
+      description2: sl.description2 ?? "",
+    },
+    final_urls: [sl.finalUrl],
+  }));
+
+  const assetResp = await cust.assets.create(assetOps as never);
+  const assetResources = (assetResp as { results?: Array<{ resource_name?: string }> })
+    .results?.map((r) => r.resource_name ?? "") ?? [];
+
+  const linkOps = assetResources.map((resource) => ({
+    asset: resource,
+    campaign: `customers/${customerId}/campaigns/${campaignId}`,
+    field_type: enums.AssetFieldType.SITELINK,
+  }));
+
+  await cust.campaignAssets.create(linkOps as never);
+  return sitelinks.length;
+}
+
+async function addCampaignCallouts(
+  campaignId: string,
+  callouts: BlueprintCallout[],
+): Promise<number> {
+  const cust = await getCustomer();
+  const customerId = process.env.GOOGLE_ADS_CUSTOMER_ID!;
+
+  const assetOps = callouts.map((co) => ({
+    callout_asset: {
+      callout_text: co.text,
+    },
+  }));
+
+  const assetResp = await cust.assets.create(assetOps as never);
+  const assetResources = (assetResp as { results?: Array<{ resource_name?: string }> })
+    .results?.map((r) => r.resource_name ?? "") ?? [];
+
+  const linkOps = assetResources.map((resource) => ({
+    asset: resource,
+    campaign: `customers/${customerId}/campaigns/${campaignId}`,
+    field_type: enums.AssetFieldType.CALLOUT,
+  }));
+
+  await cust.campaignAssets.create(linkOps as never);
+  return callouts.length;
+}
+
+async function excludeAge18to24(campaignId: string): Promise<number> {
+  const cust = await getCustomer();
+  const customerId = process.env.GOOGLE_ADS_CUSTOMER_ID!;
+
+  await cust.campaignCriteria.create([{
+    campaign: `customers/${customerId}/campaigns/${campaignId}`,
+    negative: true,
+    age_range: {
+      type: enums.AgeRangeType.AGE_RANGE_18_24,
+    },
+  }] as never);
+  return 1;
 }
 
 async function createAdGroupShell(

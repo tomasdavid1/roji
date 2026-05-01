@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { ReconCalculator } from "@/components/ReconCalculator";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
@@ -61,6 +62,7 @@ export default function ReconstitutionPage() {
         body="Roji Peptides ships research-grade peptide vials (≥99% Janoshik-verified purity) along with bacteriostatic water and insulin syringes — everything you'd otherwise have to source from three different vendors."
       />
       <MoreTools currentSlug="reconstitution" />
+      <StickyStoreBanner source="reconstitution" label="Need BAC water and research compounds? → Browse Roji stacks" />
     </>
   );
 }

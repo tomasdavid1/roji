@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { analyzeCoaText, type CoaAnalysis } from "@/lib/coa-analyze";
 import { track } from "@/lib/track";
+import { PostResultCTA } from "./PostResultCTA";
 
 export function CoaUploader() {
   const [analysis, setAnalysis] = useState<CoaAnalysis | null>(null);
@@ -139,6 +140,15 @@ export function CoaUploader() {
       )}
 
       {analysis && <AnalysisPanel analysis={analysis} />}
+
+      {analysis && (
+        <PostResultCTA
+          toolSlug="coa"
+          title="Roji COAs pass every check on this page. Janoshik-verified, ≥99% purity, dated within 30 days."
+          buttonLabel="See our COA library →"
+          href={(process.env.NEXT_PUBLIC_STORE_URL ?? "https://rojipeptides.com") + "/coa/"}
+        />
+      )}
     </section>
   );
 }

@@ -11,6 +11,7 @@ import {
   type Sex,
 } from "@/data/blood-markers";
 import { track } from "@/lib/track";
+import { PostResultCTA } from "./PostResultCTA";
 
 interface PanelSnapshot {
   id: string;
@@ -227,6 +228,14 @@ export function BloodworkInterpreter() {
               </div>
             </div>
           ))}
+
+          {filledCount > 0 && (
+            <PostResultCTA
+              toolSlug="bloodwork"
+              title="Research compounds from the team behind this tool — Janoshik-verified, ≥99% purity."
+              buttonLabel="Explore research tools and compounds →"
+            />
+          )}
         </div>
       </div>
     </section>

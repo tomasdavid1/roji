@@ -78,9 +78,11 @@ export function SiteHeader() {
 
         <a
           href={STORE_URL}
-          className="hidden md:inline-flex items-center gap-1 text-xs font-mono uppercase tracking-wider text-roji-muted hover:text-roji-text transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-mono uppercase tracking-wider text-roji-muted hover:text-roji-text transition-colors"
         >
-          rojipeptides.com →
+          <span className="hidden sm:inline">rojipeptides.com</span>
+          <span className="sm:hidden">Shop</span>
+          <span aria-hidden="true">→</span>
         </a>
       </div>
     </header>

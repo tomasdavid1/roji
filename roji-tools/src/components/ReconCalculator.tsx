@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import { compute, SYRINGE_TOTAL_UNITS, type SyringeKind } from "@/lib/recon-math";
 import { track } from "@/lib/track";
+import { PostResultCTA } from "./PostResultCTA";
 
 const PRESETS = [
   { label: "BPC-157 5mg", vialMg: 5, waterMl: 2, doseMcg: 250 },
@@ -250,6 +251,14 @@ export function ReconCalculator() {
                 ))}
               </ul>
             </div>
+          )}
+
+          {trackedOnce && (
+            <PostResultCTA
+              toolSlug="reconstitution"
+              title="Need BAC water and clean vials? Roji ships Janoshik-verified research compounds."
+              buttonLabel="Browse research stacks →"
+            />
           )}
         </div>
       </div>

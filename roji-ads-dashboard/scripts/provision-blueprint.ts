@@ -126,6 +126,9 @@ async function main() {
     console.log(`\n  ${c.reused ? "↺ Reused" : "✓ Created"} campaign: ${c.name}`);
     console.log(`    id=${c.campaign_id} budget=${c.budget_id}`);
     console.log(`    ${c.negatives_added} negative keyword(s) added`);
+    if (c.sitelinks_added > 0) console.log(`    ${c.sitelinks_added} sitelink(s) added`);
+    if (c.callouts_added > 0) console.log(`    ${c.callouts_added} callout(s) added`);
+    if (c.demographics_excluded > 0) console.log(`    ${c.demographics_excluded} demographic exclusion(s) added`);
     for (const g of c.ad_groups) {
       console.log(`    ↳ ${g.name}: ${g.keywords_added} keywords, ${g.ads_created} ad(s)`);
     }

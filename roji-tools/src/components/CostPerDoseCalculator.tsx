@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { track } from "@/lib/track";
+import { PostResultCTA } from "./PostResultCTA";
 
 interface Row {
   id: string;
@@ -21,6 +22,13 @@ export function CostPerDoseCalculator() {
     { id: rid(), vendor: "Vendor B", vialMg: 5, priceUsd: 45, shippingUsd: 12, purity: 96 },
     { id: rid(), vendor: "Roji", vialMg: 5, priceUsd: 49, shippingUsd: 0, purity: 99.5 },
   ]);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  useEffect(() => {
+    if (hasInteracted) return;
+    if (doseMcg !== 250 || rows.length !== 3) {
+      setHasInteracted(true);
+    }
+  }, [doseMcg, rows, hasInteracted]);
 
   const update = (id: string, patch: Partial<Row>) => {
     setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -182,6 +190,14 @@ export function CostPerDoseCalculator() {
           <span className="font-mono">{cheapest.dosesPerVial.toFixed(0)}</span>{" "}
           doses per vial after adjusting for purity).
         </div>
+      )}
+
+      {hasInteracted && (
+        <PostResultCTA
+          toolSlug="cost-per-dose"
+          title="Compare Roji's actual pricing — Janoshik-verified, ≥99% purity, transparent COAs."
+          buttonLabel="See our pricing →"
+        />
       )}
 
       <p className="mt-4 text-[12px] text-roji-dim leading-relaxed">

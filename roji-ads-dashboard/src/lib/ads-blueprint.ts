@@ -17,18 +17,44 @@
  *        framing.
  *   Use "calculator", "tool", "framework", "planner" instead.
  *
- * Two modes:
- *   - "tool-only": Campaign 1, Ad Group 3 only (Biohacker intent, no
- *     compound names). Single RSA. Full negative-keyword list.
+ * Tool-specific ad group restructure (4-AI review consensus, Apr 2026):
+ *   The original AG3 ("Biohacker Intent") routed every keyword to the
+ *   homepage tool grid, which all four reviewers (Claude, ChatGPT,
+ *   Gemini, Grok) flagged as a high-impact CRO mistake. Specific-intent
+ *   keywords like "reconstitution calculator" now route to their
+ *   tool-specific landing page (`/reconstitution`) instead of the
+ *   homepage. AG3 is decomposed into 5 tool-specific ad groups plus a
+ *   slimmed AG-Generic catch-all. AG5 (Fitness) is moved to its own
+ *   campaign C4 to prevent cheap fitness clicks from cannibalising
+ *   high-intent tool budget under Maximize Clicks.
  *
- *   - "full": Campaign 1 (2 ad groups, 3 RSAs, full keyword expansion)
- *     plus Campaign 3 (Brand Defense). Compound-specific Ad Group 2 from
- *     the original strategy doc is intentionally excluded by default —
- *     add it manually after Ad Group 1 has been clean for a week.
+ *   Per the same review, ad copy on Reconstitution + CostCompare was
+ *   hard-softened: "syringe", "tick", "before you touch a vial",
+ *   "insulin-syringe" stripped from RSAs (kept on landing pages where
+ *   they're useful and unreviewed). The URL `/cost-per-dose` stays
+ *   (Google evaluates the page, which is math) but the ad group name
+ *   is AG-CostCompare and "dose" is dropped from RSA copy.
+ *
+ * Modes:
+ *   - "tool-only": C1 (5 tool-specific ad groups, slimmed AG-Generic).
+ *     Default. Brand defense (C3) included.
+ *
+ *   - "full": tool-only PLUS C4 (Recomp/Fitness Funnel, separate $5/day
+ *     budget so cheap fitness clicks can't starve tool ad groups).
+ *
+ *   - "peptide-experiment": C2 only — bounded $5/day experiment with
+ *     `peptide` in two phrase-match keywords.
  *
  * Anything sourced from here passes through `safety.ts` before mutation
  * so we cannot accidentally ship a forbidden compound name. Both ad copy
  * AND keywords are walked.
+ *
+ * Migration notes (Apr 2026):
+ *   The provisioner is idempotent by ad-group name. When this new
+ *   blueprint provisions, the live AG3 + AG5 are NOT touched — they
+ *   keep running in the account until manually paused in the Google
+ *   Ads UI. Pause AG3 and AG5 immediately after the new ad groups go
+ *   live so spend doesn't double up.
  */
 
 import { DEFAULT_STORE_URL, DEFAULT_TOOLS_URL } from "./env";
@@ -47,6 +73,17 @@ export interface BlueprintKeyword {
   match: KeywordMatchType;
   /** Annotate keywords we know carry policy risk so the UI can warn. */
   risk?: "low" | "moderate" | "high";
+}
+
+export interface BlueprintSitelink {
+  text: string;        // max 25 chars
+  finalUrl: string;
+  description1?: string; // max 35 chars
+  description2?: string; // max 35 chars
+}
+
+export interface BlueprintCallout {
+  text: string;  // max 25 chars
 }
 
 export interface BlueprintRSA {
@@ -93,6 +130,13 @@ export interface BlueprintCampaign {
   language: "en";
   geoTargets: ["US"];
   adGroups: BlueprintAdGroup[];
+  /** Sitelink extensions at campaign level. */
+  sitelinks?: BlueprintSitelink[];
+  /** Callout extensions at campaign level. */
+  callouts?: BlueprintCallout[];
+  /** Exclude the 18-24 age demographic. Reduces spend on unqualified traffic
+   *  and signals compliance with our 21+ requirement. */
+  excludeAge18to24?: boolean;
   /** Campaign-level negative keywords. The big policy-protection list. */
   negativeKeywords: string[];
   /** Initial bid strategy. We start with MAX_CLICKS for data collection. */
@@ -127,6 +171,7 @@ export interface ResolvedBlueprint {
  * (b) pull traffic that won't convert through the research tools.
  */
 export const POLICY_NEGATIVE_KEYWORDS: string[] = [
+  // Commerce intent — our landing page is a free tool, not a store
   "buy",
   "purchase",
   "order",
@@ -135,9 +180,12 @@ export const POLICY_NEGATIVE_KEYWORDS: string[] = [
   "coupon",
   "for sale",
   "price",
-  "cost",
+  "cost to buy",
+  "price to buy",
+  "where to buy",
   "shop",
   "store",
+  // Medical / pharma — policy protection
   "pharmacy",
   "prescription",
   "doctor",
@@ -148,17 +196,23 @@ export const POLICY_NEGATIVE_KEYWORDS: string[] = [
   "human use",
   "fda approved",
   "weight loss",
+  "medical advice",
+  "symptoms",
+  // Named drugs — high CPC, wrong audience
   "semaglutide",
   "ozempic",
   "wegovy",
   "tirzepatide",
+  // Controlled substances
   "steroid",
   "testosterone",
   "hgh",
   "growth hormone",
   "illegal",
+  // Safety / harm framing
   "side effects",
-  "safe",
+  "safe to inject",
+  "safe for humans",
   "dangerous",
   "drug",
   "medicine",
@@ -166,13 +220,374 @@ export const POLICY_NEGATIVE_KEYWORDS: string[] = [
   "therapy",
   "cure",
   "heal",
+  // Junk calculator traffic — especially important with AG5 fitness keywords
+  "bmi",
+  "mortgage",
+  "loan",
+  "interest",
+  "savings",
+  "tax",
+  "grade",
+  "gpa",
+  "scientific calculator",
+  "calculator app",
+  "download",
+  "unit conversion",
+  "pregnancy",
+  "calorie deficit",
+  "diet plan",
 ];
 
 /* -------------------------------------------------------------------------- */
 /* Ad copy & keyword catalog                                                   */
 /* -------------------------------------------------------------------------- */
 
-/** Ad Group 3 — Biohacker / Optimization Intent (safest, no compound names). */
+/* === Tool-specific ad groups (post-restructure, 4-AI review consensus) === */
+
+/**
+ * AG-Reconstitution → /reconstitution
+ *
+ * Highest-intent ad group in the account. Nobody else bids on
+ * "reconstitution calculator". Landing page is a math calculator.
+ *
+ * COPY POLICY (per 4-AI consensus):
+ *   - No "syringe", "tick", "insulin", "inject" in ad copy.
+ *   - No "before you ever touch a vial" — sounds operational/preparatory.
+ *   - "Vial" is allowed as a research lab term but used sparingly.
+ *   - Lead with "Research Concentration Math" framing.
+ *   - Keep references to BAC water + concentration math, drop the
+ *     practical-use flavor that triggered policy concerns.
+ */
+function reconstitutionAdGroup(toolsUrl: string): BlueprintAdGroup {
+  return {
+    name: "AG-Reconstitution",
+    cpcBidCeilingUsd: 3.0,
+    finalUrl: `${toolsUrl}/reconstitution`,
+    notes:
+      "Highest-intent tool group. Hard-softened ad copy per 4-AI review " +
+      "(strip 'syringe', 'tick', 'before you touch a vial'). Landing " +
+      "page route /reconstitution is research-only math, not pharma.",
+    keywords: [
+      { text: "reconstitution calculator", match: "PHRASE", risk: "low" },
+      { text: "vial calculator", match: "PHRASE", risk: "low" },
+      { text: "bac water calculator", match: "PHRASE", risk: "low" },
+    ],
+    ads: [
+      {
+        headlines: [
+          "Reconstitution Calculator",
+          "Free Research Concentration",
+          "BAC Water Math — Free",
+          "Concentration Calculator",
+          "Research Math Calculator",
+          "Free Reconstitution Tool",
+          "Lab Math In 60 Seconds",
+          "Browser-Based Calculator",
+          "Roji Research Tools",
+          "Built For Researchers",
+          "Input-Based Lab Math",
+          "Transparent Research Math",
+          "Free Research Calculator",
+          "No Signup Required",
+          "Skip The Forum Math",
+        ],
+        descriptions: [
+          "Input research parameters and volume to calculate concentration. Browser-based, free.",
+          "Transparent research concentration math for lab-planning. Fast, free, no signup.",
+          "Replace forum spreadsheets. Calculate concentrations in 60 seconds. Free research tool.",
+          "Research concentration calculator built by researchers, for researchers. Free, no account.",
+        ],
+      },
+    ],
+  };
+}
+
+/**
+ * AG-HalfLife → /half-life
+ *
+ * Cleanest tool-specific split. Half-life is physics/chemistry, no
+ * pharma classifier triggers. Lead with database/reference angle, not
+ * pharmacokinetic-sounding language.
+ */
+function halfLifeAdGroup(toolsUrl: string): BlueprintAdGroup {
+  return {
+    name: "AG-HalfLife",
+    cpcBidCeilingUsd: 3.0,
+    finalUrl: `${toolsUrl}/half-life`,
+    notes:
+      "Cleanest tool split. No policy risk. Database/reference framing. " +
+      "Watch search terms in week 1 for chemistry-homework drift.",
+    keywords: [
+      { text: "half life calculator", match: "PHRASE", risk: "low" },
+      { text: "half life database", match: "PHRASE", risk: "low" },
+      { text: "half life comparison", match: "PHRASE", risk: "low" },
+      { text: "compound half life", match: "PHRASE", risk: "low" },
+    ],
+    ads: [
+      {
+        headlines: [
+          "Half-Life Database — Free",
+          "Compare Compound Half-Lives",
+          "Decay Curves, Visualized",
+          "Cited Research Data",
+          "PubMed-Cited References",
+          "Free Research Database",
+          "20+ Research Entries",
+          "Research Comparison Tool",
+          "Roji Research Tools",
+          "Built For Researchers",
+          "Half-Life Made Visual",
+          "Browse — Free",
+          "Evidence-Based Tools",
+          "No Signup Required",
+          "Compound Comparison Free",
+        ],
+        descriptions: [
+          "Half-life ranges, MW, and reference data for 20+ research compounds. Free, cited.",
+          "Compare decay curves and reference profiles across compounds. Free, browser-based.",
+          "PubMed-cited half-life data for the most-researched compounds. No paywall, no account.",
+          "Visualize compound decay curves with referenced data. Built for researchers, free.",
+        ],
+      },
+    ],
+  };
+}
+
+/**
+ * AG-COA → /coa
+ *
+ * Lowest policy risk in the entire account. COA = analytical chemistry
+ * document. "Janoshik" dropped from ad copy per 4-AI review (kept on
+ * landing pages — narrows ad eligibility unnecessarily in copy).
+ */
+function coaAdGroup(toolsUrl: string): BlueprintAdGroup {
+  return {
+    name: "AG-COA",
+    cpcBidCeilingUsd: 3.0,
+    finalUrl: `${toolsUrl}/coa`,
+    notes:
+      "Lowest policy risk. COA = lab document, fully inert classifier-wise. " +
+      "Sharpest trust/verification angle in the account. 'Janoshik' kept " +
+      "on landing page only, dropped from ad copy.",
+    keywords: [
+      { text: "coa analyzer", match: "PHRASE", risk: "low" },
+      { text: "certificate of analysis checker", match: "PHRASE", risk: "low" },
+      { text: "coa verifier", match: "PHRASE", risk: "low" },
+    ],
+    ads: [
+      {
+        headlines: [
+          "Free COA Analyzer",
+          "Verify Your COA",
+          "Spot COA Red Flags",
+          "Certificate Analysis Tool",
+          "Free Vendor COA Checker",
+          "HPLC Purity Analyzer",
+          "COA In Plain English",
+          "Files Stay Local",
+          "Roji Research Tools",
+          "Built For Researchers",
+          "Lab COA Translator",
+          "Check COA Completeness",
+          "Third-Party COA Standards",
+          "Flag COA Red Flags",
+          "Upload — Free",
+        ],
+        descriptions: [
+          "Drop in any vendor's COA. We translate every line into plain English and flag red flags.",
+          "Verify HPLC purity, MS confirmation, and lab accreditation. Free, local files only.",
+          "Spot fake or incomplete COAs in seconds. Built by researchers tired of sketchy reports.",
+          "Free COA analyzer with third-party verification standards. Upload, get a trust score.",
+        ],
+      },
+    ],
+  };
+}
+
+/**
+ * AG-CostCompare → /cost-per-dose
+ *
+ * Ad group label intentionally avoids "dose" even though the URL keeps
+ * the existing route. Google evaluates the landing page (cost
+ * comparison math, not pharma). Ad copy leads with vendor cost
+ * comparison framing — "research cost calculator" not "cost per dose."
+ */
+function costCompareAdGroup(toolsUrl: string): BlueprintAdGroup {
+  return {
+    name: "AG-CostCompare",
+    cpcBidCeilingUsd: 3.0,
+    finalUrl: `${toolsUrl}/cost-per-dose`,
+    notes:
+      "Renamed from AG-CostPerDose to keep 'dose' out of the ad group " +
+      "label and ad copy. URL route /cost-per-dose unchanged. Lead with " +
+      "vendor cost comparison framing.",
+    keywords: [
+      { text: "cost per dose calculator", match: "PHRASE", risk: "moderate" },
+      { text: "compound cost calculator", match: "PHRASE", risk: "low" },
+    ],
+    ads: [
+      {
+        headlines: [
+          "Research Cost Calculator",
+          "Compare Vendor Costs",
+          "Cost Comparison Tool",
+          "$/mg Comparison Tool",
+          "Vendor Cost Calculator",
+          "Free Research Calculator",
+          "Free Vendor Comparison",
+          "Transparent Cost Math",
+          "Roji Research Tools",
+          "Built For Researchers",
+          "Lab Math In 60 Seconds",
+          "Skip The Spreadsheet",
+          "Browser-Based Tool",
+          "No Signup Required",
+          "Calculate — Free",
+        ],
+        descriptions: [
+          "Input research quantity and price to compare cost metrics across vendors. Free.",
+          "Compare vendor cost inputs with transparent formulas. Browser-based, no account.",
+          "Vendor cost comparison built for researchers. Transparent math, no marketing fluff.",
+          "Free research cost calculator. Compare vendors anonymously. No signup needed.",
+        ],
+      },
+    ],
+  };
+}
+
+/**
+ * AG-Generic → / (homepage)
+ *
+ * Slimmed catch-all for true broad-intent terms (no clear tool home).
+ * Aggressively pruned per 4-AI consensus — every keyword that maps to
+ * a specific tool was redistributed to its own ad group. The remaining
+ * keywords are exploratory: someone searching "biohacking tools" wants
+ * to see the suite, not a single calculator.
+ *
+ * Bloodwork keyword lives here because: (a) bloodwork → peptide is the
+ * weakest commercial bridge, (b) bloodwork keywords could trigger
+ * health-classifier review if isolated, (c) traffic is low enough to
+ * absorb here without dominating.
+ */
+function genericAdGroup(toolsUrl: string): BlueprintAdGroup {
+  return {
+    name: "AG-Generic",
+    cpcBidCeilingUsd: 3.0,
+    finalUrl: toolsUrl,
+    notes:
+      "Slimmed catch-all (was AG3). Only keywords with no clear tool " +
+      "home. Aggressive search-term review — first to cut if budget " +
+      "starves the tool-specific groups.",
+    keywords: [
+      // Broad biohacker-suite intent (homepage is the right destination)
+      { text: "biohacking tools", match: "PHRASE", risk: "low" },
+      { text: "biohacking calculator", match: "PHRASE", risk: "low" },
+      { text: "biohacker calculator", match: "PHRASE", risk: "low" },
+      { text: "body optimization tools", match: "PHRASE", risk: "low" },
+      { text: "performance research tools", match: "PHRASE", risk: "low" },
+      { text: "fitness research tools", match: "PHRASE", risk: "low" },
+      // Bloodwork has no dedicated AG (weak commercial bridge)
+      { text: "bloodwork interpreter", match: "PHRASE", risk: "low" },
+    ],
+    ads: [
+      {
+        headlines: [
+          "Free Research Tools",
+          "Research Calculator Suite",
+          "Built For Researchers",
+          "Biohacker Research Tools",
+          "Roji Research Tools",
+          "Evidence-Based Tools",
+          "Free Calculator Suite",
+          "Body Optimization Suite",
+          "Lab Math In 60 Seconds",
+          "Skip The Spreadsheet",
+          "Browser-Based Tools",
+          "No Signup Required",
+          "Personalized Frameworks",
+          "Free Research Suite",
+          "Start Building — Free",
+        ],
+        descriptions: [
+          "Free research tools built for biohackers. Reconstitution, half-life, COA scoring, more.",
+          "Reconstitution math, half-life curves, COA red-flag scoring. The tools that should exist.",
+          "Suite of free research calculators. Browser-based, referenced, no account needed.",
+          "Stop guessing. Calculate it. Free research tools, all referenced, no signup.",
+        ],
+      },
+    ],
+  };
+}
+
+/**
+ * AG-Recomp → /recomp  (own campaign C4, NOT in C1)
+ *
+ * Per 4-AI review, fitness keywords have CPCs 3-5x cheaper than
+ * tool-specific keywords. If they ran in C1 with Maximize Clicks,
+ * Google would pour budget into them and starve the high-intent tool
+ * groups. Solution: separate $5/day campaign C4 with its own budget.
+ * If fitness traffic doesn't convert in 3 weeks, pause C4 with zero
+ * impact on C1.
+ */
+function recompAdGroup(toolsUrl: string): BlueprintAdGroup {
+  return {
+    name: "AG-Recomp",
+    cpcBidCeilingUsd: 2.0,
+    finalUrl: `${toolsUrl}/recomp`,
+    notes:
+      "Top-of-funnel fitness traffic, isolated in C4 with its own " +
+      "$5/day budget so cheap clicks don't cannibalise C1. Lower CPC " +
+      "ceiling reflects weaker commercial intent vs. tool-specific groups.",
+    keywords: [
+      { text: "body recomp calculator", match: "PHRASE", risk: "low" },
+      { text: "body recomposition calculator", match: "PHRASE", risk: "low" },
+      { text: "body composition calculator", match: "PHRASE", risk: "low" },
+      { text: "tdee calculator", match: "PHRASE", risk: "low" },
+      { text: "macro calculator", match: "PHRASE", risk: "low" },
+      { text: "body fat calculator", match: "PHRASE", risk: "low" },
+      { text: "lean bulk calculator", match: "PHRASE", risk: "low" },
+      { text: "cutting calculator", match: "PHRASE", risk: "low" },
+    ],
+    ads: [
+      {
+        headlines: [
+          "Body Recomp Calculator",
+          "Free TDEE Calculator",
+          "Macro Calculator — Free",
+          "Body Composition Calculator",
+          "Composition Projections",
+          "Input-Based Recomp Math",
+          "Free Body Fat Calculator",
+          "Composition Planner",
+          "Goal-Based Calculator",
+          "Roji Research Tools",
+          "60-Second Recomp Math",
+          "Free Calculator Suite",
+          "Skip The Spreadsheet",
+          "Evidence-Based Tools",
+          "Start Calculating — Free",
+        ],
+        descriptions: [
+          "TDEE, macros, and projected body composition over 8-24 weeks. Calibrated to your data.",
+          "Personalized recomp math in 60 seconds. Free, browser-based, no signup needed.",
+          "Replace your fitness spreadsheet with a calibrated calculator. Free, fast, evidence-based.",
+          "16-week body composition projection based on your TDEE, training, and goal. Free tool.",
+        ],
+      },
+    ],
+  };
+}
+
+/* === Legacy ad groups ===
+ *
+ * NOTE: The three functions below (`biohackerAdGroup`, `calculatorIntentAdGroup`,
+ * `fitnessIntentAdGroup`) were the pre-restructure ad groups. They are no
+ * longer referenced by any resolver mode, but are retained for one release
+ * cycle as reference for anyone debugging diffs between the old and new
+ * structures. Safe to delete after the new blueprint has run clean for 14 days.
+ */
+
+/** Ad Group 3 — Biohacker / Optimization Intent (LEGACY — see AG-Generic). */
 function biohackerAdGroup(finalUrl: string): BlueprintAdGroup {
   return {
     name: "AG3 — Biohacker Intent",
@@ -197,32 +612,47 @@ function biohackerAdGroup(finalUrl: string): BlueprintAdGroup {
       "lean mass research planner",
       "body composition calculator",
       "fitness research tools",
+      // Tool-specific keywords (all reviewers agree these are high-intent,
+      // low-competition queries targeting people looking for exactly what
+      // we built).
+      "reconstitution calculator",
+      "half life calculator",
+      "coa analyzer",
+      "cost per dose calculator",
+      "compound cost calculator",
+      "vial calculator",
+      "bloodwork interpreter",
+      "bac water calculator",
     ].map((text) => ({ text, match: "PHRASE" as KeywordMatchType, risk: "low" as const })),
     ads: [
       // RSA #1 — "biohacker community / evidence-based" angle.
       // Tone: belonging, scientific credibility.
+      // Headlines swapped per external review: bland "Optimize With Data",
+      // "Smart Research Suite", "Calibrated Frameworks", "Data-Driven
+      // Precision", "Performance Frameworks" replaced with tool-specific /
+      // pain-point headlines that speak directly to ICP.
       {
         headlines: [
           "Biohacker Research Tools",
-          "Optimize With Data",
-          "Performance Frameworks",
+          "Lab Math In 60 Seconds",
+          "Reconstitution Calculator",
           "Free Optimization Tool",
           "Body Recomp Calculator",
           "Personalized Frameworks",
           "Research Tools — Free",
-          "Smart Research Suite",
+          "Skip 3 Hours Of Reddit",
           "Built For Researchers",
-          "60-Second Frameworks",
+          "Free COA Analyzer",
           "Evidence-Based Tools",
-          "Calibrated Frameworks",
+          "20+ Compounds Covered",
           "Roji Research Tools",
-          "Data-Driven Precision",
+          "Half-Life Database",
           "Start Building — Free",
         ],
         descriptions: [
           "Free research tools built for biohackers. Input your stats, get a personalized framework.",
-          "Skip the spreadsheets. Roji generates evidence-based frameworks in 60 seconds.",
-          "Used by 500+ biohackers to plan recomp, recovery, and performance. Free, referenced, fast.",
+          "Reconstitution math, half-life curves, COA scoring. The tools that should exist. Free.",
+          "Join researchers planning recomp, recovery, and performance. Free, referenced, no signup.",
           "Stop guessing recovery windows and recomp math. Calculate it. Free tools, no signup.",
         ],
       },
@@ -253,6 +683,35 @@ function biohackerAdGroup(finalUrl: string): BlueprintAdGroup {
           "Input your stats and goals. Roji handles the math. Done in under 60 seconds.",
           "What used to take 2 hours of forum-hunting now takes 60 seconds. All referenced.",
           "Built by researchers tired of bad spreadsheets. Free, referenced, no account needed.",
+        ],
+      },
+      // RSA #3 — "tool-specific / what-we-actually-do" angle.
+      // Tone: concrete, names the tools, speaks to the pain. Distinct
+      // narrative from #1 (community) and #2 (productivity) — this one
+      // says "here are the exact calculators you're looking for."
+      {
+        headlines: [
+          "Reconstitution Calculator",
+          "Half-Life Database",
+          "Free COA Analyzer",
+          "Cost-Per-Dose Math",
+          "Body Recomp Planner",
+          "Bloodwork Interpreter",
+          "Lab Math In 60 Seconds",
+          "Roji Research Tools",
+          "Skip 3 Hours Of Reddit",
+          "Built For Researchers",
+          "Free Research Suite",
+          "20+ Compounds Covered",
+          "Cites Published Research",
+          "No Account Required",
+          "Start Building — Free",
+        ],
+        descriptions: [
+          "Reconstitution, half-life, COA red-flag scoring, cost-per-dose. All free, all referenced.",
+          "The research calculators that should already exist. 60 seconds from input to framework.",
+          "For researchers, not patients. Every output cites the published literature it's built on.",
+          "Stop guessing reconstitution math. Input your vial, get precise numbers. Free, no signup.",
         ],
       },
     ],
@@ -313,7 +772,7 @@ function calculatorIntentAdGroup(finalUrl: string): BlueprintAdGroup {
           "Free research calculator. Input parameters, get a calibrated framework in 60 seconds.",
           "Every output cites the published literature it's built on. No account, no email gate.",
           "Built by researchers, for researchers. Personalized frameworks, not generic templates.",
-          "Trusted by 500+ in the research community. Save hours of spreadsheet math. Try it free.",
+          "Trusted by the research community. Save hours of spreadsheet math. Try it free, no signup.",
         ],
       },
       {
@@ -455,6 +914,62 @@ function peptideExperimentAdGroup(finalUrl: string): BlueprintAdGroup {
   };
 }
 
+/**
+ * Ad Group 5 — Fitness Calculator Intent (zero-risk top-of-funnel).
+ *
+ * High-volume, zero-policy-risk fitness keywords. tools.rojipeptides.com
+ * has a body recomp calculator and these keywords bring broader
+ * top-of-funnel traffic at very cheap CPCs ($0.30-1.00). They won't
+ * convert directly to peptide sales but they build awareness,
+ * remarketing audiences, and tool usage.
+ */
+function fitnessIntentAdGroup(finalUrl: string): BlueprintAdGroup {
+  return {
+    name: "AG5 — Fitness Calculator Intent",
+    cpcBidCeilingUsd: 2.0,
+    finalUrl,
+    notes:
+      "Zero policy risk. Generic fitness calculator terms. Cheap CPCs, " +
+      "high volume. Top-of-funnel awareness play — visitors who use a " +
+      "recomp calculator may discover the rest of the suite.",
+    keywords: [
+      { text: "body recomp calculator", match: "PHRASE", risk: "low" },
+      { text: "tdee calculator", match: "PHRASE", risk: "low" },
+      { text: "macro calculator", match: "PHRASE", risk: "low" },
+      { text: "body fat calculator", match: "PHRASE", risk: "low" },
+      { text: "lean bulk calculator", match: "PHRASE", risk: "low" },
+      { text: "cutting calculator", match: "PHRASE", risk: "low" },
+    ],
+    ads: [
+      {
+        headlines: [
+          "Body Recomp Calculator",
+          "Free TDEE Calculator",
+          "Macro Calculator — Free",
+          "Body Fat Calculator",
+          "Lean Bulk Planner",
+          "Cutting Calculator",
+          "Roji Research Tools",
+          "Personalized In 60s",
+          "Evidence-Based Math",
+          "Built For Researchers",
+          "Free Calculator Suite",
+          "No Account Required",
+          "Data-Driven Precision",
+          "Start Building — Free",
+          "Skip The Guesswork",
+        ],
+        descriptions: [
+          "Free body recomp calculator. Input your stats, get a personalized phase-by-phase plan.",
+          "TDEE, macros, body fat, lean bulk — all calibrated to your data. Free, no signup needed.",
+          "Replace your fitness spreadsheet with calibrated calculators. Browser-based. 60 seconds.",
+          "Evidence-based fitness math. Personalized output, not a generic template. Free and fast.",
+        ],
+      },
+    ],
+  };
+}
+
 /** Brand Defense ad group — exact-match brand keywords. */
 function brandAdGroup(storeUrl: string): BlueprintAdGroup {
   return {
@@ -486,7 +1001,7 @@ function brandAdGroup(storeUrl: string): BlueprintAdGroup {
         descriptions: [
           "Official Roji research tools. Build personalized, evidence-based frameworks in 60 seconds.",
           "Roji — premium research compound stacks with third-party COA verification on every batch.",
-          "Free research calculators trusted by 500+ in the research community. No account required.",
+          "Free research calculators trusted by the research community. No account required.",
           "The Roji research suite: framework builders, dose-cost math, recomp planners. All free.",
         ],
       },
@@ -517,6 +1032,8 @@ export interface ResolveOptions {
   brandBudget?: number;
   /** Override the peptide-experiment campaign daily budget (USD). */
   peptideExperimentBudget?: number;
+  /** Override the C4 Recomp campaign daily budget (USD). Defaults to $5. */
+  recompBudget?: number;
 }
 
 export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
@@ -549,10 +1066,84 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
             "names + therapeutic claims still blocked by safety.ts.",
           adGroups: [peptideExperimentAdGroup(toolsUrl)],
           negativeKeywords: POLICY_NEGATIVE_KEYWORDS,
+          excludeAge18to24: true,
         },
       ],
     };
   }
+
+  // Shared C1 + C3 builders for tool-only and full modes (full adds C4).
+  const c1: BlueprintCampaign = {
+    name: "C1 — Research Tools — Calculators [roji-blueprint]",
+    dailyBudgetUsd: opts.campaign1Budget ?? 25,
+    channel: "SEARCH",
+    language: "en",
+    geoTargets: ["US"],
+    bidStrategy: "MAXIMIZE_CLICKS",
+    rationale:
+      "Calculator-intent traffic, restructured per 4-AI review (Apr 2026). " +
+      "5 tool-specific ad groups, each routing to its own landing page. " +
+      "Recomp/fitness lives in C4 (separate budget) so it can't cannibalise " +
+      "high-intent tool spend under Maximize Clicks.",
+    adGroups: [
+      reconstitutionAdGroup(toolsUrl),
+      halfLifeAdGroup(toolsUrl),
+      coaAdGroup(toolsUrl),
+      costCompareAdGroup(toolsUrl),
+      genericAdGroup(toolsUrl),
+    ],
+    negativeKeywords: POLICY_NEGATIVE_KEYWORDS,
+    sitelinks: [
+      {
+        text: "Reconstitution Calc",
+        finalUrl: `${toolsUrl}/reconstitution`,
+        description1: "Calculate reconstitution volumes",
+        description2: "Precise BAC water math, free",
+      },
+      {
+        text: "Half-Life Database",
+        finalUrl: `${toolsUrl}/half-life`,
+        description1: "Compare compound half-lives",
+        description2: "Published data, referenced",
+      },
+      {
+        text: "COA Analyzer",
+        finalUrl: `${toolsUrl}/coa`,
+        description1: "Score your COA for red flags",
+        description2: "Third-party verification tool",
+      },
+      {
+        text: "Cost Comparison Tool",
+        finalUrl: `${toolsUrl}/cost-per-dose`,
+        description1: "Compare vendor research costs",
+        description2: "Transparent cost math, free",
+      },
+    ],
+    callouts: [
+      { text: "Free" },
+      { text: "No Signup Required" },
+      { text: "Browser-Based" },
+      { text: "Cites Published Research" },
+      { text: "20+ Compounds" },
+      { text: "For Researchers Only" },
+    ],
+    excludeAge18to24: true,
+  };
+
+  const c3: BlueprintCampaign = {
+    name: "C3 — Brand Defense [roji-blueprint]",
+    dailyBudgetUsd: opts.brandBudget ?? 5,
+    channel: "SEARCH",
+    language: "en",
+    geoTargets: ["US"],
+    bidStrategy: "TARGET_IMPRESSION_SHARE",
+    rationale:
+      "Owns the brand. Budget should rarely max out — brand traffic is cheap. " +
+      "Preemptive defense before organic discovery generates branded searches.",
+    adGroups: [brandAdGroup(storeUrl)],
+    negativeKeywords: [],
+    excludeAge18to24: true,
+  };
 
   if (opts.mode === "tool-only") {
     return {
@@ -560,65 +1151,34 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
       toolsUrl,
       storeUrl,
       protocolUrl: toolsUrl,
-      campaigns: [
-        {
-          name: "C1 — Research Tools — Calculators [roji-blueprint]",
-          // $14.29/day = $100/week. Slow-start budget while we validate
-          // the conversion flow on the live AW-18130000394 account.
-          // Override via opts.campaign1Budget once 30+ purchases land.
-          dailyBudgetUsd: opts.campaign1Budget ?? 14.29,
-          channel: "SEARCH",
-          language: "en",
-          geoTargets: ["US"],
-          bidStrategy: "MAXIMIZE_CLICKS",
-          rationale:
-            "Calculator-intent traffic only. One ad group (Biohacker — no compound " +
-            "names, no 'protocol' framing). Lands on Roji Research Tools. Goal: " +
-            "validate that Google approves the ads, measure CTR, and track " +
-            "purchase conversions (reserve-order thank-you page) as the primary " +
-            "optimization target.",
-          adGroups: [biohackerAdGroup(toolsUrl)],
-          negativeKeywords: POLICY_NEGATIVE_KEYWORDS,
-        },
-      ],
+      campaigns: [c1, c3],
     };
   }
 
-  // Full mode
+  // Full mode = tool-only + C4 (Recomp / Fitness Funnel, isolated budget).
+  const c4: BlueprintCampaign = {
+    name: "C4 — Body Recomp (Fitness Funnel) [roji-blueprint]",
+    dailyBudgetUsd: opts.recompBudget ?? 5,
+    channel: "SEARCH",
+    language: "en",
+    geoTargets: ["US"],
+    bidStrategy: "MAXIMIZE_CLICKS",
+    rationale:
+      "Top-of-funnel fitness traffic isolated from C1. Cheap CPCs " +
+      "($0.30-1.00) on high-volume fitness keywords (TDEE, macros, body " +
+      "composition). Pause without C1 impact if fitness → store doesn't " +
+      "convert within 3 weeks.",
+    adGroups: [recompAdGroup(toolsUrl)],
+    negativeKeywords: POLICY_NEGATIVE_KEYWORDS,
+    excludeAge18to24: true,
+  };
+
   return {
     mode: "full",
     toolsUrl,
     storeUrl,
     protocolUrl: toolsUrl,
-    campaigns: [
-      {
-        name: "C1 — Research Tools — Search [roji-blueprint]",
-        dailyBudgetUsd: opts.campaign1Budget ?? 40,
-        channel: "SEARCH",
-        language: "en",
-        geoTargets: ["US"],
-        bidStrategy: "MAXIMIZE_CLICKS",
-        rationale:
-          "Primary spend. Two ad groups: Research Calculator Intent (core) + " +
-          "Biohacker Intent (safest). Compound-specific Ad Group 2 from the " +
-          "legacy strategy doc is intentionally omitted — add it manually only " +
-          "after Ad Group 1 has been clean for 7+ days.",
-        adGroups: [calculatorIntentAdGroup(toolsUrl), biohackerAdGroup(toolsUrl)],
-        negativeKeywords: POLICY_NEGATIVE_KEYWORDS,
-      },
-      {
-        name: "C3 — Brand Defense [roji-blueprint]",
-        dailyBudgetUsd: opts.brandBudget ?? 7,
-        channel: "SEARCH",
-        language: "en",
-        geoTargets: ["US"],
-        bidStrategy: "TARGET_IMPRESSION_SHARE",
-        rationale:
-          "Owns the brand. Budget should rarely max out — brand traffic is cheap.",
-        adGroups: [brandAdGroup(storeUrl)],
-        negativeKeywords: [],
-      },
-    ],
+    campaigns: [c1, c3, c4],
   };
 }
 
@@ -701,6 +1261,48 @@ export function validateBlueprint(b: ResolvedBlueprint): ValidationIssue[] {
         );
       });
     }
+
+    c.sitelinks?.forEach((sl, si) => {
+      if (sl.text.length > 25) {
+        issues.push({
+          severity: "error",
+          campaign: c.name,
+          field: `sitelink[${si}].text`,
+          text: sl.text,
+          reason: `Sitelink text exceeds Google Ads limit of 25 characters (current: ${sl.text.length}).`,
+        });
+      }
+      if (sl.description1 && sl.description1.length > 35) {
+        issues.push({
+          severity: "error",
+          campaign: c.name,
+          field: `sitelink[${si}].description1`,
+          text: sl.description1,
+          reason: `Sitelink description1 exceeds Google Ads limit of 35 characters (current: ${sl.description1.length}).`,
+        });
+      }
+      if (sl.description2 && sl.description2.length > 35) {
+        issues.push({
+          severity: "error",
+          campaign: c.name,
+          field: `sitelink[${si}].description2`,
+          text: sl.description2,
+          reason: `Sitelink description2 exceeds Google Ads limit of 35 characters (current: ${sl.description2.length}).`,
+        });
+      }
+    });
+
+    c.callouts?.forEach((co, ci) => {
+      if (co.text.length > 25) {
+        issues.push({
+          severity: "error",
+          campaign: c.name,
+          field: `callout[${ci}].text`,
+          text: co.text,
+          reason: `Callout text exceeds Google Ads limit of 25 characters (current: ${co.text.length}).`,
+        });
+      }
+    });
   }
   return issues;
 }
@@ -788,6 +1390,8 @@ export interface BlueprintStats {
   ads: number;
   keywords: number;
   negatives: number;
+  sitelinks: number;
+  callouts: number;
   totalDailyBudgetUsd: number;
 }
 
@@ -796,10 +1400,14 @@ export function blueprintStats(b: ResolvedBlueprint): BlueprintStats {
   let ads = 0;
   let keywords = 0;
   let negatives = 0;
+  let sitelinks = 0;
+  let callouts = 0;
   let totalDailyBudgetUsd = 0;
   for (const c of b.campaigns) {
     totalDailyBudgetUsd += c.dailyBudgetUsd;
     negatives += c.negativeKeywords.length;
+    sitelinks += c.sitelinks?.length ?? 0;
+    callouts += c.callouts?.length ?? 0;
     for (const g of c.adGroups) {
       adGroups += 1;
       ads += g.ads.length;
@@ -812,6 +1420,8 @@ export function blueprintStats(b: ResolvedBlueprint): BlueprintStats {
     ads,
     keywords,
     negatives,
+    sitelinks,
+    callouts,
     totalDailyBudgetUsd,
   };
 }

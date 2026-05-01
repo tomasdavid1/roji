@@ -14,6 +14,7 @@ import {
   type TrackerState,
 } from "@/lib/tracker-store";
 import { track } from "@/lib/track";
+import { PostResultCTA } from "./PostResultCTA";
 
 const METRIC_KEYS = [
   ["energy", "Energy"],
@@ -262,6 +263,14 @@ export function StackTracker() {
               <TrendChart entries={trend} />
             )}
           </div>
+
+          {(state.items.length > 0 || state.log.length > 0) && (
+            <PostResultCTA
+              toolSlug="tracker"
+              title="Tracking a stack? Roji's research compounds are Janoshik-verified, ≥99% purity, with COAs you can analyze right here."
+              buttonLabel="Browse research stacks →"
+            />
+          )}
 
           <div className="roji-card">
             <div className="roji-mono-label mb-3">Storage</div>

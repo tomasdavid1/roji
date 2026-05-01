@@ -91,7 +91,7 @@ export function StoreCTA({
       source,
     )}`;
   return (
-    <section className="mx-auto max-w-5xl px-6 pb-14">
+    <section className="mx-auto max-w-5xl px-6 pb-14" data-store-cta>
       <div className="relative overflow-hidden rounded-roji-lg border border-roji-accent/30 bg-gradient-to-br from-roji-card to-roji-darker p-8 sm:p-10">
         <div
           aria-hidden="true"

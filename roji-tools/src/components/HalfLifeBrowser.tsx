@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   COMPOUNDS,
@@ -9,6 +9,7 @@ import {
   type Compound,
   type Route,
 } from "@/data/compounds";
+import { PostResultCTA } from "./PostResultCTA";
 
 const ROUTE_LABEL: Record<Route, string> = {
   subq: "Subcut.",
@@ -22,6 +23,17 @@ export function HalfLifeBrowser() {
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState<string>("All");
   const [activeSlug, setActiveSlug] = useState<string>(COMPOUNDS[0].slug);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  useEffect(() => {
+    if (hasInteracted) return;
+    if (
+      query.trim() !== "" ||
+      activeCat !== "All" ||
+      activeSlug !== COMPOUNDS[0].slug
+    ) {
+      setHasInteracted(true);
+    }
+  }, [query, activeCat, activeSlug, hasInteracted]);
 
   const filtered = useMemo(() => {
     return COMPOUNDS.filter((c) => {
@@ -104,6 +116,13 @@ export function HalfLifeBrowser() {
 
         <div className="space-y-6">
           <CompoundDetail compound={active} />
+          {hasInteracted && (
+            <PostResultCTA
+              toolSlug="half-life"
+              title={`${active.name} and 20+ other compounds available as Janoshik-verified research stacks.`}
+              buttonLabel="Browse research stacks →"
+            />
+          )}
         </div>
       </div>
     </section>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { HalfLifeBrowser } from "@/components/HalfLifeBrowser";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default function HalfLifePage() {
         body="Roji Peptides ships ≥99% Janoshik-verified vials of the compounds listed in this database. Each batch comes with a third-party COA."
       />
       <MoreTools currentSlug="half-life" />
+      <StickyStoreBanner source="halflife" label="These compounds are available as research stacks → View shop" />
     </>
   );
 }

@@ -10,6 +10,7 @@ import {
   type Sex,
 } from "@/lib/recomp-math";
 import { track } from "@/lib/track";
+import { PostResultCTA } from "./PostResultCTA";
 
 export function RecompCalculator() {
   const [sex, setSex] = useState<Sex>("male");
@@ -40,8 +41,10 @@ export function RecompCalculator() {
 
   // Fire `recomp_calculated` once per session, on the first meaningful
   // user interaction (any input change away from defaults). Avoids
-  // flooding GA with one event per keystroke.
+  // flooding GA with one event per keystroke. The state mirror also
+  // gates the post-result store CTA.
   const firedRef = useRef(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
   useEffect(() => {
     if (firedRef.current) return;
     const isDefault =
@@ -55,6 +58,7 @@ export function RecompCalculator() {
       trainingFreq === 4;
     if (isDefault) return;
     firedRef.current = true;
+    setHasInteracted(true);
     track("recomp_calculated", { focus, activity });
   }, [sex, age, heightIn, weightLb, bodyFatPct, activity, focus, trainingFreq]);
 
@@ -221,6 +225,14 @@ export function RecompCalculator() {
                 ))}
               </ul>
             </div>
+          )}
+
+          {hasInteracted && (
+            <PostResultCTA
+              toolSlug="recomp"
+              title="Optimizing recomp? Roji's research stacks are calibrated for body-composition research."
+              buttonLabel="Explore research stacks →"
+            />
           )}
         </div>
       </div>

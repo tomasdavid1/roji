@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { track } from "@/lib/track";
+import { PostResultCTA } from "./PostResultCTA";
 
 interface Hit {
   pmid: string;
@@ -207,6 +208,14 @@ export function ResearchSearch() {
             </div>
           )}
         </div>
+      )}
+
+      {hits !== null && !loading && (
+        <PostResultCTA
+          toolSlug="research"
+          title="Reading the research? Roji ships the compounds these papers reference — Janoshik-verified, ≥99% purity."
+          buttonLabel="Browse research stacks →"
+        />
       )}
 
       <p className="mt-10 text-[12px] text-roji-dim">

@@ -97,13 +97,32 @@ for (const mode of ["tool-only", "full"] as BlueprintMode[]) {
     `${mode}: no campaign name contains 'Protocol'`,
     b.campaigns.every((c) => !/Protocol/i.test(c.name)),
   );
+  ok(
+    `${mode}: includes brand-defense campaign`,
+    b.campaigns.some((c) => /Brand Defense/i.test(c.name)),
+  );
   for (const c of b.campaigns) {
     for (const g of c.adGroups) {
       ok(
         `${mode}: ${g.name} final URL is correct domain`,
         g.allowBrandTerms
           ? g.finalUrl.includes("rojipeptides.com") && !g.finalUrl.includes("tools.")
-          : g.finalUrl === "https://tools.rojipeptides.com",
+          : // Post-restructure: tool-specific ad groups route to
+            // tools.rojipeptides.com/<tool>. AG-Generic stays on the
+            // bare tools.rojipeptides.com homepage. Both are valid.
+            g.finalUrl.startsWith("https://tools.rojipeptides.com"),
+      );
+    }
+    if (c.sitelinks && c.sitelinks.length > 0) {
+      ok(
+        `${mode}: ${c.name} sitelinks have valid text length`,
+        c.sitelinks.every((sl) => sl.text.length <= 25),
+      );
+    }
+    if (c.callouts && c.callouts.length > 0) {
+      ok(
+        `${mode}: ${c.name} callouts have valid text length`,
+        c.callouts.every((co) => co.text.length <= 25),
       );
     }
   }
@@ -117,6 +136,130 @@ console.log("\nads-blueprint.resolveBlueprint (back-compat):");
   });
   eq("legacy protocolUrl still resolves", b.toolsUrl, "https://legacy.example.com");
   eq("protocolUrl alias mirrors", b.protocolUrl, "https://legacy.example.com");
+}
+
+console.log("\nads-blueprint.resolveBlueprint (tool-specific restructure):");
+{
+  // Regression guards for the Apr 2026 restructure. If these break,
+  // someone has either merged ad groups back or changed names without
+  // updating tests. Intentional: force the change to be reviewed.
+  const b = resolveBlueprint({ mode: "tool-only" });
+  const c1 = b.campaigns.find((c) => c.name.startsWith("C1"));
+  const names = c1?.adGroups.map((g) => g.name) ?? [];
+  ok(
+    "tool-only: C1 has AG-Reconstitution routed to /reconstitution",
+    !!c1?.adGroups.find(
+      (g) =>
+        g.name === "AG-Reconstitution" &&
+        g.finalUrl.endsWith("/reconstitution"),
+    ),
+  );
+  ok(
+    "tool-only: C1 has AG-HalfLife routed to /half-life",
+    !!c1?.adGroups.find(
+      (g) => g.name === "AG-HalfLife" && g.finalUrl.endsWith("/half-life"),
+    ),
+  );
+  ok(
+    "tool-only: C1 has AG-COA routed to /coa",
+    !!c1?.adGroups.find(
+      (g) => g.name === "AG-COA" && g.finalUrl.endsWith("/coa"),
+    ),
+  );
+  ok(
+    "tool-only: C1 has AG-CostCompare (not AG-CostPerDose)",
+    names.includes("AG-CostCompare") && !names.includes("AG-CostPerDose"),
+  );
+  ok(
+    "tool-only: AG-CostCompare URL route unchanged (/cost-per-dose)",
+    !!c1?.adGroups.find(
+      (g) =>
+        g.name === "AG-CostCompare" && g.finalUrl.endsWith("/cost-per-dose"),
+    ),
+  );
+  ok(
+    "tool-only: C1 has AG-Generic as homepage fallback",
+    !!c1?.adGroups.find(
+      (g) =>
+        g.name === "AG-Generic" &&
+        g.finalUrl === "https://tools.rojipeptides.com",
+    ),
+  );
+  ok(
+    "tool-only: no AG3/AG5 (Biohacker Intent / Fitness Calculator) in C1",
+    !names.some((n) => /AG3|AG5|Biohacker Intent|Fitness Calculator/.test(n)),
+  );
+
+  // Recomp lives in C4 only (full mode), never in C1.
+  ok(
+    "tool-only: C1 does NOT include Recomp (should live in C4 under full mode)",
+    !names.some((n) => /Recomp/i.test(n)),
+  );
+
+  // Policy guards: the two highest-risk ad groups must have their
+  // softened copy. Catch regressions if someone restores "syringe"
+  // or "dose" into ad copy.
+  const recon = c1?.adGroups.find((g) => g.name === "AG-Reconstitution");
+  const costCompare = c1?.adGroups.find((g) => g.name === "AG-CostCompare");
+
+  const reconText = JSON.stringify(recon?.ads ?? []);
+  ok(
+    "AG-Reconstitution: ad copy does NOT contain 'syringe'",
+    !/syringe/i.test(reconText),
+  );
+  ok(
+    "AG-Reconstitution: ad copy does NOT contain 'tick'",
+    !/\btick/i.test(reconText),
+  );
+  ok(
+    "AG-Reconstitution: ad copy does NOT contain 'insulin'",
+    !/insulin/i.test(reconText),
+  );
+  ok(
+    "AG-Reconstitution: ad copy does NOT contain 'before you touch'",
+    !/before you (ever )?touch/i.test(reconText),
+  );
+
+  const costText = JSON.stringify(costCompare?.ads ?? []);
+  ok(
+    "AG-CostCompare: ad copy does NOT contain 'dose' (keyword field OK)",
+    !/\bdose\b/i.test(costText),
+  );
+  ok(
+    "AG-CostCompare: ad group name does NOT contain 'Dose'",
+    !/dose/i.test(costCompare?.name ?? ""),
+  );
+}
+
+console.log("\nads-blueprint.resolveBlueprint (full mode C4 isolation):");
+{
+  const b = resolveBlueprint({ mode: "full" });
+  const c4 = b.campaigns.find((c) => /C4/i.test(c.name));
+  ok("full: C4 exists (Recomp isolated from C1)", !!c4);
+  ok(
+    "full: C4 budget is $5/day by default",
+    c4?.dailyBudgetUsd === 5,
+    `got ${c4?.dailyBudgetUsd}`,
+  );
+  ok(
+    "full: C4 contains AG-Recomp",
+    !!c4?.adGroups.find((g) => g.name === "AG-Recomp"),
+  );
+  ok(
+    "full: C4 has excludeAge18to24",
+    c4?.excludeAge18to24 === true,
+  );
+  ok(
+    "full: C1 does NOT contain Recomp (isolated to C4)",
+    !b.campaigns
+      .find((c) => c.name.startsWith("C1"))
+      ?.adGroups.some((g) => /Recomp/i.test(g.name)),
+  );
+
+  // recompBudget override works.
+  const b2 = resolveBlueprint({ mode: "full", recompBudget: 10 });
+  const c4b = b2.campaigns.find((c) => /C4/i.test(c.name));
+  eq("full: recompBudget override respected", c4b?.dailyBudgetUsd, 10);
 }
 
 console.log("\nads-blueprint.validateBlueprint (shipped blueprints):");
@@ -226,9 +369,22 @@ async function provisionerSection() {
       const r = await provisionBlueprint(b, { dryRun: true });
       ok("clean blueprint dry-run succeeds", r.mode === "mock");
       eq("clean blueprint → 0 validation_issues", r.validation_issues.length, 0);
-      ok("clean blueprint → 1 campaign created", r.campaigns.length === 1);
+      ok("clean blueprint → 2 campaigns created", r.campaigns.length === 2);
     } catch (err) {
       ok("clean blueprint dry-run succeeds", false, String(err));
+    }
+  }
+  {
+    // Extensions and demographics on tool-only dry-run
+    const b = resolveBlueprint({ mode: "tool-only" });
+    try {
+      const r = await provisionBlueprint(b, { dryRun: true });
+      const c1 = r.campaigns.find((c) => c.name.includes("C1"));
+      ok("tool-only dry-run: C1 has sitelinks", (c1?.sitelinks_added ?? 0) === 4);
+      ok("tool-only dry-run: C1 has callouts", (c1?.callouts_added ?? 0) === 6);
+      ok("tool-only dry-run: C1 has demo exclusion", (c1?.demographics_excluded ?? 0) === 1);
+    } catch (err) {
+      ok("tool-only extensions dry-run succeeds", false, String(err));
     }
   }
   {
@@ -294,21 +450,34 @@ async function provisionerSection() {
 function statsSection() {
   console.log("\nblueprintStats:");
   {
+    // tool-only: C1 (5 tool-specific AGs) + C3 (Brand).
+    //   C1 keywords: 3 Recon + 4 HalfLife + 3 COA + 2 CostCompare + 7 Generic = 19.
+    //   C3 keywords: 7 Brand.
+    //   Total: 26.
     const s = blueprintStats(resolveBlueprint({ mode: "tool-only" }));
-    eq("tool-only: 1 campaign", s.campaigns, 1);
-    eq("tool-only: 1 ad group", s.adGroups, 1);
-    eq("tool-only: 15 keywords", s.keywords, 15);
-    eq("tool-only: 2 RSAs", s.ads, 2);
-    eq("tool-only: 39 negatives", s.negatives, 39);
-    eq("tool-only: $14.29/day ($100/week slow-start)", s.totalDailyBudgetUsd, 14.29);
+    eq("tool-only: 2 campaigns", s.campaigns, 2);
+    eq("tool-only: 6 ad groups", s.adGroups, 6);
+    eq("tool-only: 26 keywords", s.keywords, 26);
+    eq("tool-only: 6 RSAs", s.ads, 6);
+    eq("tool-only: 59 negatives", s.negatives, 59);
+    eq("tool-only: $30/day", s.totalDailyBudgetUsd, 30);
+    eq("tool-only: 4 sitelinks", s.sitelinks, 4);
+    eq("tool-only: 6 callouts", s.callouts, 6);
   }
   {
+    // full: tool-only + C4 (Recomp, 8 fitness keywords, 1 RSA, $5/day).
+    //   C1 (19) + C3 (7) + C4 (8) = 34 keywords; 5+1+1 = 7 RSAs.
+    //   Budget: $25 + $5 + $5 = $35.
+    //   Negatives: C1 (59) + C3 (0) + C4 (59) = 118.
     const s = blueprintStats(resolveBlueprint({ mode: "full" }));
-    eq("full: 2 campaigns", s.campaigns, 2);
-    eq("full: 3 ad groups", s.adGroups, 3);
-    eq("full: 37 keywords", s.keywords, 37);
-    eq("full: 6 RSAs", s.ads, 6);
-    eq("full: $47/day", s.totalDailyBudgetUsd, 47);
+    eq("full: 3 campaigns", s.campaigns, 3);
+    eq("full: 7 ad groups", s.adGroups, 7);
+    eq("full: 34 keywords", s.keywords, 34);
+    eq("full: 7 RSAs", s.ads, 7);
+    eq("full: 118 negatives", s.negatives, 118);
+    eq("full: $35/day", s.totalDailyBudgetUsd, 35);
+    eq("full: 4 sitelinks", s.sitelinks, 4);
+    eq("full: 6 callouts", s.callouts, 6);
   }
   {
     const s = blueprintStats(resolveBlueprint({ mode: "peptide-experiment" }));

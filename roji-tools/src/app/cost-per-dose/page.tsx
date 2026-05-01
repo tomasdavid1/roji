@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { CostPerDoseCalculator } from "@/components/CostPerDoseCalculator";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default function CostPerDosePage() {
         body="Add 'Roji' as one of your vendor entries above and compare directly. We're confident in the math; we don't have to bury it in marketing fluff."
       />
       <MoreTools currentSlug="cost-per-dose" />
+      <StickyStoreBanner source="cost-per-dose" label="Add Roji to your comparison → See our pricing" />
     </>
   );
 }

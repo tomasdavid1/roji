@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 
 import { ResearchSearch } from "@/components/ResearchSearch";
-import { PageHero, MoreTools } from "@/components/PageChrome";
+import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
@@ -24,7 +25,14 @@ export default function ResearchPage() {
         All studies link directly to their original PubMed source. Results are
         for educational and informational purposes only.
       </p>
+      <StoreCTA
+        source="research"
+        title="Pair literature with verified compounds"
+        body="Roji Peptides provides research-only compounds with Janoshik-verified COAs for the compounds referenced in these studies. Every batch independently tested."
+        buttonLabel="Browse referenced research stacks →"
+      />
       <MoreTools currentSlug="research" />
+      <StickyStoreBanner source="research" label="Verified research compounds from the team behind this database → Browse stacks" />
     </>
   );
 }

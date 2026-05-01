@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { CoaUploader } from "@/components/CoaUploader";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
@@ -75,6 +76,7 @@ export default function CoaPage() {
         href={(process.env.NEXT_PUBLIC_STORE_URL ?? "https://rojipeptides.com") + "/coa/"}
       />
       <MoreTools currentSlug="coa" />
+      <StickyStoreBanner source="coa" label="Roji COAs pass every check on this page → See our COA library" />
     </>
   );
 }
