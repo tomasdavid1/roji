@@ -65,7 +65,9 @@ function ga4DateRange(d: DateRange): { startDate: string; endDate: string } {
  * `lib/track.ts`. Listed once here so the funnel can sum any of them
  * as "tool used."
  *
- * Source: roji-tools/src/components/* — grep for `track(`.
+ * Source of truth: roji-tools/src/components/* — grep for `track(`.
+ * Keep in sync. If a new tool fires a new engagement event, add it
+ * here so the funnel attributes it correctly.
  */
 const TOOL_ENGAGEMENT_EVENTS = [
   "recomp_calculated",
@@ -75,9 +77,17 @@ const TOOL_ENGAGEMENT_EVENTS = [
   "research_search",
   "ai_message_sent",
   "notify_me_submit",
-  "halflife_compared",
-  "cost_calculated",
+  "notify_me_open",
+  "cost_add_row",
+  "tracker_item_added",
+  "tracker_dose_logged",
+  "interactions_toggle",
   "tool_complete",
+  // Funnel-specific actions that should count as "engaged" for the
+  // first-click metric. A user who clicks the hero tool picker has
+  // self-routed; that's engagement.
+  "hero_tool_pick",
+  "directory_card_click",
 ] as const;
 
 interface FunnelQueryArgs {
@@ -183,7 +193,16 @@ export async function getGa4ToolFunnelEvents(
       const ev = row.dimensionValues?.[0]?.value ?? "";
       const n = Number(row.metricValues?.[0]?.value ?? 0);
       if (ev === "tool_view") out.tool_view! += n;
-      else if (ev === "store_outbound_click") out.store_outbound_click! += n;
+      // Both the canonical `store_outbound_click` and the variant CTAs
+      // we added 2026-05-01 (`header_shop_click`, `hero_shop_click`)
+      // count as outbound-to-store. They're fired by separate components
+      // in roji-tools but represent the same funnel step.
+      else if (
+        ev === "store_outbound_click" ||
+        ev === "header_shop_click" ||
+        ev === "hero_shop_click"
+      )
+        out.store_outbound_click! += n;
       else if (ev === "add_to_cart") out.add_to_cart! += n;
       else if (ev === "checkout_view" || ev === "begin_checkout")
         out.checkout_view! += n;
