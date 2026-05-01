@@ -228,9 +228,13 @@ function ConnectivityBanner({
       <ul className="text-[11px] text-roji-muted list-disc list-inside leading-relaxed">
         {sources.ga4 === "missing" && (
           <li>
-            <strong>GA4:</strong> set <code>GA4_PROPERTY_ID</code> +{" "}
-            <code>GA4_SERVICE_ACCOUNT_JSON</code> on Vercel. The service
-            account email needs Viewer role on the GA4 property.
+            <strong>GA4:</strong> run{" "}
+            <code>
+              cd roji-ads-dashboard && node scripts/get-ga4-refresh-token.js
+            </code>{" "}
+            (3 min, no Google Cloud setup) then set{" "}
+            <code>GA4_PROPERTY_ID</code> + <code>GA4_REFRESH_TOKEN</code> on
+            Vercel. Reuses the existing Google Ads OAuth client.
           </li>
         )}
         {sources.woocommerce === "missing" && (

@@ -1,20 +1,24 @@
 /**
  * GA4 Data API client.
  *
- * Currently a stub: returns `null` for every metric until a service-account
- * JSON key and property id are provided via env vars. Once those are
- * configured, the real implementation queries the GA4 Data API for paid-
- * search-attributed funnel events, scoped to a specific landing page when
- * the funnel is per-tool.
+ * Authentication: OAuth refresh token (NOT service-account JSON), so this
+ * works under organizations that enforce
+ * `iam.disableServiceAccountKeyCreation`. Reuses the same OAuth client
+ * that powers Google Ads (GOOGLE_ADS_CLIENT_ID + GOOGLE_ADS_CLIENT_SECRET);
+ * we just mint a separate refresh token scoped to GA4 read-only.
  *
  * Required env (set on Vercel for the `roji-ads` project):
  *
- *   GA4_PROPERTY_ID=...                  # numeric, no "G-" prefix
- *   GA4_SERVICE_ACCOUNT_JSON=...         # full JSON key as a single env var
+ *   GA4_PROPERTY_ID=...        # numeric, NOT the "G-XXX" measurement id
+ *   GA4_REFRESH_TOKEN=...      # from `node scripts/get-ga4-refresh-token.js`
  *
- * The service account needs the **GA4 Viewer** role on the property
- * (Admin → Property Access Management → add the service account email
- * with Viewer permission).
+ * Reused (already set for Google Ads):
+ *
+ *   GOOGLE_ADS_CLIENT_ID=...
+ *   GOOGLE_ADS_CLIENT_SECRET=...
+ *
+ * Returns `null` for every metric while creds are missing so the funnel
+ * page renders dashed placeholders instead of fabricated zeros.
  *
  * Server-only.
  */
@@ -29,10 +33,56 @@ export type Ga4FunnelStep =
   | "add_to_cart"
   | "checkout_view";
 
-const GA4_REQUIRED_ENV = ["GA4_PROPERTY_ID", "GA4_SERVICE_ACCOUNT_JSON"] as const;
+const GA4_REQUIRED_ENV = [
+  "GA4_PROPERTY_ID",
+  "GA4_REFRESH_TOKEN",
+  // Reuse the Google Ads OAuth client. If you somehow set GA4 creds
+  // without Google Ads ones, the funnel page will detect this and show
+  // a clear error instead of mock data.
+  "GOOGLE_ADS_CLIENT_ID",
+  "GOOGLE_ADS_CLIENT_SECRET",
+] as const;
 
 export function isGa4Configured(): boolean {
   return GA4_REQUIRED_ENV.every((k) => !!process.env[k]);
+}
+
+/**
+ * Mint a short-lived access token from our long-lived refresh token.
+ * Cached for ~50 min (access tokens last 60 min). No external dep —
+ * just a POST to the OAuth token endpoint.
+ */
+let _cachedAccessToken: { token: string; expiresAt: number } | null = null;
+
+async function getAccessToken(): Promise<string> {
+  const now = Date.now();
+  if (_cachedAccessToken && now < _cachedAccessToken.expiresAt - 60_000) {
+    return _cachedAccessToken.token;
+  }
+  const body = new URLSearchParams({
+    client_id: process.env.GOOGLE_ADS_CLIENT_ID!,
+    client_secret: process.env.GOOGLE_ADS_CLIENT_SECRET!,
+    refresh_token: process.env.GA4_REFRESH_TOKEN!,
+    grant_type: "refresh_token",
+  });
+  const resp = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error(`GA4 OAuth refresh failed: ${resp.status} ${txt}`);
+  }
+  const json = (await resp.json()) as {
+    access_token: string;
+    expires_in: number;
+  };
+  _cachedAccessToken = {
+    token: json.access_token,
+    expiresAt: now + json.expires_in * 1000,
+  };
+  return json.access_token;
 }
 
 /**
@@ -120,24 +170,15 @@ export async function getGa4ToolFunnelEvents(
     };
   }
 
-  // Real implementation. Lazy import so the dependency only loads when
-  // creds are present (avoids a hard runtime require when the lib is
-  // missing on a fresh checkout that hasn't run `npm install` yet).
+  // Direct REST call to the GA4 Data API. We avoid the
+  // `@google-analytics/data` SDK because (a) it expects a service
+  // account or ADC and (b) the REST endpoint is dead simple and
+  // already authenticated via our existing OAuth refresh token.
   try {
-    const mod = await import("@google-analytics/data");
-    const { BetaAnalyticsDataClient } = mod as unknown as {
-      BetaAnalyticsDataClient: new (opts: {
-        credentials?: Record<string, unknown>;
-      }) => {
-        runReport: (req: unknown) => Promise<unknown>;
-      };
-    };
-    const credentials = JSON.parse(process.env.GA4_SERVICE_ACCOUNT_JSON!);
-    const client = new BetaAnalyticsDataClient({ credentials });
-    const propertyPath = `properties/${process.env.GA4_PROPERTY_ID}`;
+    const accessToken = await getAccessToken();
+    const propertyId = process.env.GA4_PROPERTY_ID!;
     const range = ga4DateRange(args.dateRange);
 
-    // Build a session-medium filter for paid search.
     // GA4 reports paid-ads sessions with sessionMedium=cpc.
     const paidFilter = {
       filter: {
@@ -163,23 +204,35 @@ export async function getGa4ToolFunnelEvents(
       ? { andGroup: { expressions: [paidFilter, pathFilter] } }
       : paidFilter;
 
-    // Fetch event counts grouped by event name in one report; we then
-    // bucket the rows into our 5 funnel-step counters. This is one
-    // report instead of five — cheaper on quota, simpler to reason about.
-    const [report] = (await client.runReport({
-      property: propertyPath,
-      dateRanges: [range],
-      dimensions: [{ name: "eventName" }],
-      metrics: [{ name: "eventCount" }],
-      dimensionFilter,
-    })) as unknown as [
+    // Fetch event counts grouped by event name in one report.
+    const resp = await fetch(
+      `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
       {
-        rows?: Array<{
-          dimensionValues?: Array<{ value?: string }>;
-          metricValues?: Array<{ value?: string }>;
-        }>;
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dateRanges: [range],
+          dimensions: [{ name: "eventName" }],
+          metrics: [{ name: "eventCount" }],
+          dimensionFilter,
+        }),
       },
-    ];
+    );
+
+    if (!resp.ok) {
+      const txt = await resp.text();
+      throw new Error(`GA4 runReport failed: ${resp.status} ${txt}`);
+    }
+
+    const report = (await resp.json()) as {
+      rows?: Array<{
+        dimensionValues?: Array<{ value?: string }>;
+        metricValues?: Array<{ value?: string }>;
+      }>;
+    };
 
     const out: Record<Ga4FunnelStep, number | null> = {
       tool_view: 0,

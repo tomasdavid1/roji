@@ -503,18 +503,25 @@ Each step in the funnel cites its data source inline. The page never fakes data 
 
 The "implied CAC" KPI in the page header is `total_spend / reserve_orders` — both sides are Google Ads numbers, so this works today even without GA4. The mid-funnel just shows you *why* CAC is what it is.
 
-### How to wire GA4 (one-time, ~10 min)
+### How to wire GA4 (one-time, ~3 min — OAuth, no service-account key)
 
-1. **Google Cloud Console** → IAM & Admin → Service Accounts → **Create service account.** Name it something like `roji-ga4-reader`.
-2. Open the new account → **Keys → Add Key → JSON.** Download the file.
-3. **Google Analytics** → Admin → Property Access Management → **Add user.** Paste the service account email (looks like `roji-ga4-reader@<project>.iam.gserviceaccount.com`). Role: **Viewer**.
-4. Find the GA4 **Property ID** (not the measurement ID `G-XXXXX` — the numeric property id on the same admin page).
-5. Vercel → `roji-ads-dashboard` project → Settings → Environment Variables:
+We use the **same OAuth client** as Google Ads. No Google Cloud service-account key required (so this works even under orgs that enforce `iam.disableServiceAccountKeyCreation`).
+
+1. **Find your GA4 Property ID.** GA4 → Admin → Property details → copy the numeric Property ID (NOT the `G-XXXXX` measurement id).
+2. **Run the helper script** from `roji-ads-dashboard/`:
+   ```bash
+   node scripts/get-ga4-refresh-token.js
    ```
-   GA4_PROPERTY_ID=<numeric id>
-   GA4_SERVICE_ACCOUNT_JSON=<paste the entire JSON file content as one line>
+   It prints a Google sign-in URL. Open it in a browser, sign in with the Google account that has access to the GA4 property, and grant the `analytics.readonly` scope. The script catches the redirect and prints a refresh token.
+3. **Set on Vercel** (`roji-ads-dashboard` project → Settings → Environment Variables → Production):
    ```
-6. Redeploy. The Funnel page will pick up the new creds on next request and the dashed placeholders will switch to live numbers.
+   GA4_PROPERTY_ID=<numeric id from step 1>
+   GA4_REFRESH_TOKEN=<token printed by step 2>
+   ```
+   `GOOGLE_ADS_CLIENT_ID` and `GOOGLE_ADS_CLIENT_SECRET` are reused — they're already set.
+4. Redeploy. The funnel page mid-steps go live on the next request.
+
+The dashboard authenticates as **you personally**, not as a service account — same auth model as Google Ads. If you ever revoke consent at https://myaccount.google.com/permissions you'll need to re-run the helper.
 
 ### How to wire WooCommerce REST API (optional, sharpens purchase attribution)
 
