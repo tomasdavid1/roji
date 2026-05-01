@@ -1,0 +1,839 @@
+claude
+
+Here's my review in the exact format requested:
+
+---
+
+**1. ONE-LINE VERDICT**
+
+You're under-shooting on keyword volume and ad extensions, roughly right on policy caution, and the $19/day budget is too thin to learn anything meaningful in 30 days — you'll get maybe 6-10 clicks/day, which means statistical significance on anything takes 6+ weeks.
+
+**2. WHAT YOU WOULD KEEP AS-IS**
+
+- Search-only, no Display, no PMax — correct and non-negotiable in this niche
+- Phrase match as default match type — right balance of reach vs. control
+- Separate campaigns for safe (C1) vs. experimental (C2) — blast radius isolation is smart
+- The 39-term negative keyword wall — comprehensive and well-categorized
+- `safety.ts` blocking compound names from ad copy before provisioning — this is your most valuable guardrail
+- Auto-pause cron on disapprovals — most advertisers in this niche don't have this
+- Optimizing against `purchase` not `tool_complete` — correct, tool_complete is too weak a signal
+- Maximize Clicks as starting bid strategy with zero conversion history — the only honest choice
+- "For researchers, not patients" framing — the single best compliance line in your copy
+
+**3. WHAT YOU WOULD CHANGE THIS WEEK (high confidence, low risk)**
+
+- **Add sitelink extensions immediately.** Four sitelinks: "Reconstitution Calculator" → /reconstitution, "Half-Life Database" → /half-life, "COA Analyzer" → /coa, "Cost Calculator" → /cost-per-dose. This is a free 10-15% CTR uplift with zero policy risk. You're leaving clicks on the table every hour you don't have these. Risk if wrong: zero — sitelinks can only help.
+
+- **Add callout extensions.** "Free · No Signup · No Account · Referenced · Browser-Based · 20+ Compounds." These appear as extra text under your ad and increase visual real estate in the SERP. Risk if wrong: zero.
+
+- **Add structured snippet extensions.** Type: "Types" → "Reconstitution Calculator, Half-Life Database, COA Analyzer, Cost Calculator, Body Recomp Calculator." Risk if wrong: zero.
+
+- **Increase C1 daily budget to $30.** At $14.29/day with $2-4 CPCs, you're getting 4-7 clicks per day. That's not enough data to make any optimization decision within 30 days. At $30/day you get 10-15 clicks, which at least gives you weekly patterns to act on. You'll spend ~$900/month total — still well within your $15-25K capital budget. Risk if wrong: you spend $450 more per month but learn 2x faster.
+
+- **Delete the orphaned Campaign #1.** It's REMOVED but those broad keywords still exist in the account and could confuse reporting. Fully delete every resource under it. Risk if wrong: zero.
+
+- **Turn off auto-applied recommendations in Google Ads UI right now.** Settings → Auto-applied recommendations → uncheck everything. Google will silently add Display network, broad match keywords, and inflate your budget. In this niche that means automatic policy violations you didn't author. Risk if wrong: zero.
+
+**4. WHAT YOU WOULD TEST NEXT WEEK (medium confidence)**
+
+- **Add 10-15 more keywords to AG3 targeting your actual tools by function.** Your tools ARE the product but your keywords don't mention them. "Reconstitution calculator," "BAC water calculator," "half life calculator," "COA analyzer," "compound cost calculator" — these are the highest-intent, lowest-competition queries in your entire niche because nobody else has built these tools. These are people actively looking for exactly what you built. See Section 5 for the full list. Risk: "reconstitution calculator" and "BAC water calculator" are peptide-adjacent and could trigger review, but the landing page is a math tool, not a pharmacy. Medium risk, high reward.
+
+- **Enable C2 (Peptide Research experiment) at $5/day after C1 has run clean for 7 days.** Don't wait for perfect conditions. The word "peptide" in ad copy is the central question of your entire ads strategy. The sooner you get a policy verdict, the sooner you can either expand confidently or rule it out. Risk: C2 disapproval. But C2 is isolated in its own campaign, so C1 is unaffected. Worst case you lose $5 and learn something.
+
+- **Add a third RSA to AG3 with more aggressive, benefit-driven copy.** Your current copy is safe but generic — "Biohacker Research Tools" and "Optimize With Data" could be for any SaaS tool. Test headlines that speak to the actual pain: "Skip 3 Hours of Reddit," "Lab Math in 60 Seconds," "Stop Guessing Reconstitution," "Your Spreadsheet Is Wrong." These are specific, punchy, and still fully compliant. Risk: low — no policy-triggering language.
+
+- **Launch AG-Brand (Brand Defense) now, not later.** Even at zero search volume, brand campaigns are essentially free (you only pay when someone searches your name, and CPCs are $0.10-0.50). The moment you start getting any organic visibility from your tools, Reddit posts, or GPT store listing, someone could bid on "Roji Peptides" and hijack your traffic. Preempt this for $0.50/day. Risk if wrong: you spend $15/month on nothing. Risk if right: you protect every organic visitor finding you by name.
+
+**5. KEYWORDS YOU WOULD ADD**
+
+**AG3 — Biohacker Intent (add these phrase-match keywords):**
+
+```
+"reconstitution calculator"
+"bac water calculator"
+"peptide mixing calculator"        ← moderate policy risk, test
+"half life calculator"
+"half life comparison"
+"coa analyzer"
+"certificate of analysis checker"
+"cost per dose calculator"
+"compound cost calculator"
+"research compound calculator"
+"vial calculator"
+"syringe unit calculator"
+"research stack builder"           ← moderate policy risk
+"bloodwork interpreter"
+"blood panel analyzer"
+```
+
+These target people who are actively looking for the exact tools you built. Nobody else is bidding on most of these. CPCs should be $0.50-2.00 — far cheaper than the generic biohacker terms you're currently running.
+
+**New AG5 — Fitness Calculator Intent (propose new ad group under C1):**
+
+```
+"body recomp calculator"
+"tdee calculator"
+"macro calculator"
+"body fat calculator"
+"lean bulk calculator"
+"cutting calculator"
+```
+
+These are high-volume, zero-policy-risk fitness keywords. Your tools site has a body recomp calculator (even if it's "Coming Soon," the landing page exists). These keywords bring a broader top-of-funnel audience to your tools site at very cheap CPCs ($0.30-1.00). They won't convert directly to peptide sales but they build remarketing audiences and email lists for later.
+
+**6. KEYWORDS / NEGATIVES YOU WOULD REMOVE**
+
+**Keywords to reconsider:**
+
+- `"advanced recovery planner"` and `"lean mass research planner"` — these have near-zero search volume. Nobody searches for "planner" in this context. They're not hurting anything but they're dead weight cluttering reporting.
+- `"optimization framework builder"` — too abstract, likely zero impressions. Same issue.
+
+**Negatives to reconsider:**
+
+- `"safe"` as a negative — this blocks searches like "safe research tools" or "is this calculator safe to use." These are trust-seeking queries from exactly your target audience. Consider removing this negative or narrowing it to `"safe to inject"` or `"safe to use on humans"` as phrase-match negatives instead.
+- `"dangerous"` as a negative — same logic. Someone searching "are peptides dangerous" might be in research mode and would benefit from your educational tools. But the policy risk of serving an ad on that query is real, so keep this one. On balance, leave it.
+
+Net recommendation: remove `"safe"` as a broad negative, replace with `"safe to inject"` and `"safe for humans"` as phrase negatives.
+
+**7. AD-COPY CRITIQUE**
+
+**RSA #1 (live, serving) — decent but bland:**
+
+Headlines to swap out:
+- "Performance Frameworks" → **"Lab Math In 60 Seconds"** — more specific, more urgent
+- "Smart Research Suite" → **"Skip 3 Hours of Reddit"** — speaks directly to the pain point your ICP feels
+- "Calibrated Frameworks" → **"Reconstitution Calculator"** — name the actual tool, it's what people want
+- "Data-Driven Precision" → **"Free COA Analyzer"** — name another tool
+- "60-Second Frameworks" → **"20+ Compounds Covered"** — social proof / scope
+
+Descriptions to swap:
+- "Skip the spreadsheets. Roji generates evidence-based frameworks in 60 seconds." → **"Reconstitution math, half-life curves, COA red-flag scoring. The research tools that should already exist. Free."** — this is specific about what the tools actually do, not generic "framework" language
+- "Used by 500+ biohackers" → remove this claim unless you actually have 500 users. If Google or a competitor flags this as unsubstantiated, it's a disapproval.
+
+**RSA #2 (paused, Approved Limited):**
+
+The "Approved Limited" on 4 headlines is likely because "Spreadsheet Hell" and "Calculate, Don't Guess" triggered Google's editorial policy (informal language / imperative commands can sometimes flag). These aren't policy violations — they're editorial style flags. You can either resubmit with slight rewording ("Ditch The Spreadsheet" → "Beyond Spreadsheets") or just leave them. Approved Limited still serves, just with lower priority.
+
+**AG4 RSA (paused experiment):**
+
+"Free research calculators for peptide researchers" — this is the cleanest possible framing of "peptide" in ad copy. If this gets approved, you've validated that the word "peptide" works in the research-tool context. If disapproved, the policy reason will tell you exactly where Google draws the line. Good experiment design.
+
+**8. POLICY RISK ASSESSMENT**
+
+**Keywords I proposed that touch policy:**
+
+- `"reconstitution calculator"` — **Low risk.** Reconstitution is a chemistry term. The landing page is a math tool. Google's Healthcare and Medicines policy targets "unapproved pharmaceuticals" and "prescription drugs." A calculator that does unit conversion is neither. However, Google's automated classifier may flag "reconstitution" as pharmaceutical-adjacent because the word appears heavily in pharmacy contexts. Mitigation: the landing page has zero therapeutic claims and explicitly disclaims medical use.
+
+- `"peptide mixing calculator"` — **Medium risk.** "Peptide" + "mixing" together could trigger the classifier. Worth testing in AG4 (the experiment campaign), not AG3 (the safe lane).
+
+- `"BAC water calculator"` — **Low risk.** Bacteriostatic water is a lab supply, not a drug. The keyword is asking for a calculator, not a product. But "BAC water" is strongly associated with injectable preparations in Google's classifier training data. Test in AG3 with close monitoring.
+
+- `"research stack builder"` — **Medium risk.** "Stack" in the research peptide context implies combining compounds for human use. The landing page doesn't use "stack" in a human-use context, but the classifier might flag it. Test in AG4.
+
+- Fitness keywords (`"tdee calculator"`, `"macro calculator"`, etc.) — **Zero risk.** These are fully mainstream fitness terms with no pharmaceutical association.
+
+**Policy being tested by AG4 (the "peptide" experiment):**
+
+Google Ads Healthcare and Medicines policy, specifically the "Unapproved pharmaceuticals and supplements" section. The key question is whether Google classifies "peptide research tools" as advertising for the peptides themselves (disapproval) or as advertising for a research tool that happens to involve peptides (approval). The landing page is the decisive factor — tools.rojipeptides.com shows calculators, not products. If Google follows its own policy as written, this should approve. But Google's automated classifier is not always consistent with the written policy.
+
+**9. WHAT GOOGLE ADS WILL OPTIMIZE AUTOMATICALLY VS. WHAT WE MUST DO**
+
+**Google optimizes automatically:**
+- Which combination of your 15 headlines and 4 descriptions to assemble per auction
+- What time of day to serve ads (within your 24/7 schedule)
+- What device to prioritize (mobile vs desktop)
+- What CPC to bid per auction (up to your $3 ceiling)
+- Geographic micro-targeting within US (which zip codes get more/fewer impressions)
+- Which RSA variant (if you have multiple) gets more impressions based on predicted CTR
+
+**You must do manually:**
+- Add/remove/pause keywords — Google's recommendations in this niche are historically terrible (see Campaign #1 orphan as evidence)
+- Mine search terms daily and add negatives — the single most important ongoing task
+- Detect and respond to disapprovals — your cron handles pause, but you still need to read the reason and adjust copy
+- Switch bid strategy when conversion thresholds are met (30 purchases → Maximize Conversions, 50 → Target CPA)
+- Add sitelinks, callouts, structured snippets — Google will never add these for you
+- Adjust budgets based on performance — Google will spend whatever you give it
+- Decide when to enable C2 (peptide experiment)
+- Evaluate whether the funnel is working (tool → store → cart → purchase) — Google sees clicks and conversions but doesn't know your margin
+
+**Specific concern about "not enough traffic" warnings:** Google's Recommendations tab is optimizing for Google's revenue, not your ROI. Every recommendation to "add broad match" or "enable Display" will increase your spend and Google's revenue. In this niche, following those recommendations is how accounts get suspended. Ignore them all. Your job is to add more *specific, high-intent* keywords (per Section 5), not broader ones.
+
+**10. CAC EXPECTATION**
+
+Assumptions baked in:
+- CPC: $1.50-3.50 blended across AG3 keywords (biohacker terms are lower competition than pharma terms)
+- Click-to-tool-complete rate: 30-50% (the tools are genuinely useful and free, low friction)
+- Tool-complete-to-store-visit rate: 15-25% (not everyone who uses a calculator wants to buy)
+- Store-visit-to-cart rate: 10-20% (standard e-commerce browse-to-cart)
+- Cart-to-purchase rate: 30-50% (Reserve-Order is lower friction than real payment, but also lower commitment)
+
+Funnel math at base case:
+- 100 clicks × $2.50 CPC = $250 spend
+- 40 tool completions → 8 store visits → 1.2 carts → 0.5 purchases
+
+**Realistic blended CAC for first 30 days: $300-600 per purchase.**
+
+That sounds terrible, but context matters. Your AOV is $400-900. At $400 AOV and 78% gross margin, your gross profit per order is ~$312. So a $300 CAC is breakeven and a $600 CAC is a loss — but this is learning-phase spending, not steady-state. Once you switch to Maximize Conversions with real data, CAC should drop to $80-150 by month 3.
+
+The honest truth: at $19/day you're looking at maybe 1-3 purchases in the entire first month. That's not enough data to optimize anything. At $30/day you might get 3-5. Still thin. The first month is buying data, not buying customers. Set expectations accordingly.
+
+**11. THE HONEST QUESTION**
+
+**Are you actually ready to fulfill orders?**
+
+You have no payment processor wired, no inventory, no supplier locked in, and no COAs uploaded. If your ads work and someone clicks through and places a Reserve-Order tomorrow, can you actually deliver a product within a reasonable timeframe? Because a Reserve-Order that never converts to a real shipment isn't a conversion — it's a broken promise that generates chargebacks and destroys trust before you've built any. If the answer is "no, we're 4-6 weeks from fulfillment," then the $19-30/day in ads right now is purely buying data about keyword viability and policy approval, not revenue. That's a valid strategy, but be honest with yourself about what you're measuring and don't optimize for a conversion event that doesn't represent a real transaction yet.
+
+
+then Google
+here is the veredict
+
+adjust accordingly
+
+ask me any questions
+
+1. ONE-LINE VERDICT
+You are currently over-shooting on safety at the expense of volume, resulting in a setup that likely won't spend its budget or generate enough data to exit the "Learning" phase.
+
+2. WHAT YOU WOULD KEEP AS-IS
+*   **Campaign Separation:** Keeping the "Peptide" experiment (C2) isolated from the "Biohacker" (C1) campaign is the correct insurance policy against account-wide suspension.
+*   **Max Clicks Bidding:** Essential for a new account with zero conversion history and high AOVs; prevents the "bidding to zero" trap of Max Conversions.
+*   **US-Only Targeting:** Correct for high-risk niches where international traffic often triggers higher scrutiny and lower-quality conversions.
+*   **Search-Only Network:** Wise to exclude Display and Search Partners to maintain lead quality and compliance control.
+
+3. WHAT YOU WOULD CHANGE THIS WEEK (high confidence, low risk)
+*   **Change:** Add **Sitelinks and Callout Extensions** to C1 and C2.
+    *   **Why:** Increases CTR and ad real estate without adding policy risk. Use neutral links like "Research References," "About Roji Tools," and "60-Second Calculators."
+    *   **Risk:** Low. If a sitelink is disapproved, it rarely takes the whole ad down.
+*   **Change:** Implement **Demographic Exclusions** (Exclude 18-24).
+    *   **Why:** Your site is 21+. Excluding the youngest bracket signals compliance to Google and saves spend on low-intent/unqualified traffic.
+    *   **Risk:** Extremely low; slight reduction in reach.
+*   **Change:** Loosen **Negative Keywords** (Specifically: "buy", "order", "price").
+    *   **Why:** While you don't sell directly on the landing page, users searching for "buy peptide calculator" or "peptide price research tools" are your highest-intent ICP. Your funnel handles the transition.
+    *   **Risk:** Low spend inefficiency; high conversion potential.
+
+4. WHAT YOU WOULD TEST NEXT WEEK (medium confidence)
+*   **Change:** Create **AG5 — Technical Research Intent**.
+    *   **Why:** Target high-intent research actions that aren't "biohacking" but aren't "pharma." 
+    *   **Risk:** Moderate. Google may scrutinize the landing page closer if keywords are highly technical.
+*   **Change:** **Bidding ceiling increase** to $5.00 on C1.
+    *   **Why:** With a $3 ceiling on niche terms, you may be priced out of the top-of-page slots, resulting in zero impressions for days.
+    *   **Risk:** Faster budget depletion; higher CPC.
+
+5. KEYWORDS YOU WOULD ADD
+**New Ad Group: AG5 — Technical Research (C2)**
+*   "peptide reconstitution calculator" (Phrase)
+*   "peptide dosage math" (Phrase)
+*   "bac water calculator" (Phrase)
+*   "research compound calculator" (Phrase)
+*   "peptide milligram calculator" (Phrase)
+
+**Existing Ad Group: AG3 — Biohacker Intent (C1)**
+*   "nootropics stack builder" (Phrase)
+*   "longevity research tools" (Phrase)
+*   "performance protocol calculator" (Phrase)
+
+6. KEYWORDS / NEGATIVES YOU WOULD REMOVE
+*   **Remove Negatives:** `buy`, `order`, `price`, `cost`, `shop`, `store`. 
+    *   **Why:** These are "buying intent" modifiers. Even if you aren't a store on the *landing* page, the person searching these is 10x more likely to complete the "Reserve Order" than someone looking for a "free calculator."
+*   **Remove Keywords:** `bmi calculator`, `macros calculator free` (from orphans).
+    *   **Why:** These attract general fitness enthusiasts who will never buy a $400 peptide kit.
+
+7. AD-COPY CRITIQUE
+*   **Swap:** "Biohacker Research Tools" → **"Precision Research Math"**
+    *   *Why:* "Biohacker" can occasionally trigger "Unreliable Claims" flags; "Precision" and "Math" are neutral and professional.
+*   **Swap:** "Skip The Spreadsheet" → **"Cites Published Literature"**
+    *   *Why:* High-value researchers care about the *source* of the math more than the time saved.
+*   **Swap:** "60-Second Frameworks" → **"Standardize Your Research"**
+    *   *Why:* "Frameworks" is a bit vague. "Standardize" sounds like a laboratory requirement.
+
+8. POLICY RISK ASSESSMENT
+*   **"Peptide Reconstitution / Bac Water":** Low-Medium Risk. These are technical terms. Google's policy on *Unapproved Pharmaceuticals* generally triggers on compound names (BPC-157) or medical claims (Weight Loss). "Reconstitution" is a lab process, not a medical treatment.
+*   **"Dosage":** High Risk. Google's *Healthcare and Medicines* policy dislikes "dosage" as it implies human consumption. Use "Concentration" or "Math" instead.
+*   **"Peptide":** Medium Risk. By itself, it is a category. Used with "Research," it is usually eligible, but can trigger manual reviews of the landing page.
+
+9. WHAT GOOGLE ADS WILL OPTIMIZE AUTOMATICALLY VS. WHAT WE MUST DO
+| Google Auto-Optimizes | Human Responsibility |
+| :--- | :--- |
+| **CTR:** Which headline combos get clicks. | **Intent:** Filtering out "BMI calculator" junk traffic. |
+| **CPC:** Bidding up/down to hit your cap. | **Compliance:** Ensuring copy doesn't drift into "Therapy." |
+| **Ad Rotation:** Showing the best-performing RSA. | **Landing Page:** Improving the "Click to Store" rate. |
+| **Geography:** Shifting spend to high-click states. | **Conversion Value:** Ensuring the "Reserve Order" is real. |
+
+10. CAC EXPECTATION
+*   **Blended CAC Range:** **$85 – $150**.
+*   **Assumptions:** 
+    *   Avg. CPC: $2.50 - $4.00. 
+    *   Lander CTR to Store: 15%. 
+    *   Store Conversion Rate (Reserve Order): 2-4%.
+    *   A high AOV ($400+) allows for this CAC, but the "Reserve Order" friction may lower the final "Paid Invoice" conversion rate significantly.
+
+11. THE HONEST QUESTION
+What is the current click-through rate from `tools.rojipeptides.com` to `rojipeptides.com`? If this "bridge" is lower than 10%, the entire Google Ads strategy fails regardless of how good the keywords are, as you are paying a "double tax" on every visitor.
+
+
+xAI
+
+**1. ONE-LINE VERDICT**  
+You are roughly right on aggressiveness — appropriately conservative for a high-policy-risk niche with a new account and no payment processor wired yet, but slightly under-shooting volume potential in the safe "biohacker/research tools" lane without meaningfully raising suspension risk.
+
+**2. WHAT YOU WOULD KEEP AS-IS**  
+- Separate campaigns for AG3 (safe biohacker) and AG4 (peptide experiment) with isolated budgets — excellent blast-radius control.  
+- Phrase-match only on a tight, intent-focused keyword set — prevents wasteful broad leakage and policy flags.  
+- Heavy negative keyword list blocking buy-intent, human-use, therapeutic, and specific drug terms — smart defense.  
+- Maximize Clicks bidding with purchase as primary signal — correct for zero-data launch phase.  
+- Landing on tools.rojipeptides.com (genuinely informational calculator) instead of direct store — strongest possible policy hygiene.  
+- Strict internal safety validator blocking compound names, dosing, injection, therapeutic language.
+
+**3. WHAT YOU WOULD CHANGE THIS WEEK (high confidence, low risk)**  
+- **Add 8–12 more phrase-match keywords to AG3** (e.g., "research calculator", "biohacking framework", "optimization calculator", "evidence based calculator", "personalized research tool", "free biohacking tool", "recomp planner", "recovery framework calculator", "performance calculator biohacker", "lab research tools"). Why: Current 15 is too tight for $14/day; more surface area helps Maximize Clicks learn without broad risks. Risk if wrong: minimal spend waste, easy pause; no policy exposure.  
+- **Wire sitelinks and callout extensions** to AG3 (e.g., sitelinks to specific calculators, "Free — No Signup", "For Researchers", "Evidence-Based"). Why: Free CTR/Quality Score uplift with zero policy downside. Risk: negligible.  
+- **Unpause and monitor RSA #1 in AG3** while keeping RSA #2 paused/under review — let the fully approved assets serve. Why: Account has almost zero data; need impressions to start. Risk: low, as it's already eligible.  
+- **Increase C1 daily budget modestly to $20–25/day** if cash allows. Why: $14 is starvation-level for learning on a new account. Risk: slightly higher spend with still-low volume.
+
+**4. WHAT YOU WOULD TEST NEXT WEEK (medium confidence)**  
+- **Small-scale brand defense ad group** in C1 (exact/phrase for "roji peptides", "roji research tools", "roji calculator") with tiny budget share. Why: Seeds before organic discovery; protects trademark cheaply. Risk if wrong: near-zero traffic/spend.  
+- **Test one new RSA in AG3** with slightly punchier but still-safe headlines like "Skip Forum Research Math", "Recomp Frameworks Fast", "Lab-Calibrated Tools" (avoiding any compound/dosing language). Why: Current copy is safe but a bit soft on intent. Risk: disapproval of individual assets only.  
+- **Daily search-term report harvesting** process with aggressive new negatives added from actual traffic. Why: Phrase still leaks; this is the highest-ROI manual work. Risk: none.
+
+**5. KEYWORDS YOU WOULD ADD**  
+All phrase match, add to **AG3 — Biohacker Intent** (or a new "Research Tools Broadener" ad group if you want isolation):  
+- "research calculator"  
+- "biohacking framework"  
+- "optimization calculator"  
+- "evidence based calculator"  
+- "personalized research tool"  
+- "free research tool"  
+- "recomp planner"  
+- "recovery framework"  
+- "performance research tool"  
+- "lab research calculator"  
+- "scientific calculator biohacking"  
+- "framework builder"  
+
+For AG4 experiment (if it clears policy): keep minimal, perhaps add "research peptide tools" phrase if not already present.
+
+**6. KEYWORDS / NEGATIVES YOU WOULD REMOVE**  
+- Remove overly generic orphaned broad keywords from the removed Campaign #1 (bmi calculator, savings calculator, etc.) — they risk irrelevance flags and dilute Quality Score.  
+- No major negatives to remove; the list is solid. Consider testing removal of very broad ones like "drug" or "medicine" later if they overly restrict legitimate research phrasing, but only after data.
+
+**7. AD-COPY CRITIQUE**  
+AG3 RSA #1: Mostly fine, but "Biohacker Research Tools", "Body Recomp Calculator", "Performance Frameworks" are good; swap weaker ones like "Optimize With Data", "Calibrated Frameworks", "Smart Research Suite" for more benefit-oriented: "Skip Spreadsheet Research", "60-Second Recomp Math", "Evidence-Based Recovery Planner", "Built For Serious Researchers".  
+
+RSA #2 (limited): "Stop Spreadsheet Hell" and "Replace Your Spreadsheet" are strong but got limited — test variations like "Ditch Messy Research Spreadsheets", "Fast Research Frameworks". Descriptions are decent; emphasize "for researchers, not patients" and "cites published literature" more.
+
+AG4: Too close to the edge with "Peptide Research Math", "Peptide Research Suite" — if it disapproves, don't fight hard; pivot to pure "Research Math Tools".
+
+**8. POLICY RISK ASSESSMENT**  
+Google's Healthcare and Medicines policy + unapproved pharmaceuticals rules prohibit promotion of unapproved substances, speculative/experimental treatments, or anything implying human use/consumption, even with "research use only" disclaimers. Recent 2026 enforcement shows Google cracking down on peptide ads (including "research" framed ones) due to gray-market surge, sometimes taking action after external pressure.
+
+Your AG3 (no "peptide", neutral tools/calculators/biohacker framing, informational landing) has low risk of account-level strike — it mirrors safe educational content approaches. AG4 with "peptide" in headlines/keywords is the experiment and higher risk of disapproval or limited approval, potentially triggering broader review of the account if Google classifies the advertiser as pharma-related. No compound names, no dosing, no therapeutic claims keeps you safer than most in-niche advertisers, but the category itself is monitored; "for researchers/not patients" + literature citations helps but isn't bulletproof. Avoid expanding "peptide" language without LegitScript-style certification paths (not applicable here).
+
+**9. WHAT GOOGLE ADS WILL OPTIMIZE AUTOMATICALLY VS. WHAT WE MUST DO**  
+**Auto-optimized (Maximize Clicks):**  
+- RSA asset combinations for CTR within eligible pool  
+- Auction CPCs up to your ceilings  
+- Device/geo/time splits for click volume  
+- Passive audience inferences  
+
+**Human responsibility:**  
+- Keyword selection, match types, and expansion (Google recommendations are often too broad here)  
+- Negative keyword maintenance from search-term reports (daily/ongoing critical)  
+- Ad copy creation and policy-safe asset management  
+- Bidding strategy switch (Clicks → Conversions at ~30 convos)  
+- Extensions (sitelinks, callouts)  
+- Campaign structure, budget allocation, and pausing disapproved elements  
+- Quality Score monitoring and landing page relevance
+
+**10. CAC EXPECTATION**  
+Realistic blended CAC for first 30 days: **$80–$250+** (wide range). Assumptions: low CTR/Quality Score on new account (new domain/history), phrase keywords with decent but not massive volume, AOV $400–900, but funnel has friction (tools → store → reserve-order manual invoice, no instant payment). Early conversion rate likely 1–3% from tool visitors who reach checkout. With tight safe keywords and low daily spend, expect higher CAC initially until data accumulates and QS improves. "Working" threshold: under ~$300–400 blended if margins support it post-processor; aim for downward trend after week 2–3.
+
+**11. THE HONEST QUESTION**  
+What's your actual gross margin per typical 3-stack reserve order after COGS, payment processor fees (once wired), and fulfillment — and how many conversions per month would make the channel worth the ongoing policy/maintenance overhead versus leaning harder into SEO/Reddit/influencer? (This shifts budget aggression and testing priorities dramatically.)
+
+
+Answers to second question
+gemini
+
+1. ONE-LINE VERDICT
+You are currently leaking a significant amount of highly qualified traffic through unnecessary friction points—specifically poor landing page routing and a hidden mobile escape hatch—though your compliance framing remains exceptionally solid.
+
+2. FRICTION POINTS
+*   **Routing mismatch (Homepage instead of Tool)**
+    *   *Where it occurs:* Ad click → Landing Page.
+    *   *Estimated conversion impact:* High.
+    *   *Suggested fix:* Route specific search intent directly to the corresponding tool URL (e.g., "reconstitution calculator" goes to `/reconstitution`).
+*   **Missing CTAs on 4 out of 7 tools**
+    *   *Where it occurs:* Bottom of Bloodwork, Body Recomp, Research, and Stack Tracker tools.
+    *   *Estimated conversion impact:* High.
+    *   *Suggested fix:* Add the standard, compliant inline `StoreCTA` component to all active tools immediately.
+*   **No global store link for mobile users**
+    *   *Where it occurs:* Mobile site header/navigation.
+    *   *Estimated conversion impact:* High (mobile usually represents 50%+ of ad traffic).
+    *   *Suggested fix:* Add a subtle text link to a mobile hamburger menu, or use a clean, non-aggressive text link in the mobile header like "Roji Peptides Store →".
+*   **Unwired `toolComplete()` event**
+    *   *Where it occurs:* After a user gets their calculator results.
+    *   *Estimated conversion impact:* Medium.
+    *   *Suggested fix:* Wire this event to dynamically display or subtly highlight the `StoreCTA` immediately beneath the results container.
+
+3. STORE CTA CRITIQUE
+The current `StoreCTA` copy is excellent. It perfectly walks the line between a helpful suggestion and a commercial pitch ("Need research-grade peptides?"). However, its placement is too passive if it just sits statically at the bottom of the page. 
+
+I wouldn't make it a sticky banner—that feels too much like a cheap e-commerce store and risks the compliance framing. Instead, I would conditionally move or fade in the CTA *directly below the results output* right after the user engages with the tool. Strike when the value has just been delivered.
+
+4. LANDING PAGE CRITIQUE
+Routing specific, high-intent searches (like "body recomp calculator") to a general homepage grid is a classic CRO mistake. You are forcing the user to hunt for the exact thing they just asked Google for. 
+
+Yes, ad groups should route to tool-specific URLs. You do not lose the "suite impression" by doing this; you can maintain that impression by adding a subtle "View all 8 free research tools →" breadcrumb or sub-header on the specific tool page. Give them what they clicked on immediately.
+
+5. TOOL PAGE FLOW
+Currently, the flow feels a bit disjointed. A user inputs data, gets a result, and then *maybe* sees a store link if they happen to scroll down. 
+
+To make it feel natural: 
+1. User inputs parameters.
+2. Result generates.
+3. *Directly below the generated result box*, a contextual bridge appears. 
+For example, on the Reconstitution tool: "Calculation complete. Need compounds for this protocol? Roji Peptides ships Janoshik-verified, ≥99% purity research compounds. [Browse research stacks →]". It frames the store as the logical next step to execute the math they just did.
+
+6. MOBILE EXPERIENCE
+Hiding the header store link on mobile is a fatal flaw, not a compliance win. If you pay $3 for a mobile click and the user doesn't engage with the specific tool, they have zero way to organically discover the store. You can be compliant without being invisible. Add a minimalist hamburger menu that contains a link to the store, or keep the desktop behavior but scale it down for mobile viewports.
+
+7. TRUST & CREDIBILITY
+The tools surface does a good job building trust for the *tools themselves* (no signup, free, local data). However, asking someone to drop $400-$900 requires product trust. 
+
+What's missing is a subtle, persistent indicator of the brand's quality across the whole suite. Instead of just a generic "Built by Roji Peptides" footer, upgrade it to: "Powered by Roji Peptides — Providers of 3rd-party tested, ≥99% purity research compounds." It primes the user with the value prop before they even click the CTA.
+
+8. THE HONEST QUESTION
+What is the ONE UX change that would have the biggest impact on tools→store conversion rate?
+
+**Wire the `toolComplete()` function to dynamically render the `StoreCTA` directly beneath the calculator results the exact moment the user gets their answer.** 
+
+You want to map your pitch perfectly to their moment of highest satisfaction. When the tool solves their math problem, they are primed to trust you. That is exactly when you present the store.
+
+
+clajude
+
+## 1. ONE-LINE VERDICT
+
+The tools-to-store bridge is **leaking qualified traffic**, mostly because users who arrive with specific intent are forced through a generic homepage and several high-engagement tool pages have no contextual store path.
+
+## 2. FRICTION POINTS
+
+* **Friction:** All ad traffic lands on the homepage, regardless of query intent.
+  **Where:** Google Ads click → landing page.
+  **Estimated impact:** **High.**
+  **Suggested fix:** Route tool-specific keywords directly to tool-specific URLs, while adding a small “Explore all research tools” module lower on each page. Google explicitly weighs landing-page usefulness, relevance, ease of navigation, and whether the page matches expectations from the clicked ad. ([Google Help][1])
+
+* **Friction:** 4 of 7 live tools lack a dedicated store CTA.
+  **Where:** Tool engagement → store visit.
+  **Estimated impact:** **High.**
+  **Suggested fix:** Add a compliant contextual `StoreCTA` to **Bloodwork**, **Recomp**, **Research Database**, and **Tracker**. Do not make it salesy; make it “from the team behind this tool.”
+
+* **Friction:** Store CTA appears inline and disappears after scroll.
+  **Where:** Tool results → post-result action.
+  **Estimated impact:** **Medium-high.**
+  **Suggested fix:** Add a subtle post-result CTA block and a non-intrusive sticky mobile bottom link only after tool interaction, not on page load.
+
+* **Friction:** Mobile users have no header store link.
+  **Where:** Any mobile page view.
+  **Estimated impact:** **Medium.**
+  **Suggested fix:** Add a mobile-safe text link in the menu or footer nav: `Roji Peptides research store →`. Avoid a bright button.
+
+* **Friction:** `toolComplete()` exists but is unwired.
+  **Where:** Calculator completion moment.
+  **Estimated impact:** **High.**
+  **Suggested fix:** Wire completion events and trigger a contextual next step after result generation.
+
+* **Friction:** Homepage store link is too buried.
+  **Where:** Homepage lower section.
+  **Estimated impact:** **Medium.**
+  **Suggested fix:** Add a restrained “Built by Roji Peptides” credibility panel above or just below the tool grid with one secondary link.
+
+* **Friction:** Trust proof is generic, not purchase-grade.
+  **Where:** Tool pages and homepage.
+  **Estimated impact:** **Medium.**
+  **Suggested fix:** Add trust modules: Janoshik COAs, ≥99% purity standard, research-only framing, US shipping, transparent references, 21+ disclaimer.
+
+## 3. STORE CTA CRITIQUE
+
+Current CTA copy is directionally good but underused and under-timed.
+
+The best CTA moment is **after the user receives a useful output**, not before. The current `StoreCTA` says “Need research-grade peptides?” which is a bit too direct for the tools surface. I would soften it:
+
+**Current title:**
+`Need research-grade peptides?`
+
+**Better title:**
+`Research compounds from the team behind this tool`
+
+**Current body:**
+`Roji Peptides ships third-party Janoshik-verified, ≥99% purity research compounds with transparent COAs.`
+
+**Better body:**
+`Roji Peptides provides research-only compounds with third-party Janoshik verification, transparent COAs, and 21+ checkout controls.`
+
+**Current button:**
+`Browse research stacks →`
+
+**Better buttons by context:**
+
+* Reconstitution: `View research compounds →`
+* Half-Life: `Explore research compounds →`
+* COA Analyzer: `See COA library →`
+* Cost-per-dose: `Compare research stacks →`
+* Recomp: `Explore research tools and stacks →`
+* Bloodwork: `View research-use compounds →`
+* Research Database: `Browse referenced research stacks →`
+
+Do **not** use sticky sales banners on page load. Do use a **post-result CTA** after tool completion.
+
+## 4. LANDING PAGE CRITIQUE
+
+Landing every paid click on the homepage is wrong for conversion and likely wrong for Quality Score.
+
+A search for **“reconstitution calculator”** should land on `/reconstitution`. A search for **“body recomp calculator”** should land on `/recomp`. A search for **“COA analyzer”** should land on `/coa`.
+
+The homepage is useful for broad keywords like:
+
+* `"research tools"`
+* `"biohacking tools"`
+* `"research calculator suite"`
+* `"free research calculators"`
+
+But for specific calculator queries, the homepage adds unnecessary cognitive load. Google’s own landing-page guidance emphasizes relevance, usefulness, ease of navigation, and meeting expectations from the ad click. ([Google Help][1])
+
+**Recommended routing:**
+
+| Query intent              | Landing page      |
+| ------------------------- | ----------------- |
+| reconstitution calculator | `/reconstitution` |
+| half life calculator      | `/half-life`      |
+| coa analyzer              | `/coa`            |
+| cost per dose calculator  | `/cost-per-dose`  |
+| body recomp calculator    | `/recomp`         |
+| tdee / macro calculator   | `/recomp`         |
+| research database         | `/research`       |
+| broad research tools      | homepage          |
+
+On each tool page, preserve the suite impression with a lower-page module:
+`More free research tools from Roji →`
+
+## 5. TOOL PAGE FLOW
+
+### Reconstitution Calculator
+
+The flow should be: input → result → save/copy result → contextual store CTA.
+
+Add after results:
+
+> `Need research-use compounds for future calculations? Roji Peptides provides third-party verified research compounds with transparent COAs.`
+> Button: `View research compounds →`
+
+This is your highest-intent page. Do not bury the CTA.
+
+### Half-Life Database
+
+Natural store bridge: very strong, because users are already researching compounds.
+
+Add below database result:
+
+> `Reviewing research timelines? Explore research-only compounds with transparent COAs from Roji.`
+> Button: `Explore research compounds →`
+
+Avoid words like protocol, cycle, dosing, treatment.
+
+### COA Analyzer
+
+This already has the best-aligned CTA. Improve it by adding a second post-analysis CTA:
+
+> `Compare against Roji’s COA standards →`
+
+This is trust-first, not sales-first.
+
+### Cost-Per-Dose Calculator
+
+This is commercially close to purchase intent. Be careful with “dose,” but if the tool already exists, the bridge should be more explicit.
+
+Better CTA:
+
+> `Compare research stack economics with verified COAs and transparent purity standards.`
+> Button: `Browse research stacks →`
+
+This page may convert well but carries more policy sensitivity. Keep it inside the tool experience, not ad copy.
+
+### Bloodwork Interpreter
+
+Currently a leak.
+
+This tool is compliance-sensitive because bloodwork implies human health. I would **not** use aggressive store CTAs here. Use a trust/education bridge:
+
+> `For research context only. Roji’s tools and compounds are for laboratory research use, not medical guidance or human consumption.`
+> Secondary link: `Explore Roji research tools and compounds →`
+
+Impact: medium, but be conservative.
+
+### Body Recomp Calculator
+
+Currently a major leak if ads target fitness/recomp keywords.
+
+Add after calculation:
+
+> `Planning research variables? Explore Roji’s research-use calculator suite and verified compound library.`
+> Button: `Explore research stacks →`
+
+Avoid “fat loss,” “muscle gain,” “performance enhancement,” and “anti-aging.”
+
+### Research Database
+
+This should be a trust-to-store bridge.
+
+Add citation-driven CTA:
+
+> `Want to pair literature review with transparent COAs? Explore research-only compounds from Roji.`
+> Button: `View research library and compounds →`
+
+This page should also internally link to relevant calculators.
+
+### Stack Tracker
+
+If it works, stop showing it as merely “Coming Soon” unless the product is intentionally unreleased.
+
+Use it as email capture, but not as the primary paid-traffic path yet. The CTA should be:
+
+> `Get notified when Stack Tracker opens →`
+
+Then follow up later with research-tool content, not immediate product pitches.
+
+## 6. MOBILE EXPERIENCE
+
+Yes, the desktop-only store link is a problem.
+
+Mobile paid traffic often has less patience and fewer visible navigation cues. Hiding the only top-level store path means mobile users who do not scroll to the footer may never discover the store.
+
+Fix it without making the tools site look like a storefront:
+
+* Add mobile hamburger item: `Roji Peptides research store →`
+* Add footer item: `Research compounds by Roji Peptides →`
+* Add post-result CTA on every calculator.
+* Add a subtle sticky bottom link **only after tool completion**, not globally.
+
+Do **not** add a persistent “Shop Now” button. That would damage the compliance posture and the independent-tools feel.
+
+## 7. TRUST & CREDIBILITY
+
+The tools surface builds some trust, but probably not enough to bridge a cold visitor into a $400–$900 reserve order.
+
+What is missing:
+
+* **Visible COA proof near CTAs.**
+  Mention Janoshik and transparent COAs near the store bridge.
+
+* **Research-only reassurance.**
+  Repeat: `For laboratory and research use only. Not for human consumption. 21+.`
+
+* **Source transparency.**
+  Each calculator should show formulas, assumptions, and references near the result.
+
+* **Who built this?**
+  Add a restrained “Built by Roji Peptides” module on every tool page, not just the homepage.
+
+* **Why trust Roji?**
+  Add 3 proof bullets:
+
+  * `Third-party COA verification`
+  * `Transparent purity documentation`
+  * `Research-use compliance controls`
+
+* **Continuity between tools and store.**
+  The store should visually feel like the same ecosystem, but the tools page should not feel like a disguised storefront.
+
+Given Google’s healthcare/pharma restrictions, this trust layer needs to stay informational and research-framed rather than promotional. Google restricts healthcare and prescription-drug-related advertising contexts, so the tools surface should avoid looking like a direct medicine/pharmacy funnel. ([Google Help][2])
+
+## 8. THE HONEST QUESTION
+
+The single highest-impact UX change is:
+
+**Route paid traffic to tool-specific landing pages, then show a contextual post-result store CTA on every tool page.**
+
+That fixes both biggest leaks: relevance at landing and store discovery after engagement.
+
+[1]: https://support.google.com/google-ads/answer/14086?hl=en&utm_source=chatgpt.com "Landing page - Google Ads Help"
+[2]: https://support.google.com/adspolicy/answer/176031?hl=en&utm_source=chatgpt.com "Healthcare and medicines - Advertising Policies Help"
+
+
+
+grok
+
+**1. ONE-LINE VERDICT**  
+You are roughly right on aggressiveness — appropriately conservative for a high-policy-risk niche with a new account and no payment processor wired yet, but slightly under-shooting volume potential in the safe "biohacker/research tools" lane without meaningfully raising suspension risk.
+
+**2. WHAT YOU WOULD KEEP AS-IS**  
+- Separate campaigns for AG3 (safe biohacker) and AG4 (peptide experiment) with isolated budgets — excellent blast-radius control.  
+- Phrase-match only on a tight, intent-focused keyword set — prevents wasteful broad leakage and policy flags.  
+- Heavy negative keyword list blocking buy-intent, human-use, therapeutic, and specific drug terms — smart defense.  
+- Maximize Clicks bidding with purchase as primary signal — correct for zero-data launch phase.  
+- Landing on tools.rojipeptides.com (genuinely informational calculator) instead of direct store — strongest possible policy hygiene.  
+- Strict internal safety validator blocking compound names, dosing, injection, therapeutic language.
+
+**3. WHAT YOU WOULD CHANGE THIS WEEK (high confidence, low risk)**  
+- **Add 8–12 more phrase-match keywords to AG3** (e.g., "research calculator", "biohacking framework", "optimization calculator", "evidence based calculator", "personalized research tool", "free biohacking tool", "recomp planner", "recovery framework calculator", "performance calculator biohacker", "lab research tools"). Why: Current 15 is too tight for $14/day; more surface area helps Maximize Clicks learn without broad risks. Risk if wrong: minimal spend waste, easy pause; no policy exposure.  
+- **Wire sitelinks and callout extensions** to AG3 (e.g., sitelinks to specific calculators, "Free — No Signup", "For Researchers", "Evidence-Based"). Why: Free CTR/Quality Score uplift with zero policy downside. Risk: negligible.  
+- **Unpause and monitor RSA #1 in AG3** while keeping RSA #2 paused/under review — let the fully approved assets serve. Why: Account has almost zero data; need impressions to start. Risk: low, as it's already eligible.  
+- **Increase C1 daily budget modestly to $20–25/day** if cash allows. Why: $14 is starvation-level for learning on a new account. Risk: slightly higher spend with still-low volume.
+
+**4. WHAT YOU WOULD TEST NEXT WEEK (medium confidence)**  
+- **Small-scale brand defense ad group** in C1 (exact/phrase for "roji peptides", "roji research tools", "roji calculator") with tiny budget share. Why: Seeds before organic discovery; protects trademark cheaply. Risk if wrong: near-zero traffic/spend.  
+- **Test one new RSA in AG3** with slightly punchier but still-safe headlines like "Skip Forum Research Math", "Recomp Frameworks Fast", "Lab-Calibrated Tools" (avoiding any compound/dosing language). Why: Current copy is safe but a bit soft on intent. Risk: disapproval of individual assets only.  
+- **Daily search-term report harvesting** process with aggressive new negatives added from actual traffic. Why: Phrase still leaks; this is the highest-ROI manual work. Risk: none.
+
+**5. KEYWORDS YOU WOULD ADD**  
+All phrase match, add to **AG3 — Biohacker Intent** (or a new "Research Tools Broadener" ad group if you want isolation):  
+- "research calculator"  
+- "biohacking framework"  
+- "optimization calculator"  
+- "evidence based calculator"  
+- "personalized research tool"  
+- "free research tool"  
+- "recomp planner"  
+- "recovery framework"  
+- "performance research tool"  
+- "lab research calculator"  
+- "scientific calculator biohacking"  
+- "framework builder"  
+
+For AG4 experiment (if it clears policy): keep minimal, perhaps add "research peptide tools" phrase if not already present.
+
+**6. KEYWORDS / NEGATIVES YOU WOULD REMOVE**  
+- Remove overly generic orphaned broad keywords from the removed Campaign #1 (bmi calculator, savings calculator, etc.) — they risk irrelevance flags and dilute Quality Score.  
+- No major negatives to remove; the list is solid. Consider testing removal of very broad ones like "drug" or "medicine" later if they overly restrict legitimate research phrasing, but only after data.
+
+**7. AD-COPY CRITIQUE**  
+AG3 RSA #1: Mostly fine, but "Biohacker Research Tools", "Body Recomp Calculator", "Performance Frameworks" are good; swap weaker ones like "Optimize With Data", "Calibrated Frameworks", "Smart Research Suite" for more benefit-oriented: "Skip Spreadsheet Research", "60-Second Recomp Math", "Evidence-Based Recovery Planner", "Built For Serious Researchers".  
+
+RSA #2 (limited): "Stop Spreadsheet Hell" and "Replace Your Spreadsheet" are strong but got limited — test variations like "Ditch Messy Research Spreadsheets", "Fast Research Frameworks". Descriptions are decent; emphasize "for researchers, not patients" and "cites published literature" more.
+
+AG4: Too close to the edge with "Peptide Research Math", "Peptide Research Suite" — if it disapproves, don't fight hard; pivot to pure "Research Math Tools".
+
+**8. POLICY RISK ASSESSMENT**  
+Google's Healthcare and Medicines policy + unapproved pharmaceuticals rules prohibit promotion of unapproved substances, speculative/experimental treatments, or anything implying human use/consumption, even with "research use only" disclaimers. Recent 2026 enforcement shows Google cracking down on peptide ads (including "research" framed ones) due to gray-market surge, sometimes taking action after external pressure.
+
+Your AG3 (no "peptide", neutral tools/calculators/biohacker framing, informational landing) has low risk of account-level strike — it mirrors safe educational content approaches. AG4 with "peptide" in headlines/keywords is the experiment and higher risk of disapproval or limited approval, potentially triggering broader review of the account if Google classifies the advertiser as pharma-related. No compound names, no dosing, no therapeutic claims keeps you safer than most in-niche advertisers, but the category itself is monitored; "for researchers/not patients" + literature citations helps but isn't bulletproof. Avoid expanding "peptide" language without LegitScript-style certification paths (not applicable here).
+
+**9. WHAT GOOGLE ADS WILL OPTIMIZE AUTOMATICALLY VS. WHAT WE MUST DO**  
+**Auto-optimized (Maximize Clicks):**  
+- RSA asset combinations for CTR within eligible pool  
+- Auction CPCs up to your ceilings  
+- Device/geo/time splits for click volume  
+- Passive audience inferences  
+
+**Human responsibility:**  
+- Keyword selection, match types, and expansion (Google recommendations are often too broad here)  
+- Negative keyword maintenance from search-term reports (daily/ongoing critical)  
+- Ad copy creation and policy-safe asset management  
+- Bidding strategy switch (Clicks → Conversions at ~30 convos)  
+- Extensions (sitelinks, callouts)  
+- Campaign structure, budget allocation, and pausing disapproved elements  
+- Quality Score monitoring and landing page relevance
+
+**10. CAC EXPECTATION**  
+Realistic blended CAC for first 30 days: **$80–$250+** (wide range). Assumptions: low CTR/Quality Score on new account (new domain/history), phrase keywords with decent but not massive volume, AOV $400–900, but funnel has friction (tools → store → reserve-order manual invoice, no instant payment). Early conversion rate likely 1–3% from tool visitors who reach checkout. With tight safe keywords and low daily spend, expect higher CAC initially until data accumulates and QS improves. "Working" threshold: under ~$300–400 blended if margins support it post-processor; aim for downward trend after week 2–3.
+
+**11. THE HONEST QUESTION**  
+What's your actual gross margin per typical 3-stack reserve order after COGS, payment processor fees (once wired), and fulfillment — and how many conversions per month would make the channel worth the ongoing policy/maintenance overhead versus leaning harder into SEO/Reddit/influencer? (This shifts budget aggression and testing priorities dramatically.)
+
+
+claude
+**1. ONE-LINE VERDICT**
+
+You're leaking 40-60% of your best-qualified traffic because half your tool pages have no store CTA, your ads land on a homepage instead of the specific tool, and mobile users have zero store exposure — these are fixable in a day and would likely double your tools→store click-through rate.
+
+**2. FRICTION POINTS**
+
+- **Google Ads click lands on homepage, not the tool.** Someone searches "reconstitution calculator," clicks your ad, and sees an 8-card directory instead of the calculator they wanted. They have to find the right card, click it, wait for a new page load, THEN use the tool. That's two extra steps and a page load between ad click and value delivery. Estimated impact: **HIGH** — you're probably losing 30-40% of clicks to bounce right here. Fix: change the Final URL per keyword. "Reconstitution calculator" → `/reconstitution`. "Half life calculator" → `/half-life`. "COA analyzer" → `/coa`. "Body recomp calculator" → `/recomp`. Keep the homepage as Final URL only for generic keywords like "biohacking tools" where no single tool is the right match.
+
+- **4 of 7 live tools have no store CTA.** Bloodwork interpreter, body recomp calculator, research database, and stack tracker have zero dedicated store link. Someone uses your body recomp calculator, gets genuinely useful output, and then... nothing. They close the tab. The moment of highest trust and engagement has zero conversion path. Estimated impact: **HIGH** — these are warm users with no exit to your store. Fix: add the `StoreCTA` component to every tool page, positioned after the results output (not before — let them get value first).
+
+- **Store CTA scrolls away.** The inline `StoreCTA` card is positioned at a fixed point in the page. Once the user scrolls past it, there's no persistent reminder. On long tool pages (half-life database with 20+ compounds), the CTA is long gone by the time the user finishes engaging. Estimated impact: **MEDIUM.** Fix: add a subtle sticky footer bar (not the full CTA card) that appears after the user has scrolled past the inline CTA. Something like a 40px-tall bar: "From the makers of this tool → Browse research stacks" with a small button. Appears on scroll, dismissable, doesn't cover content. This is the pattern Notion, Linear, and most SaaS tools use for their free→paid conversion nudge.
+
+- **Mobile has zero store link in header.** The `hidden md:inline-flex` class on the store link means every mobile user (likely 60-70% of your traffic) has no store exposure unless they scroll to the very bottom of the page or happen to use one of the 4 tools that has an inline CTA. Estimated impact: **HIGH** — you're invisible to the majority of your traffic on the majority of devices. Fix: show the store link on mobile. You can make it subtle — a small "Shop →" text link in the mobile header, or include it in the mobile hamburger menu. The compliance concern is valid but a single text link doesn't make the tools page "look like a store front-end." Every SaaS free tool links to its paid product in the header. That's expected behavior, not aggressive selling.
+
+- **`toolComplete()` is unwired.** You built a function that fires when a user finishes a calculation but it's not connected to anything. This is the single highest-intent moment in your entire funnel — the user just got value from your tool and is experiencing peak trust. Estimated impact: **HIGH** if wired correctly. Fix: wire `toolComplete()` to do two things: (a) fire the `tool_complete` event to GA4 for analytics, and (b) trigger a contextual store suggestion that appears below the results. Not a popup — an inline card that fades in after the calculation completes. Copy should be tool-specific: on the reconstitution calculator, "Need BAC water and research compounds? → Browse Roji stacks." On the COA analyzer, "Roji publishes Janoshik COAs for every batch → View our lab results." On the half-life database, "These compounds are available as research stacks → View shop." Contextual, relevant, and appears at the moment of maximum engagement.
+
+- **No email capture on tool completion.** The only email capture is the "Coming Soon" modal on the stack tracker. You're missing the easiest email capture pattern: "Want to save this calculation? Enter your email and we'll send you a link." This captures an email from a warm, engaged user without feeling like a newsletter signup. Estimated impact: **MEDIUM.** Fix: add an optional "Save results" prompt after tool completion that asks for an email. Store it in your email platform (Brevo). Now you have a remarketing channel that costs nothing.
+
+**3. STORE CTA CRITIQUE**
+
+The current `StoreCTA` component is well-designed for compliance — "From the team behind this tool" framing is the right tone. The copy ("Need research-grade peptides? Roji Peptides ships third-party Janoshik-verified, ≥99% purity research compounds with transparent COAs.") is factual and non-aggressive.
+
+What I'd change: make the CTA **contextual per tool**, not the same generic card everywhere.
+
+On the reconstitution calculator: "Need BAC water or research compounds? Roji ships Janoshik-verified stacks with bacteriostatic water and supplies. → Browse the shop"
+
+On the COA analyzer: "Every Roji batch comes with a Janoshik-verified COA. See for yourself. → View our COA library"
+
+On the half-life database: "Studying these compounds? Roji sells them as pre-built research stacks. → View stacks"
+
+On the cost-per-dose calculator: "Add Roji to your comparison. We're confident in the math. → See our pricing"
+
+Each of these feels like a natural extension of the tool the user just used, not a generic sales pitch. The difference in click-through between a contextual CTA and a generic one is typically 2-3x.
+
+**4. LANDING PAGE CRITIQUE**
+
+**Landing on the homepage is wrong for most ad groups.** Route by keyword intent:
+
+"Reconstitution calculator" / "BAC water calculator" / "peptide mixing calculator" → `/reconstitution`
+
+"Half life calculator" / "compound half life" → `/half-life`
+
+"COA analyzer" / "certificate of analysis checker" → `/coa`
+
+"Cost per dose calculator" / "compound cost calculator" → `/cost-per-dose`
+
+"Body recomp calculator" / "TDEE calculator" / "macro calculator" → `/recomp`
+
+"Biohacking tools" / "research tools" / "optimization tools" (generic intent) → homepage
+
+The homepage is the right landing page ONLY for broad-intent keywords where no single tool matches. For tool-specific keywords, the user searched for exactly the thing you built — put them directly on it. Every extra click between the ad and the tool is a 20-30% drop in conversion. Google Ads also rewards landing page relevance with better Quality Scores, which lowers your CPC.
+
+You'll need to split AG3 into per-tool ad groups (or use per-keyword Final URL overrides if available in your RSA setup) to route correctly. This is the single highest-impact structural change you can make to the campaign.
+
+**5. TOOL PAGE FLOW**
+
+**Reconstitution Calculator:** Good flow. User inputs vial size → gets concentration math → sees syringe visualization → scrolls down to StoreCTA. The CTA placement is correct (after value delivery). Only issue: if the user doesn't scroll past the results, they never see the CTA. Fix: wire `toolComplete()` to fade in a contextual store nudge directly below the calculation results, above the educational content.
+
+**Half-Life Database:** Different flow — this is a browse/explore tool, not a single-calculation flow. The user might look up 5 compounds and never "complete" anything. The inline CTA could be anywhere in the page and feel either too early or already scrolled past. Fix: add a subtle contextual link inside each compound's detail view — after the decay curve and PubMed links: "This compound is available as a research stack → View on shop." This is contextual to the specific compound they're reading about.
+
+**COA Analyzer:** Best flow of all tools. User uploads COA → gets trust score → sees "Roji COAs pass every check on this page." That's a natural, earned CTA that only makes sense after the user has experienced the tool. Don't change this one.
+
+**Cost-Per-Dose Calculator:** The flow is good but the existing prompt to "Add Roji as a vendor entry" is the wrong conversion path. Most users won't manually add a vendor to compare — that's work. Instead, after they complete their comparison, show a pre-computed Roji row: "For reference: Roji Wolverine Stack (BPC-157 10mg + TB-500 10mg) = $X.XX per unit at research-standard concentration. → View stack." This does the comparison FOR them instead of asking them to do it.
+
+**Bloodwork Interpreter:** No store CTA at all. The connection between bloodwork and peptide purchase is the weakest of all tools — it's the most top-of-funnel. The right CTA here is softer: "Tracking your biomarkers? Explore the research tools and compound database at Roji. → See all tools" rather than a direct shop link. Or capture an email: "Save this panel and track changes over time → Enter email."
+
+**Body Recomp Calculator:** No store CTA at all. This one has a more natural connection to the store than bloodwork: "Optimizing body composition? Roji's Recomp Stack is the most-referenced GH-axis research stack. → Learn more." Medium-soft CTA that connects the calculator output to a specific product.
+
+**Research Database:** No store CTA. This is your most SEO-valuable page long-term. The CTA should be per-compound: at the bottom of each compound's study list, "This compound is available for research → View on shop." Natural, contextual, not aggressive.
+
+**6. MOBILE EXPERIENCE**
+
+This is a problem. You're hiding the store link on the device that probably represents 60-70% of your traffic. The compliance rationale ("don't make it look like a store") is understandable but overcorrected.
+
+Fix: Add "Shop →" to the mobile hamburger menu, below "Research Tools" and above "About." Not in the persistent header — in the expandable menu. This way it's discoverable but not prominent. Every user who opens the menu sees it; users who don't open the menu (most of them) don't.
+
+Also add the store link to the mobile-visible footer. Right now the footer probably has it, but if the user never scrolls to the bottom of a long tool page, they never see it. The sticky footer bar I mentioned in Section 2 solves this for mobile specifically — a thin persistent bar at the bottom that's always visible.
+
+**7. TRUST & CREDIBILITY**
+
+The tools surface builds strong trust for the tools themselves — the "no signup, free, data stays in your browser" signals are excellent. The Janoshik COA mentions add credibility. The PubMed citations in the half-life database show scientific rigor.
+
+What's missing for the bridge to a $400-900 purchase:
+
+**Social proof on the tools site is zero.** The store has "Independent reviews on Trustpilot" (from the homepage fetch) but the tools site has nothing. Even a small line under the StoreCTA: "Trusted by 200+ researchers. Rated 4.8/5 on Trustpilot." — if you have those reviews. If you don't yet, skip this until you do. Don't fabricate.
+
+**No "why Roji" section on the tools site.** The store has "Boring transparency. Loud results." with the four trust pillars. The tools site has nothing explaining why Roji the company is trustworthy. The StoreCTA mentions Janoshik verification, which is good, but a one-line "Every batch independently tested. See the COAs." with a link to the COA library would help bridge the trust gap.
+
+**The cross-domain jump is jarring.** User is on `tools.rojipeptides.com` (dark theme, minimal, tool-focused) and clicks through to `rojipeptides.com` (also dark, but now it's a store with products, prices, and add-to-cart buttons). The design language is consistent, which is good. But the mental model shifts from "I'm using a free tool" to "I'm being sold to." Consider adding a small interstitial or transitional element — even just a URL bar change acknowledgment: "You're now on the Roji Peptides shop" banner at the top of the store when the referrer is the tools site. This smooths the transition.
+
+**8. THE HONEST QUESTION**
+
+**Wire `toolComplete()` to show a contextual, tool-specific store CTA immediately below the calculation results — and route your Google Ads clicks to tool-specific URLs instead of the homepage.**
+
+These two changes together would likely 2-3x your tools→store click-through rate. Right now you're paying $2-4 per click to send people to a homepage where they have to find the right tool, then hoping they scroll past the results to a generic CTA (if it exists on that tool at all). Instead: ad click → the exact calculator they searched for → they use it → a relevant store suggestion appears at the moment of peak engagement. That's a fundamentally different conversion architecture and it doesn't compromise compliance at all.
