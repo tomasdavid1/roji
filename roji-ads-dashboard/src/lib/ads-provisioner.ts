@@ -443,30 +443,20 @@ async function listRsasInAdGroup(adGroupId: string): Promise<RsaRow[]> {
   return out;
 }
 
-async function updateResponsiveSearchAd(
+/**
+ * RSA creative fields are immutable on UPDATE — swap copy by remove + create.
+ * Preserves the prior ad's ENABLED/PAUSED status on the replacement.
+ */
+async function replaceRsaCreative(
   resourceName: string,
-  status: number,
+  adGroupId: string,
   ad: BlueprintRSA,
   finalUrl: string,
+  priorStatus: number,
 ): Promise<void> {
   const cust = await getCustomer();
-  const rsa: Record<string, unknown> = {
-    headlines: ad.headlines.slice(0, 15).map((h) => ({ text: h })),
-    descriptions: ad.descriptions.slice(0, 4).map((d) => ({ text: d })),
-  };
-  if (ad.path1) rsa.path1 = ad.path1;
-  if (ad.path2) rsa.path2 = ad.path2;
-
-  await cust.adGroupAds.update([
-    {
-      resource_name: resourceName,
-      status,
-      ad: {
-        final_urls: [finalUrl],
-        responsive_search_ad: rsa,
-      },
-    },
-  ] as never);
+  await cust.adGroupAds.remove([resourceName]);
+  await createResponsiveSearchAd(adGroupId, ad, finalUrl, priorStatus);
 }
 
 async function syncResponsiveSearchAdsInGroup(
@@ -494,11 +484,12 @@ async function syncResponsiveSearchAdsInGroup(
     if (freeIdx >= 0) {
       const target = pool[freeIdx];
       used.add(target.resource_name);
-      await updateResponsiveSearchAd(
+      await replaceRsaCreative(
         target.resource_name,
-        target.status,
+        adGroupId,
         ad,
         finalUrl,
+        target.status,
       );
       updated += 1;
     } else {
@@ -642,6 +633,7 @@ async function listLinkedSitelinksForCampaign(
   const cust = await getCustomer();
   const rows = (await cust.query(
     `SELECT
+       campaign.id,
        asset.resource_name,
        asset.sitelink_asset.link_text,
        asset.sitelink_asset.description1,
@@ -652,6 +644,7 @@ async function listLinkedSitelinksForCampaign(
        AND campaign_asset.field_type = SITELINK
        AND campaign_asset.status != REMOVED`,
   )) as Array<{
+    campaign?: { id?: string | number };
     asset?: {
       resource_name?: string;
       sitelink_asset?: {
@@ -868,13 +861,14 @@ async function createResponsiveSearchAd(
   adGroupId: string,
   ad: BlueprintRSA,
   finalUrl: string,
+  status: number = enums.AdGroupAdStatus.PAUSED,
 ): Promise<void> {
   const cust = await getCustomer();
   const customerId = process.env.GOOGLE_ADS_CUSTOMER_ID!;
   await cust.adGroupAds.create([
     {
       ad_group: `customers/${customerId}/adGroups/${adGroupId}`,
-      status: enums.AdGroupAdStatus.PAUSED,
+      status,
       ad: {
         final_urls: [finalUrl],
         responsive_search_ad: {
