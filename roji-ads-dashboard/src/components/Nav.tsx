@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
+  { href: "/funnel", label: "Funnel" },
   { href: "/performance", label: "Performance" },
   { href: "/campaigns", label: "Campaigns" },
   { href: "/keywords", label: "Keywords" },
@@ -23,7 +24,7 @@ export function Nav({ mode }: { mode: NavMode }) {
     <nav className="border-b border-roji-border bg-roji-darker">
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/performance" className="flex items-center gap-2">
+          <Link href="/funnel" className="flex items-center gap-2">
             <span className="font-mono text-xs uppercase tracking-widest text-roji-accent">
               Roji
             </span>

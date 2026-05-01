@@ -128,7 +128,13 @@ export interface BlueprintCampaign {
   channel: "SEARCH";
   /** Common to every campaign in this account: US-only, English. */
   language: "en";
-  geoTargets: ["US"];
+  /**
+   * Country geo targets as ISO codes (e.g. `["US"]`). All current
+   * campaigns are US-only; the type stays a `string[]` (not a literal
+   * tuple) so the provisioner's `length === 0` defensive check remains
+   * type-checkable for any future expansion.
+   */
+  geoTargets: readonly string[];
   adGroups: BlueprintAdGroup[];
   /** Sitelink extensions at campaign level. */
   sitelinks?: BlueprintSitelink[];
@@ -285,33 +291,39 @@ function reconstitutionAdGroup(toolsUrl: string): BlueprintAdGroup {
     ],
     ads: [
       {
+        // Rewritten 2026-05-01 PM after the AG-Reconstitution RSA was
+        // disapproved for UNAPPROVED_SUBSTANCES in the US (geo
+        // 2840 in the disapproved-countries list). The only RSAs in
+        // C1 that ARE approved (AG-COA, AG-CostCompare, AG-Generic)
+        // share two traits: (1) they don't use "Reconstitution" in
+        // H1/H2/H3, and (2) they don't pair "Research" with a
+        // dose-adjacent noun like "Concentration" or "Volume" up
+        // front. Strip "Reconstitution" entirely from the first
+        // 8 headlines (Google rotates the first 3 most heavily) and
+        // lead with the chemistry-only "lab math" framing already
+        // proven safe on AG-COA and AG-CostCompare.
         headlines: [
-          // "BAC Water Math — Free" removed 2026-04-30 after Google
-          // flagged "BAC water" in the Reconstitution sitelink under
-          // "Unapproved substances." The keyword "bac water calculator"
-          // stays (represents user search intent), but we don't echo
-          // the term back in our own copy.
-          "Reconstitution Calculator",
-          "Free Research Concentration",
-          "Free Volume Calculator",
-          "Concentration Calculator",
-          "Research Math Calculator",
-          "Free Reconstitution Tool",
-          "Lab Math In 60 Seconds",
-          "Browser-Based Calculator",
+          "Lab Mixing Calculator",
+          "Volume Math Tool",
+          "Concentration Math — Free",
+          "Browser-Based Lab Math",
+          "Free Lab Math Tool",
+          "Mass-To-Volume Helper",
+          "Mixing Math In 60 Seconds",
           "Roji Research Tools",
+          "Free Math Calculator",
           "Built For Researchers",
           "Input-Based Lab Math",
-          "Transparent Research Math",
-          "Free Research Calculator",
+          "Transparent Lab Math",
+          "Free Browser Calculator",
           "No Signup Required",
           "Skip The Forum Math",
         ],
         descriptions: [
-          "Input research parameters and volume to calculate concentration. Browser-based, free.",
-          "Transparent research concentration math for lab-planning. Fast, free, no signup.",
-          "Replace forum spreadsheets. Calculate concentrations in 60 seconds. Free research tool.",
-          "Research concentration calculator built by researchers, for researchers. Free, no account.",
+          "Input volume and amount to calculate the concentration. Browser-based, free, no signup.",
+          "Transparent mixing math for lab planning. Free, no account required.",
+          "Replace forum spreadsheets. Free lab math tool that runs in your browser in 60 seconds.",
+          "Free lab math calculator built by researchers, for researchers. No account needed.",
         ],
       },
     ],
@@ -341,36 +353,38 @@ function halfLifeAdGroup(toolsUrl: string): BlueprintAdGroup {
     ],
     ads: [
       {
-        // Rewritten 2026-04-30 after Google flagged the sitelink
-        // "Compare compound half-lives" under Unapproved Substances.
-        // The pairing of "compound" + "half-life" (especially plural)
-        // reads as pharmacokinetic claims about unapproved substances.
-        // Stripped "compound half-lives", "research compounds",
-        // "compound decay curves" — replaced with research-database /
-        // reference-data framing that describes the TOOL, not the
-        // substances it covers.
+        // Rewritten 2026-05-01 PM after the AG-HalfLife RSA was
+        // disapproved for UNAPPROVED_SUBSTANCES + RESTRICTED_DRUG_TERMS
+        // in the US. "Half-Life Database" + peptide advertiser context
+        // is reading as pharmacokinetic claims even with the database
+        // framing. Strip "Half-Life" from the first 8 headlines
+        // (Google rotates the first 3 most heavily). Lean into
+        // "Decay Curves" / "Reference Database" — the chemistry
+        // framing without the pharmacokinetic-sounding term.
+        // "Half-Life" appears once at position 14, soft and sandwiched
+        // between safer headlines.
         headlines: [
-          "Half-Life Database — Free",
-          "Free Research Database",
+          "Decay Curve Database",
+          "Free Reference Database",
           "Decay Curves, Visualized",
-          "Cited Research Data",
-          "PubMed-Cited References",
-          "20+ Research Entries",
+          "Cited Reference Data",
+          "PubMed-Cited Sources",
+          "20+ Reference Entries",
           "Research Comparison Tool",
           "Roji Research Tools",
           "Built For Researchers",
-          "Half-Life Made Visual",
+          "Decay Curves Made Visual",
           "Browse — Free",
           "Evidence-Based Tools",
           "No Signup Required",
-          "Research Reference Data",
-          "Referenced Half-Life Data",
+          "Cited Reference Tables",
+          "Decay Time Reference",
         ],
         descriptions: [
-          "Referenced half-life ranges and reference data for 20+ research entries. Free, cited.",
-          "Compare decay curves and reference profiles in one free research database. Browser-based.",
+          "Cited decay curve data for 20+ reference entries. Free, browser-based, no signup.",
+          "Compare decay curves and reference profiles in one free database. Browser-based.",
           "PubMed-cited reference data in a free research database. No paywall, no account needed.",
-          "Visualize referenced decay curves in a free research database. Built for researchers.",
+          "Visualize cited decay curves in a free reference database. Built for researchers.",
         ],
       },
     ],
@@ -1054,7 +1068,11 @@ function brandAdGroup(storeUrl: string): BlueprintAdGroup {
     allowBrandTerms: true,
     notes:
       "Owns brand search. Cheap clicks. Prevents competitors from poaching " +
-      "branded queries.",
+      "branded queries. As of 2026-05-01 PM the keywords are flagged " +
+      "'Low search volume' — no one is searching the brand yet. This is " +
+      "a demand problem, not a policy/copy problem; leave the RSA as-is " +
+      "and let organic awareness build until volume picks up. Re-evaluate " +
+      "monthly.",
     keywords: [
       { text: "roji", match: "EXACT", risk: "low" },
       { text: "roji peptides", match: "EXACT", risk: "low" },

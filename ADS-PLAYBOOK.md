@@ -104,11 +104,12 @@ define( 'ROJI_GA4_ID', 'G-XXXXXXXXXX' );
 
 | Surface | Path |
 | --- | --- |
+| **Funnel** (per-tool conversion funnel — the daily-check-in answer) | `/funnel` |
 | **Provisioner UI** ("Provision from Blueprint" card) | `/campaigns` |
 | **Tracking checklist** (probes, env state, Tag Assistant guide) | `/tracking` |
 | **Search-terms mining** (auto-flag risky terms) | `/search-terms` |
 | **Disapproval auto-pause** | `/disapprovals` |
-| **Performance** (KPI dashboard) | `/performance` |
+| **Performance** (campaign-level KPI dashboard) | `/performance` |
 | **Readiness JSON** | `GET /api/ads/readiness` |
 | **Blueprint preview** (dry-run JSON) | `GET /api/ads/blueprint/provision?mode=tool-only` |
 | **Blueprint provision** (live or dry) | `POST /api/ads/blueprint/provision` body `{ mode, dry_run }` |
@@ -478,6 +479,53 @@ Decision: [ ] stay course  [ ] pause keyword(s): ____
           [ ] bump budget  [ ] kill AG: ____
           [ ] enable C2    [ ] switch bid strategy
 Notes: ____
+```
+
+---
+
+## Funnel page — how it works and how to fill in the gaps
+
+`ads.rojipeptides.com/funnel` is the dashboard's home page and the answer to the daily "where did the clicks go?" question. It implements the funnel defined at the top of this playbook (lines 26-50), one tool at a time, with a tab strip so you can switch between Reconstitution / Half-Life / COA / Cost Compare / Recomp / Generic / Brand / All-tools without page reloads.
+
+### Data sources
+
+Each step in the funnel cites its data source inline. The page never fakes data — if a source is missing, the affected steps render as a dashed "not connected" placeholder rather than zeros.
+
+| Step | Source | Wired today? |
+| --- | --- | --- |
+| 1. Ad click | Google Ads API (`keyword_view`) | ✅ Yes |
+| 2. tool_view | GA4 Data API | ⚠ Needs GA4 service account |
+| 3. Tool used (any per-tool engagement event) | GA4 Data API | ⚠ Needs GA4 service account |
+| 4. Store CTA click (`store_outbound_click`) | GA4 Data API | ⚠ Needs GA4 service account |
+| 5. Add to cart | GA4 Data API | ⚠ Needs GA4 service account |
+| 6. Checkout view | GA4 Data API | ⚠ Needs GA4 service account |
+| 7. Reserve order (purchase conversion) | Google Ads API | ✅ Yes |
+
+The "implied CAC" KPI in the page header is `total_spend / reserve_orders` — both sides are Google Ads numbers, so this works today even without GA4. The mid-funnel just shows you *why* CAC is what it is.
+
+### How to wire GA4 (one-time, ~10 min)
+
+1. **Google Cloud Console** → IAM & Admin → Service Accounts → **Create service account.** Name it something like `roji-ga4-reader`.
+2. Open the new account → **Keys → Add Key → JSON.** Download the file.
+3. **Google Analytics** → Admin → Property Access Management → **Add user.** Paste the service account email (looks like `roji-ga4-reader@<project>.iam.gserviceaccount.com`). Role: **Viewer**.
+4. Find the GA4 **Property ID** (not the measurement ID `G-XXXXX` — the numeric property id on the same admin page).
+5. Vercel → `roji-ads-dashboard` project → Settings → Environment Variables:
+   ```
+   GA4_PROPERTY_ID=<numeric id>
+   GA4_SERVICE_ACCOUNT_JSON=<paste the entire JSON file content as one line>
+   ```
+6. Redeploy. The Funnel page will pick up the new creds on next request and the dashed placeholders will switch to live numbers.
+
+### How to wire WooCommerce REST API (optional, sharpens purchase attribution)
+
+The `purchase` step is already populated by Google Ads conversion counts. WooCommerce REST is only needed if we want to cross-check Google Ads' attribution against the actual order list (e.g. to find orders that *didn't* fire the conversion event). Until then it's safe to leave disconnected.
+
+When ready: WP-Admin → WooCommerce → Settings → Advanced → REST API → Add key (Read-only). Then on Vercel:
+
+```
+WOO_API_BASE=https://rojipeptides.com/wp-json/wc/v3
+WOO_CONSUMER_KEY=ck_...
+WOO_CONSUMER_SECRET=cs_...
 ```
 
 ---
