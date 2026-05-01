@@ -537,6 +537,56 @@ For paid-traffic attribution on the funnel mid-steps to work properly, GA4 needs
 
 Until you do this, "TODAY" date range on the funnel uses the GA4 **realtime** endpoint (last 30 min, all sources, no path filter) so the mid-funnel actually shows current activity. Realtime can't filter by paid attribution, so it slightly over-counts; that's fine while we have low volume and the link isn't set up.
 
+### GA4 Explore reports — recipes (the right tool for funnel + path analysis)
+
+The `/funnel` page in `roji-ads-dashboard` is a **Google-Ads-side cross-cut** — it pairs paid spend with conversion counts and implied CAC, segmented by ad group. That's the slice my dashboard is uniquely good at.
+
+For everything **mid-funnel and behavioral** (path discovery, drop-off-by-segment, cross-domain user journeys, cohort comparisons), use **GA4 Explore** directly. It's purpose-built, native, free, and supports interactions my custom dashboard doesn't.
+
+The link `GA4 Explore ↗` in the dashboard nav opens GA4 directly. Pin these three reports as templates so you can re-run them with one click.
+
+#### Report A — "Tools → Store funnel" (mid-funnel, paid-attributed)
+
+GA4 Explore → New → **Funnel exploration**. Set up:
+
+- **Steps** (each "is event"):
+  1. `page_view`  — *Step entry: ad-click landing*
+  2. `tool_view`  — *Step entry: actually loaded a calculator*
+  3. ANY of: `recon_first_input`, `tool_complete`, `coa_analyzed`, `recomp_calculated`, `cost_add_row`, `bloodwork_panel_saved`, `hero_tool_pick` — *Step entry: engaged with the tool*
+  4. `store_outbound_click` OR `header_shop_click` OR `hero_shop_click` — *Step entry: clicked through to store*
+  5. `add_to_cart`
+  6. `begin_checkout`
+  7. `purchase`
+- **Filter** (drag to FILTERS pane):
+  - `Session medium` exactly matches `cpc` (once Ads ↔ GA4 link backfills; until then leave unfiltered)
+- **Breakdown** (drag to BREAKDOWNS): `Session Google Ads campaign name` — gives one row per C1/C2/C3
+- **Settings** → "Make open funnel" toggle: leave OFF (closed funnel = strict step order, what we want for paid attribution)
+- Time range: Last 30 days
+
+#### Report B — "Per-tool path discovery"
+
+GA4 Explore → New → **Path exploration**. Set up:
+
+- **Starting point:** `Event name` = `tool_view` *or* `Page path` = `/`
+- Click "+ Step" to expand the tree
+- **Filter:** `Hostname` exactly matches `tools.rojipeptides.com` (focuses on the tools subdomain)
+- **Breakdown:** `Page path and screen class`
+- Reveals: which tool people land on first, where they go second (other tool? store? bounce?), and how deep the typical journey is
+
+#### Report C — "Cross-domain user journey: tools → store"
+
+This is the report that answers *"do calculator users actually buy?"*
+
+GA4 Explore → New → **Path exploration**. Set up:
+
+- **Starting point:** `Page path` = `/reconstitution` (or any tool path)
+- Branches will show pages users visited next, including pages on `rojipeptides.com` if cross-domain stitching is working
+- **Cross-domain stitching requirement:** the gtag config in `roji-tools/src/app/layout.tsx` already includes `linker: { domains: ["rojipeptides.com", "tools.rojipeptides.com", "protocol.rojipeptides.com"] }` — confirm the WP store gtag has the SAME measurement ID config OR a second data stream pointing at the same property.
+- As of May 2026, both domains stream into property `535472377`:
+  - Stream 1: `tools.rojipeptides.com` (id `14777433266`, measurement ID `G-7SK3K1GD0N`)
+  - Stream 2: `rojipeptides.com` (added 2026-05-01)
+- Save report, share link with the team — re-run with date range as needed
+
 ### WooCommerce REST API — DEFERRED (May 2026)
 
 **Status:** keys generated and stored on Vercel, but the integration is **deliberately deferred**. Note from May 1, 2026 audit:

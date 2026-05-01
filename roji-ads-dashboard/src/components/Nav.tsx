@@ -24,7 +24,7 @@ export function Nav({ mode }: { mode: NavMode }) {
     <nav className="border-b border-roji-border bg-roji-darker">
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/funnel" className="flex items-center gap-2">
+          <Link href="/performance" className="flex items-center gap-2">
             <span className="font-mono text-xs uppercase tracking-widest text-roji-accent">
               Roji
             </span>
@@ -55,6 +55,15 @@ export function Nav({ mode }: { mode: NavMode }) {
           </ul>
         </div>
         <div className="flex items-center gap-3">
+          <a
+            href="https://analytics.google.com/analytics/web/#/p535472377/reports/explorer"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-[10px] uppercase tracking-widest text-roji-muted hover:text-roji-accent transition-colors"
+            title="Open GA4 Explore — funnel + path analysis lives there"
+          >
+            GA4 Explore ↗
+          </a>
           <span
             className={
               mode === "live"
