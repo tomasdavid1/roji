@@ -70,6 +70,10 @@ async function main() {
       `  geo_target_type:  positive=${setting.positive_geo_target_type ?? "?"}  negative=${setting.negative_geo_target_type ?? "?"}`,
     );
 
+    // The campaign_criterion.type filter only accepts LOCATION /
+    // PROXIMITY here; COUNTRY-level targeting comes back as a
+    // LOCATION criterion whose geo_target_constant points at a
+    // country (e.g. geoTargetConstants/2840 for US).
     const crits = await customer.query(`
       SELECT campaign_criterion.criterion_id,
              campaign_criterion.type,
@@ -78,7 +82,7 @@ async function main() {
              campaign_criterion.status
       FROM campaign_criterion
       WHERE campaign.id = ${c.id}
-        AND campaign_criterion.type IN ('LOCATION', 'COUNTRY', 'PROXIMITY')
+        AND campaign_criterion.type IN ('LOCATION', 'PROXIMITY')
         AND campaign_criterion.status != 'REMOVED'
     `);
 
