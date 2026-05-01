@@ -84,10 +84,10 @@ export function SiteHeader() {
           href={`${STORE_URL}/shop/?utm_source=tools&utm_medium=header&utm_campaign=site_header`}
           onClick={() => track("header_shop_click", { surface: "site_header" })}
           className={[
-            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-roji",
-            "bg-roji-accent/10 border border-roji-accent/30 text-roji-accent",
-            "hover:bg-roji-accent/15 hover:border-roji-accent/50 transition-colors",
-            "text-xs sm:text-sm font-medium",
+            "inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-roji",
+            "bg-roji-accent text-roji-black",
+            "hover:bg-roji-accent/90 transition-colors",
+            "text-xs sm:text-sm font-semibold",
           ].join(" ")}
           aria-label="Shop research stacks at rojipeptides.com"
         >

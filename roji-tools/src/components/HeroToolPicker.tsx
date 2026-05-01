@@ -105,17 +105,17 @@ export function HeroToolPicker() {
       </div>
 
       {/* Secondary action — shop is one click away from the hero. */}
-      <div className="mt-5 flex items-center justify-center gap-3 text-sm">
+      <div className="mt-5 flex items-center justify-center gap-4 text-sm">
         <a
           href={`${STORE_URL}/shop/?utm_source=tools&utm_medium=hero&utm_campaign=hero_picker`}
           onClick={() =>
             track("hero_shop_click", { surface: "homepage_hero" })
           }
           className={[
-            "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-roji-lg",
-            "bg-roji-accent/10 border border-roji-accent/30 text-roji-accent",
-            "hover:bg-roji-accent/15 hover:border-roji-accent/50 transition-colors",
-            "font-medium",
+            "inline-flex items-center gap-1.5 px-4 py-2 rounded-roji-lg",
+            "bg-roji-accent text-roji-black",
+            "hover:bg-roji-accent/90 transition-colors",
+            "font-semibold",
           ].join(" ")}
         >
           Shop research stacks
