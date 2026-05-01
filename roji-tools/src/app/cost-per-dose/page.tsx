@@ -4,6 +4,7 @@ import { CostPerDoseCalculator } from "@/components/CostPerDoseCalculator";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
 import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
+import { ToolJsonLd } from "@/components/ToolJsonLd";
 
 export const metadata: Metadata = {
   title: "Cost-Per-Dose Calculator — true peptide cost across vendors",
@@ -14,6 +15,17 @@ export const metadata: Metadata = {
 export default function CostPerDosePage() {
   return (
     <>
+      <ToolJsonLd
+        slug="cost-per-dose"
+        name="Peptide Cost-Per-Dose Comparison Calculator"
+        description="Compare research cost across peptide vendors. Input vial mg, purity, price, and shipping. Get per-vendor: cost per mg, cost per dose, total doses per vial, and best-value highlight."
+        featureList={[
+          "Vendor-agnostic — add any number of entries",
+          "Cost per mg + cost per dose + total doses",
+          "Effective mg accounting for purity",
+          "Best-value highlight",
+        ]}
+      />
       <ToolView slug="cost-per-dose" />
       <PageHero
         pill="Calculator · Free"

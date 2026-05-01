@@ -4,6 +4,7 @@ import { CoaUploader } from "@/components/CoaUploader";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
 import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
+import { ToolJsonLd } from "@/components/ToolJsonLd";
 
 export const metadata: Metadata = {
   title: "COA Verifier — Is your peptide vendor's Certificate of Analysis legit?",
@@ -14,6 +15,34 @@ export const metadata: Metadata = {
 export default function CoaPage() {
   return (
     <>
+      <ToolJsonLd
+        slug="coa"
+        name="COA Verifier — Vendor-Agnostic Certificate of Analysis Analyzer"
+        description="Drop in any peptide vendor's Certificate of Analysis text. Get a 0–100 trust score, identified lab, HPLC purity, mass spectrometry confirmation, water content, batch/lot number, date freshness, red flags, and positive signals — all with plain-English explanations."
+        featureList={[
+          "Vendor-agnostic — works on any COA text",
+          "Trust score 0–100 with breakdown",
+          "Red-flag detection (missing fields, suspicious labs, stale dates)",
+          "Mass spec + HPLC + water content audit",
+        ]}
+        faqs={[
+          {
+            question: "What's a COA actually supposed to show?",
+            answer:
+              "A real Certificate of Analysis from a third-party lab should include: an identified compound (sequence + MW), HPLC purity ≥98%, mass-spec confirmation that the molecular ion matches the expected MW, residual solvent / water content, batch/lot number, manufacture or test date, and the lab's name and contact. If any of those is missing, that's a red flag.",
+          },
+          {
+            question: "Does this tool send my COA file anywhere?",
+            answer:
+              "The COA text you paste is processed on our server to compute the trust score and field analysis. It is processed in memory only and is not persisted to any database, log, or third-party service. We retain transient request logs (timestamp + anonymized session identifier) for up to 7 days for abuse prevention; those logs do not contain the COA content.",
+          },
+          {
+            question: "Is this tool only for Roji COAs?",
+            answer:
+              "No. The COA Verifier is vendor-agnostic. Paste a COA from any peptide vendor and you'll get the same analysis. We built it because reading a COA is genuinely hard and there was no neutral tool for it.",
+          },
+        ]}
+      />
       <ToolView slug="coa" />
       <PageHero
         pill="Verifier · Free"

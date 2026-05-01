@@ -5,6 +5,7 @@ import Script from "next/script";
 
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteJsonLd } from "@/components/SiteJsonLd";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -94,6 +95,7 @@ export default function RootLayout({
             </Script>
           </>
         )}
+        <SiteJsonLd />
         <SiteHeader />
         <div className="flex-1">{children}</div>
         <SiteFooter />

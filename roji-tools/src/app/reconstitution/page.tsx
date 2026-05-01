@@ -4,6 +4,7 @@ import { ReconCalculator } from "@/components/ReconCalculator";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
 import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
+import { ToolJsonLd } from "@/components/ToolJsonLd";
 
 export const metadata: Metadata = {
   title: "Peptide Reconstitution Calculator — mg / mL → mcg per syringe unit",
@@ -14,6 +15,17 @@ export const metadata: Metadata = {
 export default function ReconstitutionPage() {
   return (
     <>
+      <ToolJsonLd
+        slug="reconstitution"
+        name="Peptide Reconstitution Calculator"
+        description="Calculate research peptide concentration from vial size in mg and bacteriostatic water volume in mL. Returns concentration in mcg/mL, units per measurement, mL per measurement, and total preparations from the vial. For research and laboratory use only."
+        featureList={[
+          "mg vial + mL water → concentration math",
+          "Multiple insulin syringe types (u100, u50, u40)",
+          "Total preparation count per vial",
+          "Suggested measurement alternatives",
+        ]}
+      />
       <ToolView slug="reconstitution" />
       <PageHero
         pill="Calculator · Free"

@@ -4,6 +4,8 @@ import { HalfLifeBrowser } from "@/components/HalfLifeBrowser";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
 import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
+import { ToolJsonLd, DatasetJsonLd } from "@/components/ToolJsonLd";
+import { COMPOUNDS } from "@/data/compounds";
 
 export const metadata: Metadata = {
   title: "Compound Half-Life Database — peptide pharmacokinetics",
@@ -14,6 +16,24 @@ export const metadata: Metadata = {
 export default function HalfLifePage() {
   return (
     <>
+      <ToolJsonLd
+        slug="half-life"
+        name="Compound Half-Life Database"
+        description="Curated half-life, molecular weight, route, and storage data for 20+ research peptides including BPC-157, TB-500, CJC-1295, Ipamorelin, MK-677, Selank, Semax, and PT-141. Each entry cited from peer-reviewed literature."
+        featureList={[
+          "Half-life ranges with literature citations",
+          "Molecular weight and pharmacokinetic profiles",
+          "Decay curve visualizations",
+          "Storage and stability notes",
+        ]}
+      />
+      <DatasetJsonLd
+        slug="half-life"
+        name="Roji Peptide Half-Life Reference Dataset"
+        description="Curated half-life, molecular weight, mechanism, and storage data for research peptides. Each entry references peer-reviewed PubMed citations."
+        count={COMPOUNDS.length}
+        citation="Citations sourced from peer-reviewed literature on PubMed."
+      />
       <ToolView slug="half-life" />
       <PageHero
         pill="Database · Free"
