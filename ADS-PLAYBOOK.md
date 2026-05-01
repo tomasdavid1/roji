@@ -523,17 +523,28 @@ We use the **same OAuth client** as Google Ads. No Google Cloud service-account 
 
 The dashboard authenticates as **you personally**, not as a service account — same auth model as Google Ads. If you ever revoke consent at https://myaccount.google.com/permissions you'll need to re-run the helper.
 
-### How to wire WooCommerce REST API (optional, sharpens purchase attribution)
+### WooCommerce REST API — DEFERRED (May 2026)
 
-The `purchase` step is already populated by Google Ads conversion counts. WooCommerce REST is only needed if we want to cross-check Google Ads' attribution against the actual order list (e.g. to find orders that *didn't* fire the conversion event). Until then it's safe to leave disconnected.
+**Status:** keys generated and stored on Vercel, but the integration is **deliberately deferred**. Note from May 1, 2026 audit:
 
-When ready: WP-Admin → WooCommerce → Settings → Advanced → REST API → Add key (Read-only). Then on Vercel:
+- Steps 5 (Add to cart) and 7 (Purchase) on the funnel are **already populated by Google Ads conversion actions**, segmented by action name (`getConversionsByAdGroupAndAction` in `src/lib/google-ads.ts`). This is the *paid-attributed* number, which is exactly what the funnel wants.
+- WooCommerce would give us **total** orders (paid + organic + direct), useful as a sanity-check side panel but not for paid-funnel attribution.
+- The site sits behind **Cloudflare WAF with a "Just a moment..." JS challenge**. `curl` and the Vercel runtime get HTTP 403 + an HTML challenge page instead of JSON. Bypassing requires either:
+  1. A Cloudflare custom rule: "When `path matches /wp-json/wc/v3/*` AND `header has Authorization: Basic` → Skip Bot Fight Mode + Managed challenge", OR
+  2. An IP allowlist for Vercel's egress range (changes; brittle), OR
+  3. A custom shared-secret header check on the WP side (e.g. `x-roji-internal: <token>`) plus a WAF skip rule.
+- **Trigger to re-open this**: when reserve orders or paid orders cross ~10/day and we want a "WC says X, Google Ads attributes Y" delta on the funnel header. Until then the marginal value isn't worth the WAF detour.
+- **Alternative if Stripe is wired** before WC becomes worth it: pull `payment_intents` from the Stripe API directly. Stripe is not behind Cloudflare and authenticates cleanly with a restricted read-only key. Probably the better plumbing once payments are real.
+
+**When ready to actually wire it** (env vars are already on Vercel as of May 1, 2026):
 
 ```
 WOO_API_BASE=https://rojipeptides.com/wp-json/wc/v3
-WOO_CONSUMER_KEY=ck_...
-WOO_CONSUMER_SECRET=cs_...
+WOO_CONSUMER_KEY=ck_...   # already set
+WOO_CONSUMER_SECRET=cs_... # already set
 ```
+
+You'll still need the Cloudflare bypass rule above before the keys actually reach WP. Test from Vercel (not local curl) once the rule is in place.
 
 ---
 
