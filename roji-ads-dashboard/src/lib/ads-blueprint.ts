@@ -969,19 +969,26 @@ function peptideExperimentAdGroup(finalUrl: string): BlueprintAdGroup {
       { text: "research peptide guide", match: "PHRASE", risk: "high" },
       { text: "research peptide compounds", match: "PHRASE", risk: "high" },
       // Tier 3 — bare compound names (added 2026-05-01 PM, live-tested).
-      // These are the high-risk, high-reward terms: they bid directly on
-      // substance names and land on tools.rojipeptides.com (tools only,
-      // not store). The Google Ads API accepted 9 of 10 submitted; the
-      // 10th (`semaglutide peptide`) was hard-rejected under the
-      // RESTRICTED_DRUG_TERMS policy because semaglutide is an FDA
+      // These are the high-risk, high-reward terms: they bid directly
+      // on substance names and land on tools.rojipeptides.com (tools
+      // only, not store). The Google Ads API accepted 9 of 10
+      // submitted; the 10th (`semaglutide peptide`) was hard-rejected
+      // under RESTRICTED_DRUG_TERMS because semaglutide is an FDA
       // prescription drug (Ozempic) — separate policy track than
       // UNAPPROVED_SUBSTANCES, not worth retrying.
       //
-      // Watch list: the 9 below enter UNDER_REVIEW. Over the next 24-48h
-      // each will flip to ELIGIBLE (will serve) or DISAPPROVED. Check
-      // the /disapprovals page daily and track account-level policy
-      // health — if substance-name bidding generates account warnings,
-      // pull these before they contaminate C2's working keyword corridor.
+      // All 9 came back APPROVED at the keyword-bidding gate (no
+      // disapproval reasons). That does NOT guarantee they'll serve —
+      // Google re-runs the classifier at auction time with the full
+      // searcher context and can silently suppress impressions. So
+      // the real signal is NOT `approved` but `impressions > 0`.
+      //
+      // Watch list over the next 24-48h:
+      //   1. Do any start serving? (impressions > 0 per keyword)
+      //   2. Does the account accumulate policy-health warnings?
+      //   3. Do clickers actually use the calculators or bounce?
+      // If (2) fires, pull ALL 9 immediately — account contamination
+      // would threaten C2's working research-term corridor.
       { text: "bpc 157", match: "BROAD", risk: "high" },
       { text: "bpc 157 peptide", match: "BROAD", risk: "high" },
       { text: "tb 500", match: "BROAD", risk: "high" },
