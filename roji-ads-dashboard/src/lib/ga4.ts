@@ -133,6 +133,9 @@ const TOOL_ENGAGEMENT_EVENTS = [
   "tracker_dose_logged",
   "interactions_toggle",
   "tool_complete",
+  // Strong engagement signal: the CTA result card actually rendered,
+  // which means a calculator finished computing a meaningful answer.
+  "tool_result_rendered",
   // Funnel-specific actions that should count as "engaged" for the
   // first-click metric. A user who clicks the hero tool picker has
   // self-routed; that's engagement.
@@ -314,8 +317,11 @@ export async function getGa4ToolFunnelEvents(
       if (ev === "tool_view") out.tool_view! += n;
       // Both the canonical `store_outbound_click` and the variant CTAs
       // we added 2026-05-01 (`header_shop_click`, `hero_shop_click`)
-      // count as outbound-to-store. They're fired by separate components
-      // in roji-tools but represent the same funnel step.
+      // count as outbound-to-store. `tool_result_shop_click` (added
+      // 2026-05-04) double-fires `store_outbound_click` on the client
+      // so it already lands here without additional handling, but it
+      // is tracked separately in GA4 Explore for segmenting "which
+      // tool's result-CTA converts best."
       else if (
         ev === "store_outbound_click" ||
         ev === "header_shop_click" ||

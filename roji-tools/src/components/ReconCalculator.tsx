@@ -1,17 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { compute, SYRINGE_TOTAL_UNITS, type SyringeKind } from "@/lib/recon-math";
 import { track } from "@/lib/track";
 import { PostResultCTA } from "./PostResultCTA";
 
+// Each preset carries a `compound` slug — used to light up
+// compound-aware copy on the PostResultCTA and for segmented funnel
+// analytics (so we can tell "users researching BPC-157" apart from
+// "users researching MOTS-c").
 const PRESETS = [
-  { label: "BPC-157 5mg", vialMg: 5, waterMl: 2, doseMcg: 250 },
-  { label: "TB-500 5mg", vialMg: 5, waterMl: 2, doseMcg: 500 },
-  { label: "Ipamorelin 5mg", vialMg: 5, waterMl: 2, doseMcg: 200 },
-  { label: "CJC-1295 DAC 2mg", vialMg: 2, waterMl: 2, doseMcg: 100 },
-  { label: "MOTS-c 10mg", vialMg: 10, waterMl: 2, doseMcg: 5000 },
+  { label: "BPC-157 5mg", compound: "bpc-157", vialMg: 5, waterMl: 2, doseMcg: 250 },
+  { label: "TB-500 5mg", compound: "tb-500", vialMg: 5, waterMl: 2, doseMcg: 500 },
+  { label: "Ipamorelin 5mg", compound: "ipamorelin", vialMg: 5, waterMl: 2, doseMcg: 200 },
+  { label: "CJC-1295 DAC 2mg", compound: "cjc-1295", vialMg: 2, waterMl: 2, doseMcg: 100 },
+  { label: "MOTS-c 10mg", compound: "mots-c", vialMg: 10, waterMl: 2, doseMcg: 5000 },
 ];
 
 export function ReconCalculator() {
@@ -20,11 +24,26 @@ export function ReconCalculator() {
   const [doseMcg, setDoseMcg] = useState(250);
   const [syringe, setSyringe] = useState<SyringeKind>("u100");
   const [trackedOnce, setTrackedOnce] = useState(false);
+  // Which compound the user explicitly picked, if any. Cleared if
+  // they drift away from a preset's numbers (so the CTA doesn't lie
+  // about what they computed).
+  const [compound, setCompound] = useState<string | null>(null);
 
   const out = useMemo(
     () => compute({ vialMg, waterMl, doseMcg, syringe }),
     [vialMg, waterMl, doseMcg, syringe],
   );
+
+  // If the user drifts away from every preset's values, clear the
+  // compound label so we don't claim "matches BPC-157" when they're
+  // actually computing something bespoke.
+  useEffect(() => {
+    if (!compound) return;
+    const match = PRESETS.find(
+      (p) => p.vialMg === vialMg && p.waterMl === waterMl && p.doseMcg === doseMcg,
+    );
+    if (!match || match.compound !== compound) setCompound(null);
+  }, [vialMg, waterMl, doseMcg, compound]);
 
   const fireOnce = (event: string, params: Record<string, string | number>) => {
     if (trackedOnce) return;
@@ -36,7 +55,8 @@ export function ReconCalculator() {
     setVialMg(p.vialMg);
     setWaterMl(p.waterMl);
     setDoseMcg(p.doseMcg);
-    track("recon_preset_click", { preset: p.label });
+    setCompound(p.compound);
+    track("recon_preset_click", { preset: p.label, compound: p.compound });
   };
 
   const drawTicks = () => {
@@ -256,8 +276,18 @@ export function ReconCalculator() {
           {trackedOnce && (
             <PostResultCTA
               toolSlug="reconstitution"
-              title="Need BAC water and clean vials? Roji ships Janoshik-verified research compounds."
-              buttonLabel="Browse research stacks →"
+              compound={compound ?? undefined}
+              title={
+                compound
+                  ? `Roji's ${compound.toUpperCase()} ships with a Janoshik COA that matches the protocol you just calculated.`
+                  : "Roji ships research-grade peptides with Janoshik-verified COAs — plus BAC water and syringes."
+              }
+              subtitle={
+                compound
+                  ? "Every vial is third-party tested for ≥99% purity. The certificate arrives in the box so you can verify before you reconstitute."
+                  : "One vendor for the whole setup instead of three."
+              }
+              buttonLabel={compound ? `See ${compound.toUpperCase()} stack` : "Browse research stacks"}
             />
           )}
         </div>
