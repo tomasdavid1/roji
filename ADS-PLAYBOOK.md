@@ -523,6 +523,85 @@ We use the **same OAuth client** as Google Ads. No Google Cloud service-account 
 
 The dashboard authenticates as **you personally**, not as a service account — same auth model as Google Ads. If you ever revoke consent at https://myaccount.google.com/permissions you'll need to re-run the helper.
 
+### Refresh token recovery (when the dashboard suddenly shows zeros)
+
+**Symptom:** dashboard goes blank, local scripts error with `invalid_grant: Token has been expired or revoked`. There are two independent tokens — Google Ads (`GOOGLE_ADS_REFRESH_TOKEN`) and GA4 (`GA4_REFRESH_TOKEN`). Either can expire on its own; recover them the same way.
+
+**Root cause:** the OAuth consent screen for the Roji Cloud project is in **Testing** publishing status, which caps refresh-token lifetime at **7 days**. We're keeping it in Testing intentionally — moving to Production would require Google's app-verification review (since `https://www.googleapis.com/auth/adwords` is a sensitive scope), which is a multi-week process for a single-user internal tool. Cost: ~3 minutes of re-auth every week. Worth it.
+
+If you want to skip the weekly re-auth, the path is: **OAuth consent screen → Publishing status → Publish app**. Google will send the project to Brand Verification + Security Assessment for the sensitive scope. Don't bother unless this becomes a daily annoyance.
+
+#### Recovery procedure (works for both tokens)
+
+Run from `/Users/tomas/Roji/roji-ads-dashboard`. The two helpers are nearly identical — they each open a browser, you sign in, the script captures the redirect on a loopback port and prints the new refresh token.
+
+**Google Ads token:**
+
+```bash
+cd roji-ads-dashboard
+node scripts/get-refresh-token.js
+# Browser opens → sign in with the Google account that owns the Ads MCC
+#   (the one that can see customer 657-303-2286)
+# Grant access. The browser tab shows "Roji: refresh token captured."
+# Terminal prints: 1//... (the new GOOGLE_ADS_REFRESH_TOKEN)
+```
+
+Loopback redirect URI: `http://127.0.0.1:8765/`.
+
+**GA4 token:**
+
+```bash
+node scripts/get-ga4-refresh-token.js
+# Same flow but on port 8766, scope analytics.readonly
+# Sign in with the account that has access to GA4 property 535472377
+```
+
+Loopback redirect URI: `http://127.0.0.1:8766/`.
+
+Both URIs must remain registered on the Roji OAuth client in **Google Cloud Console → APIs & Services → Credentials → Roji OAuth client → Authorized redirect URIs**. They already are. Don't remove them.
+
+#### After capturing a new token (4 steps)
+
+1. **Update local `.env.local`** — replace the matching line. The helpers print exact paste instructions.
+
+2. **Replace the env var on Vercel** (production project `roji-ads`):
+
+   ```bash
+   npx vercel env rm GOOGLE_ADS_REFRESH_TOKEN production --yes   # or GA4_REFRESH_TOKEN
+   printf '%s' "1//<new-token>" | npx vercel env add GOOGLE_ADS_REFRESH_TOKEN production
+   ```
+
+   The `printf '%s'` (no trailing newline) matters — `echo` would inject a `\n` that the OAuth endpoint then rejects as part of the token.
+
+3. **Verify it works locally** before redeploying. For Google Ads:
+
+   ```bash
+   node -e "
+   const fs=require('fs'),env={};
+   for(const l of fs.readFileSync('.env.local','utf8').split('\n')){
+     const m=l.match(/^([A-Z0-9_]+)=(.*)\$/); if(m) env[m[1]]=m[2];
+   }
+   const p=new URLSearchParams({
+     client_id:env.GOOGLE_ADS_CLIENT_ID,
+     client_secret:env.GOOGLE_ADS_CLIENT_SECRET,
+     refresh_token:env.GOOGLE_ADS_REFRESH_TOKEN,
+     grant_type:'refresh_token',
+   });
+   fetch('https://oauth2.googleapis.com/token',{method:'POST',body:p})
+     .then(r=>r.json()).then(j=>console.log(j.access_token?'OK':j));
+   "
+   ```
+
+   Should print `OK`. The full response also includes `refresh_token_expires_in: ~604800` (7 days) — that's the Testing-mode signal, not a problem.
+
+4. **Trigger a Vercel redeploy** so production picks up the new env var. Either push any commit (e.g. updating this playbook) or trigger from the Vercel dashboard. `npx vercel --prod` from the repo root currently fails with a project-path quirk; git push is the reliable path.
+
+#### Why we don't auto-rotate
+
+The token captures a real human's consent for a sensitive scope on a personal Google account. Anything that auto-rotates this token would also auto-impersonate that human — bad threat model for a marketing tool. The 7-day cadence is small enough that a manual ritual is fine, and large enough that it's barely an interruption.
+
+If you're a future agent picking this up: just run the two scripts above, update Vercel, push a commit, done. The only friction is the loopback port collision if something else is bound to 8765/8766 — kill it (`lsof -ti tcp:8765 | xargs kill`) or temporarily edit `PORT` in the script.
+
 ### Critical follow-up: link Google Ads to GA4 (one-time, ~30s)
 
 For paid-traffic attribution on the funnel mid-steps to work properly, GA4 needs to know which sessions came from Google Ads. Without the link, paid sessions land in `sessionMedium=(not set)` instead of `cpc`, which breaks every paid-only filter.
