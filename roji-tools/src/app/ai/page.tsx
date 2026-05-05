@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { AiAssistant } from "@/components/AiAssistant";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { HeroShopCTA } from "@/components/HeroShopCTA";
 import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
@@ -18,6 +19,10 @@ export default function AiPage() {
         pill="AI · Beta · Free"
         title="AI Research Assistant"
         lede="Ask about peptide research. We pull recent PubMed studies and answer with citations. Never dosing advice. Never medical advice."
+      />
+      <HeroShopCTA
+        toolSlug="ai"
+        label="Once you've narrowed in on a compound, we ship it ≥99% Janoshik-verified."
       />
       <AiAssistant />
       <p className="mx-auto max-w-3xl px-6 pb-10 text-center text-xs text-roji-dim">

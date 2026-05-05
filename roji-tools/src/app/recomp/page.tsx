@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { RecompCalculator } from "@/components/RecompCalculator";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { HeroShopCTA } from "@/components/HeroShopCTA";
 import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
 
@@ -19,6 +20,11 @@ export default function RecompPage() {
         pill="Calculator · Free"
         title="Body Recomp Calculator"
         lede="TDEE, macros, and a realistic projection of your body composition over 8, 12, and 16 weeks. Pick a goal — we do the math."
+      />
+      <HeroShopCTA
+        toolSlug="recomp"
+        label="Researching peptides for recomposition? See our recomp-calibrated stacks."
+        buttonLabel="Browse recomp stacks →"
       />
       <RecompCalculator />
       <StoreCTA

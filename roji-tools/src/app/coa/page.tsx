@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { CoaUploader } from "@/components/CoaUploader";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { HeroShopCTA } from "@/components/HeroShopCTA";
 import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
 import { ToolJsonLd } from "@/components/ToolJsonLd";
@@ -48,6 +49,12 @@ export default function CoaPage() {
         pill="Verifier · Free"
         title="COA Verifier"
         lede="Drop a Certificate of Analysis PDF here. We'll translate every line into plain English and flag what's missing. Your file never leaves your device."
+      />
+      <HeroShopCTA
+        toolSlug="coa"
+        label="Want compounds with COAs that already pass every check below?"
+        buttonLabel="See our COA library →"
+        href={(process.env.NEXT_PUBLIC_STORE_URL ?? "https://rojipeptides.com") + "/coa/"}
       />
       <CoaUploader />
       <section className="mx-auto max-w-3xl px-6 pb-10">

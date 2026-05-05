@@ -46,11 +46,17 @@ export function RojiMark({ className }: { className?: string }) {
  * Compliance considerations:
  *   - No "Protocol Engine" link (the protocol subdomain is being
  *     killed in favor of this app being the canonical entrypoint).
- *   - One Shop CTA on the right. Bumped from a quiet "rojipeptides.com →"
- *     text mark (2026-04) to an accent-pill "Shop →" (2026-05-01) after
- *     funnel data showed paid clickers landing here weren't converting.
- *     Still single, still clearly labeled — just visible enough that
- *     researchers who *do* want to buy don't have to scroll for it.
+ *   - One Shop CTA on the right. Iteration history:
+ *       2026-04   quiet "rojipeptides.com →" text — too easy to miss.
+ *       2026-05-01 promoted to a solid accent-fill pill — converted
+ *                  better but the page now had two solid-fill blue
+ *                  pills (header + hero picker) which felt like a lot.
+ *       2026-05-05 reverted to a bordered tinted-accent pill. With
+ *                  the new in-tool HeroShopCTA also fill-accent on
+ *                  every calculator page, having the header ALSO be
+ *                  fill-accent was visually noisy. Bordered version
+ *                  is still clearly a button (not a quiet text link)
+ *                  but defers to the in-tool CTA for primary emphasis.
  *   - No tool-name dropdown. The directory page is the entry point
  *     and the only place the tool catalog should be enumerated.
  */
@@ -84,10 +90,10 @@ export function SiteHeader() {
           href={`${STORE_URL}/shop/?utm_source=tools&utm_medium=header&utm_campaign=site_header`}
           onClick={() => track("header_shop_click", { surface: "site_header" })}
           className={[
-            "inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-roji",
-            "bg-roji-accent text-roji-black",
-            "hover:bg-roji-accent/90 transition-colors",
-            "text-xs sm:text-sm font-semibold",
+            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-roji",
+            "bg-roji-accent/10 border border-roji-accent/30 text-roji-accent",
+            "hover:bg-roji-accent/15 hover:border-roji-accent/50 transition-colors",
+            "text-xs sm:text-sm font-medium",
           ].join(" ")}
           aria-label="Shop research stacks at rojipeptides.com"
         >

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { BloodworkInterpreter } from "@/components/BloodworkInterpreter";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { HeroShopCTA } from "@/components/HeroShopCTA";
 import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
 
@@ -19,6 +20,10 @@ export default function BloodworkPage() {
         pill="Calculator · Free"
         title="Bloodwork Interpreter"
         lede="Drop in a blood panel. We'll show you where each marker falls relative to standard reference ranges and explain what each one means."
+      />
+      <HeroShopCTA
+        toolSlug="bloodwork"
+        label="Researching peptides alongside your bloodwork? See what we ship."
       />
       <BloodworkInterpreter />
       <p className="mx-auto max-w-3xl px-6 pb-10 text-center text-xs text-roji-dim">

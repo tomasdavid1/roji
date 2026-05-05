@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { CostPerDoseCalculator } from "@/components/CostPerDoseCalculator";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { HeroShopCTA } from "@/components/HeroShopCTA";
 import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
 import { ToolJsonLd } from "@/components/ToolJsonLd";
@@ -31,6 +32,11 @@ export default function CostPerDosePage() {
         pill="Calculator · Free"
         title="Cost-Per-Dose Comparison"
         lede="What's a vial actually costing you per dose? Add any number of vendor entries — we do the math and rank them."
+      />
+      <HeroShopCTA
+        toolSlug="cost-per-dose"
+        label="See Roji's pricing before you compare — add it as a vendor row below."
+        buttonLabel="See Roji pricing →"
       />
       <CostPerDoseCalculator />
       <StoreCTA

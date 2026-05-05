@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { InteractionChecker } from "@/components/InteractionChecker";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { HeroShopCTA } from "@/components/HeroShopCTA";
 import { ToolView } from "@/components/ToolView";
 
 export const metadata: Metadata = {
@@ -18,6 +19,10 @@ export default function InteractionsPage() {
         pill="Calculator · Free"
         title="Supplement Interaction Checker"
         lede="Pick everything you're taking. We'll flag what conflicts, what's synergistic, and what's redundant."
+      />
+      <HeroShopCTA
+        toolSlug="interactions"
+        label="Looking for ≥99% verified inputs to your stack? See research-grade compounds."
       />
       <InteractionChecker />
       <p className="mx-auto max-w-3xl px-6 pb-10 text-center text-xs text-roji-dim">

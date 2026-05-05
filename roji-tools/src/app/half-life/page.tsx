@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { HalfLifeBrowser } from "@/components/HalfLifeBrowser";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { HeroShopCTA } from "@/components/HeroShopCTA";
 import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
 import { ToolJsonLd, DatasetJsonLd } from "@/components/ToolJsonLd";
@@ -39,6 +40,11 @@ export default function HalfLifePage() {
         pill="Database · Free"
         title="Compound Half-Life Database"
         lede="Half-life ranges, molecular weights, and pharmacokinetics for the most-researched bioactive peptides. Every entry cited."
+      />
+      <HeroShopCTA
+        toolSlug="half-life"
+        label="Most compounds in this database are in stock as ≥99% Janoshik-verified vials."
+        buttonLabel="See available compounds →"
       />
       <HalfLifeBrowser />
       <StoreCTA

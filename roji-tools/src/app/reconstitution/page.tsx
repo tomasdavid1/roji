@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { ReconCalculator } from "@/components/ReconCalculator";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { HeroShopCTA } from "@/components/HeroShopCTA";
 import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
 import { ToolJsonLd } from "@/components/ToolJsonLd";
@@ -31,6 +32,10 @@ export default function ReconstitutionPage() {
         pill="Calculator · Free"
         title="Reconstitution Calculator"
         lede="Vial size + BAC water volume → exact mcg per insulin-syringe tick. The math you need before you ever touch a vial."
+      />
+      <HeroShopCTA
+        toolSlug="reconstitution"
+        label="Need vials + BAC water + syringes for your research? We ship the whole kit."
       />
       <ReconCalculator />
       <section className="mx-auto max-w-3xl px-6 pb-10">

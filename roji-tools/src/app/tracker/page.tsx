@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { StackTracker } from "@/components/StackTracker";
 import { PageHero, MoreTools, StoreCTA } from "@/components/PageChrome";
+import { HeroShopCTA } from "@/components/HeroShopCTA";
 import { StickyStoreBanner } from "@/components/StickyStoreBanner";
 import { ToolView } from "@/components/ToolView";
 
@@ -19,6 +20,10 @@ export default function TrackerPage() {
         pill="Tracker · Beta · Free"
         title="Stack Tracker"
         lede="A private journal for your stack and how you're feeling. Log daily, see your trends. Everything stored locally — no accounts, no upload."
+      />
+      <HeroShopCTA
+        toolSlug="tracker"
+        label="Need research-grade compounds to track? Janoshik-verified, COA on every batch."
       />
       <StackTracker />
       <p className="mx-auto max-w-3xl px-6 pb-10 text-center text-xs text-roji-dim">
