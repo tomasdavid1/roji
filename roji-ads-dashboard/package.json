@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "blueprint:dryrun": "node --require ./scripts/_cli-bootstrap.cjs --import tsx ./scripts/provision-blueprint.ts",
     "blueprint:live": "node --require ./scripts/_cli-bootstrap.cjs --import tsx ./scripts/provision-blueprint.ts --live",
-    "test:smoke": "node --require ./scripts/_cli-bootstrap.cjs --import tsx ./scripts/test-blueprint.ts"
+    "test:smoke": "node --require ./scripts/_cli-bootstrap.cjs --import tsx ./scripts/test-blueprint.ts",
+    "report:today": "node --require ./scripts/_cli-bootstrap.cjs --import tsx ./scripts/today-report.ts"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
