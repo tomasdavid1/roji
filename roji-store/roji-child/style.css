@@ -1638,6 +1638,25 @@ input[type="radio"] {
   letter-spacing: 0.04em;
 }
 
+/* Bundle-card excerpt (shown only on the three stack cards on
+ * archive pages — see `woocommerce_after_shop_loop_item_title`
+ * hook in roji-child/inc/woocommerce.php). Lets a visitor on the
+ * Bundles tab see what each stack actually contains before
+ * clicking into the PDP. Two-line clamp keeps the grid even when
+ * descriptions are different lengths. */
+.roji-card-excerpt {
+  margin: 6px 0 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--roji-text-secondary);
+  /* Clamp to keep card heights even across the 3 bundle cards. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Roji helpers */
 .roji-disclaimer {
   margin-top: 20px;

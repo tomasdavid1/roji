@@ -675,3 +675,41 @@ add_filter(
 	20,
 	2
 );
+
+/**
+ * Bundle-card excerpt on archives — show the short_description on
+ * the three stack cards so a visitor scanning the Bundles tab can
+ * tell at a glance what each one actually contains (compounds + the
+ * "4-week supply" framing) without having to click into the PDP.
+ *
+ * Scoped to the three bundle products only via the `_protocol_stack`
+ * post-meta (set in scripts/import-products.php to `wolverine`,
+ * `recomp`, or `full`). Catches the autoship variants automatically
+ * because they inherit the same meta. Individual-compound cards stay
+ * lean — they only carry a one-line tagline plus the inline savings
+ * chip, which is plenty for that grid.
+ */
+add_action(
+	'woocommerce_after_shop_loop_item_title',
+	function () {
+		global $product;
+		if ( ! $product instanceof WC_Product ) {
+			return;
+		}
+		// Bundles only — `_protocol_stack` is empty for individual
+		// compounds and accessories.
+		$is_bundle = (string) get_post_meta( $product->get_id(), '_protocol_stack', true );
+		if ( '' === $is_bundle ) {
+			return;
+		}
+		$excerpt = $product->get_short_description();
+		if ( ! $excerpt ) {
+			return;
+		}
+		printf(
+			'<p class="roji-card-excerpt">%s</p>',
+			wp_kses_post( $excerpt )
+		);
+	},
+	8 // Between title (10 default → moved by parent) and price (10).
+);
