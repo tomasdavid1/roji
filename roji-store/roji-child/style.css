@@ -1604,38 +1604,12 @@ input[type="radio"] {
   color: #fff;
 }
 
-/* "Save with the bundle" — small inline tip + per-card savings badge.
+/* "Save with the bundle" — per-card savings chip on individual cards.
  *
- * Replaced the previous bordered/gradient card (2026-05-06): it stole
- * focus from the product grid below. Compressed to a single line of
- * muted text + an underlined inline link. No card, no border. */
-.roji-individuals-tip {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px;
-  margin: 0 0 18px;
-  padding: 0;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--roji-text-secondary);
-}
-.roji-individuals-tip__eyebrow {
-  font-family: var(--roji-font-mono);
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--roji-accent);
-  padding-right: 4px;
-}
-.roji-individuals-tip__link {
-  color: var(--roji-accent);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.roji-individuals-tip__link:hover {
-  color: var(--roji-accent-hover, #3954d8);
-}
+ * The above-grid banner/tip versions were retired 2026-05-06; the
+ * green chip on each card (rendered after the title) is now the
+ * sole bundle-savings cue on the archive. Stronger upsell lives on
+ * the individual PDP buy box, where intent is concentrated. */
 
 .roji-card-savings {
   display: inline-flex;

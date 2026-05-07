@@ -613,47 +613,25 @@ add_action(
  * -------------------------------------------------------------------------- */
 
 /**
- * Small inline tip above the Individuals archive nudging customers
- * toward the matching bundle.
+ * NOTE: The above-grid "save by bundling" tip was removed 2026-05-06.
  *
- * Shown both on the explicit individuals category archive AND on the
- * bare /shop/ URL (which since 2026-05-06 also defaults to the
- * individuals view). Hooked at priority 6 so it sits between the
- * chip filter (priority 5) and the product grid.
+ * Iteration history of this surface:
+ *   2026-04   Full-width bordered card with an accent CTA pill —
+ *             stole focus from the product grid.
+ *   2026-05-06 (AM) Compressed to a one-line muted tip + inline link.
+ *             Better, but still telling visitors who'd just landed
+ *             ON Individuals that they should leave for Bundles.
+ *   2026-05-06 (PM) Removed entirely. Each individual product card
+ *             ALREADY shows a green "−$59 with the bundle" chip
+ *             next to its price (see hook at priority 7 below),
+ *             which implies the savings naturally without
+ *             interrupting the grid. The stronger bundle pitch now
+ *             lives on the individual PDP buy box, where someone
+ *             who clicked through has signaled real intent in that
+ *             specific compound and the upsell is contextual.
  *
- * Visual brief (2026-05-06): the previous full-width card with an
- * accent CTA pill stole focus from the product grid (which is the
- * thing visitors actually came for). Compressed to a single line of
- * text + a quiet inline link. No card, no border, no pill.
+ * The "$X with the bundle" per-card chip remains (next hook).
  */
-add_action(
-	'woocommerce_before_shop_loop',
-	function () {
-		// Show on the individuals category page OR on the bare /shop/
-		// (which now defaults to individuals).
-		$is_individuals_category = function_exists( 'is_product_category' )
-			&& is_product_category( roji_individuals_category_slug() );
-		$is_default_shop = function_exists( 'is_shop' )
-			&& is_shop()
-			&& empty( $_GET['roji_view'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! $is_individuals_category && ! $is_default_shop ) {
-			return;
-		}
-		$bundles_url = add_query_arg(
-			'roji_view',
-			'bundles',
-			function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' )
-		);
-		?>
-		<p class="roji-individuals-tip" role="note">
-			<span class="roji-individuals-tip__eyebrow">Tip</span>
-			<?php esc_html_e( 'Bundling the matching compounds saves ~30%.', 'roji-child' ); ?>
-			<a class="roji-individuals-tip__link" href="<?php echo esc_url( $bundles_url ); ?>"><?php esc_html_e( 'View bundles', 'roji-child' ); ?></a>
-		</p>
-		<?php
-	},
-	6
-);
 
 /**
  * "Save $X with the bundle" badge inside each individual product card on

@@ -118,7 +118,11 @@ $products = array(
 		'category'          => 'Tissue-Research Compounds',
 		'tags'              => array( 'bpc-157', 'tb-500', 'research', 'preclinical' ),
 		'weight_lbs'        => 0.3,
-		'short_description' => 'BPC-157 10mg + TB-500 10mg. The two-compound tissue-research stack. 4-week supply.',
+		// short_description is also the PDP tagline (rendered just
+		// under the title in roji-pdp-tagline) and the archive card
+		// excerpt. Keep it plain-English: what's in the box, what the
+		// research literature focuses on. No claims, no dosing.
+		'short_description' => 'One vial each of BPC-157 (10mg) and TB-500 (10mg) — the two compounds whose preclinical literature most often appears together in tissue-repair and angiogenesis research. 4-week research supply.',
 		'description'       => 'A two-compound research stack referenced from peer-reviewed preclinical literature. Includes one vial of BPC-157 (10mg) and one vial of TB-500 (10mg). All compounds are tested at ≥99% purity with a batch-specific Certificate of Analysis. For research and laboratory use only. We do not provide usage instructions, dosing guidelines, or any advice regarding the application of our products. Not intended for human or animal consumption.',
 		'meta'              => array(
 			'_compounds'        => 'BPC-157 (10mg), TB-500 (10mg)',
@@ -151,7 +155,7 @@ $products = array(
 		'category'          => 'GH-Axis Compounds',
 		'tags'              => array( 'gh-axis', 'cjc-1295', 'ipamorelin', 'mk-677', 'research', 'preclinical' ),
 		'weight_lbs'        => 0.4,
-		'short_description' => 'CJC-1295 (DAC) 5mg + Ipamorelin 5mg + MK-677 30-day oral. The three-compound GH-axis stack. 4-week supply.',
+		'short_description' => 'CJC-1295 (DAC) 5mg + Ipamorelin 5mg + a 30-day MK-677 oral supply — the three GH-axis compounds with the most extensive published pharmacokinetic research, all in one stack. 4-week research supply.',
 		'description'       => 'A three-compound research stack covering the GH-axis, referenced from preclinical and clinical pharmacokinetic literature. Includes one vial of CJC-1295 with DAC (5mg), one vial of Ipamorelin (5mg), and a 30-day supply of MK-677 oral capsules. ≥99% purity with a batch-specific Certificate of Analysis. For research and laboratory use only. We do not provide usage instructions, dosing guidelines, or any advice regarding the application of our products. Not intended for human or animal consumption.',
 		'meta'              => array(
 			'_compounds'        => 'CJC-1295 w/ DAC (5mg), Ipamorelin (5mg), MK-677 (30 capsules)',
@@ -180,7 +184,7 @@ $products = array(
 		'category'          => 'Multi-Compound Bundles',
 		'tags'              => array( 'multi-compound', 'bundle', 'research', 'preclinical' ),
 		'weight_lbs'        => 0.7,
-		'short_description' => 'BPC-157 + TB-500 + CJC-1295 + Ipamorelin + MK-677 across 12 weeks. Ships monthly. Includes a printed research reference card.',
+		'short_description' => 'All five compounds — BPC-157, TB-500, CJC-1295 (DAC), Ipamorelin, MK-677 — across 12 weeks of research supply, ships monthly. Both stacks combined, plus bacteriostatic water and a printed research reference card.',
 		'description'       => 'A 12-week research-grade compound supply, shipping monthly. Combines the BPC-157 + TB-500 stack and the CJC-1295 + Ipamorelin + MK-677 stack across three monthly deliveries, plus bacteriostatic water and a printed research reference card with reconstitution math drawn from published literature. ≥99% purity with a batch-specific Certificate of Analysis on every vial. Per-month price; total billed in three monthly deliveries. For research and laboratory use only. We do not provide usage instructions, dosing guidelines, or any advice regarding the application of our products. Not intended for human or animal consumption.',
 		'meta'              => array(
 			'_compounds'        => 'BPC-157, TB-500, CJC-1295 (DAC), Ipamorelin, MK-677',

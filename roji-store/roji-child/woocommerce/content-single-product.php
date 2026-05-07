@@ -64,6 +64,32 @@ if ( $is_stack && $weeks_for_stack > 0 ) {
 
 $has_research = (bool) get_post_meta( $product->get_id(), '_research_refs', true );
 
+/**
+ * Bundle upsell: when this product is part of a stack, the
+ * `_bundled_in` post-meta names the parent stack slug and
+ * `_bundle_savings_usd` carries the per-bundle savings. The
+ * upsell card is rendered in the buy box just under the price
+ * (where intent is concentrated). Skipped silently if either
+ * meta is missing or the parent stack can't be resolved.
+ */
+$bundle_pitch       = null;
+$bundled_in_slug    = (string) get_post_meta( $product->get_id(), '_bundled_in', true );
+$bundle_savings_usd = (float) get_post_meta( $product->get_id(), '_bundle_savings_usd', true );
+if ( $bundled_in_slug && $bundle_savings_usd > 0 ) {
+	$bundle_post = get_page_by_path( $bundled_in_slug, OBJECT, 'product' );
+	if ( $bundle_post instanceof WP_Post ) {
+		$bundle_product = wc_get_product( $bundle_post->ID );
+		if ( $bundle_product instanceof WC_Product ) {
+			$bundle_pitch = array(
+				'name'        => $bundle_product->get_name(),
+				'url'         => get_permalink( $bundle_post->ID ),
+				'savings_usd' => $bundle_savings_usd,
+				'compounds'   => (string) get_post_meta( $bundle_post->ID, '_compounds', true ),
+			);
+		}
+	}
+}
+
 ?>
 <div id="product-<?php the_ID(); ?>" <?php wc_product_class( 'roji-pdp', $product ); ?>>
 	<style>
@@ -116,6 +142,49 @@ $has_research = (bool) get_post_meta( $product->get_id(), '_research_refs', true
 
 		.roji-pdp-disclaimer { margin-top: 24px; padding: 18px; border-left: 3px solid var(--roji-accent); background: rgba(79,109,245,0.04); border-radius: var(--roji-radius); font-size: 13px; line-height: 1.6; color: var(--roji-text-secondary); }
 		.roji-pdp-disclaimer strong { color: var(--roji-text-primary); display: block; margin-bottom: 4px; }
+
+		/* Bundle upsell card on individual PDPs (added 2026-05-06).
+		   Shown inside the priceblock just below the price row;
+		   visible only when the product has _bundled_in + savings.
+		   Designed to feel like an inline savings hint with one
+		   clear action — not a competing buy block. */
+		.roji-pdp-bundle-pitch {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			margin-top: 14px;
+			padding: 12px 14px;
+			background: rgba(79,109,245,0.06);
+			border: 1px solid rgba(79,109,245,0.22);
+			border-radius: var(--roji-radius);
+			text-decoration: none;
+			color: inherit;
+			transition: background 0.15s ease, border-color 0.15s ease;
+		}
+		.roji-pdp-bundle-pitch:hover {
+			background: rgba(79,109,245,0.1);
+			border-color: rgba(79,109,245,0.4);
+		}
+		.roji-pdp-bundle-pitch__chip {
+			flex-shrink: 0;
+			padding: 4px 10px;
+			background: rgba(34,197,94,0.15);
+			border: 1px solid rgba(34,197,94,0.4);
+			border-radius: 999px;
+			color: #4ade80;
+			font-family: var(--roji-font-mono);
+			font-size: 12px;
+			font-weight: 600;
+			letter-spacing: 0.02em;
+		}
+		.roji-pdp-bundle-pitch__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.35; }
+		.roji-pdp-bundle-pitch__title { font-size: 14px; font-weight: 600; color: var(--roji-text-primary); }
+		.roji-pdp-bundle-pitch__sub { font-size: 12px; color: var(--roji-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+		.roji-pdp-bundle-pitch__cta { flex-shrink: 0; font-family: var(--roji-font-mono); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--roji-accent); white-space: nowrap; }
+		@media (max-width: 520px) {
+			.roji-pdp-bundle-pitch { flex-wrap: wrap; }
+			.roji-pdp-bundle-pitch__cta { width: 100%; text-align: right; }
+		}
 	</style>
 
 	<div class="roji-pdp-hero">
@@ -151,6 +220,19 @@ $has_research = (bool) get_post_meta( $product->get_id(), '_research_refs', true
 						<div class="price"><?php echo wp_kses_post( $product->get_price_html() ); ?></div>
 					<?php endif; ?>
 				</div>
+
+				<?php if ( null !== $bundle_pitch ) : ?>
+					<a class="roji-pdp-bundle-pitch" href="<?php echo esc_url( $bundle_pitch['url'] ); ?>">
+						<span class="roji-pdp-bundle-pitch__chip">−$<?php echo esc_html( number_format( $bundle_pitch['savings_usd'], 0 ) ); ?></span>
+						<span class="roji-pdp-bundle-pitch__body">
+							<span class="roji-pdp-bundle-pitch__title"><?php echo esc_html( $bundle_pitch['name'] ); ?></span>
+							<?php if ( $bundle_pitch['compounds'] ) : ?>
+								<span class="roji-pdp-bundle-pitch__sub"><?php echo esc_html( $bundle_pitch['compounds'] ); ?></span>
+							<?php endif; ?>
+						</span>
+						<span class="roji-pdp-bundle-pitch__cta" aria-hidden="true">View stack &rarr;</span>
+					</a>
+				<?php endif; ?>
 
 				<?php
 				/**
