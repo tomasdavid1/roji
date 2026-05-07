@@ -998,6 +998,30 @@ function peptideExperimentAdGroup(finalUrl: string): BlueprintAdGroup {
       { text: "cjc 1295 ipamorelin", match: "BROAD", risk: "high" },
       { text: "mots c", match: "BROAD", risk: "high" },
       { text: "selank", match: "BROAD", risk: "high" },
+      // Tier 4 — high-intent compound + calculator phrases (added
+      // 2026-05-06). Each one was caught by Tier 1/3 broad-match
+      // radar in the search-term report on May 5-6 with non-zero
+      // clicks at sane CPCs:
+      //   `aod 9604 dosage calculator`        — 4 imp, 3 clicks
+      //   `igf 1 lr3 dosage calculator`       — 4 imp, 1 click
+      //   `nad+ reconstitution calculator`    — 2 imp, 1 click
+      //   `bpc 157 tb 500 blend dosage calc.` — 4 imp, 1 click
+      //
+      // Promoting them to PHRASE for two reasons: (a) lower CPC than
+      // the catch-all broad-match they were riding, and (b) cleaner
+      // attribution — when one of these spends, we know the user
+      // typed something very close to the keyword, not some loose
+      // related term. All 4 came back APPROVED at API gate.
+      { text: "aod 9604 dosage calculator", match: "PHRASE", risk: "high" },
+      { text: "igf 1 lr3 dosage calculator", match: "PHRASE", risk: "high" },
+      // `nad reconstitution calculator` will close-variant-match
+      // `nad+ reconstitution calculator` (Google strips the `+`).
+      { text: "nad reconstitution calculator", match: "PHRASE", risk: "high" },
+      {
+        text: "bpc 157 tb 500 blend dosage calculator",
+        match: "PHRASE",
+        risk: "high",
+      },
     ],
     ads: [
       {

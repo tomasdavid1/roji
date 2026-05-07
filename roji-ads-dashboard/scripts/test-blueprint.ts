@@ -267,8 +267,30 @@ for (const mode of ["tool-only", "full", "peptide-experiment"] as BlueprintMode[
   const issues = validateBlueprint(resolveBlueprint({ mode }));
   const errors = issues.filter((i) => i.severity === "error");
   const warnings = issues.filter((i) => i.severity === "warning");
-  eq(`${mode}: 0 errors in shipped blueprint`, errors.length, 0);
-  eq(`${mode}: 0 warnings in shipped blueprint`, warnings.length, 0);
+  if (mode === "peptide-experiment") {
+    // Tier 3 (BROAD) + Tier 4 (PHRASE) bare-compound-name keywords
+    // are deliberately in this blueprint as documentation of the
+    // live experiment. They trip the validator's compound-name
+    // gate, which is correct — the gate prevents anyone from
+    // accidentally re-provisioning them via the bulk path. The
+    // keywords were added directly via API and are managed there.
+    //
+    // We assert ALL errors here are compound-name errors on
+    // keyword fields (no copy violations sneaking in unnoticed).
+    ok(
+      `${mode}: shipped blueprint errors are ALL compound-name-on-keyword`,
+      errors.length > 0 &&
+        errors.every(
+          (e) =>
+            e.field.startsWith("keyword[") &&
+            /compound name/i.test(e.reason),
+        ),
+    );
+    eq(`${mode}: 0 warnings in shipped blueprint`, warnings.length, 0);
+  } else {
+    eq(`${mode}: 0 errors in shipped blueprint`, errors.length, 0);
+    eq(`${mode}: 0 warnings in shipped blueprint`, warnings.length, 0);
+  }
 }
 
 console.log("\nads-blueprint.peptide-experiment shape:");
@@ -292,39 +314,78 @@ console.log("\nads-blueprint.peptide-experiment shape:");
     35,
   );
   eq(
-    // Expanded 2026-05-01 across two passes:
-    //   AM: 2 → 15 keywords (Tier 1 close-variant promotions from
-    //       the search-term report).
-    //   PM: 15 → 25 keywords (`research peptide` family expansion
-    //       after that keyword hit 18.18% CTR).
-    // See C2-KEYWORD-EXPANSION.md for full rationale.
-    "peptide-experiment: 25 keywords (post-expansion)",
+    // Expansion timeline:
+    //   2026-05-01 AM: 2 → 15 keywords (Tier 1 close-variant
+    //       promotions from the search-term report).
+    //   2026-05-01 PM: 15 → 25 keywords (`research peptide` family
+    //       expansion after that keyword hit 18.18% CTR).
+    //   2026-05-01 PM: 25 → 34 keywords (Tier 3 — bare compound
+    //       names, BROAD match, live-tested via API; all 9 came back
+    //       APPROVED at keyword-bidding gate).
+    //   2026-05-06 PM: 34 → 38 keywords (Tier 4 — high-intent
+    //       compound + calculator phrases promoted from the May-5/6
+    //       broad-match search-term report at PHRASE for cheaper
+    //       CPC + cleaner attribution).
+    "peptide-experiment: 38 keywords (post-Tier-4 expansion)",
     b.campaigns[0].adGroups[0].keywords.length,
-    25,
+    38,
   );
   ok(
-    // Intent invariant: every C2 keyword must match the peptide-research
-    // intent class. We accept the English root `peptide`, the Spanish/
-    // Portuguese root `peptid` (`peptidos`, `peptideo`), and the
-    // German root `peptid` as well — all confirmed to fire as close
-    // variants of our seeds in C2's own search-term report. If a
-    // future contributor adds something in another intent class
-    // (e.g. `recomp calculator`), this fires.
-    "peptide-experiment: every keyword references peptide-intent root",
-    b.campaigns[0].adGroups[0].keywords.every((k) =>
-      /\bpeptid/i.test(k.text),
-    ),
+    // Intent invariant: every C2 keyword must be in the peptide-research
+    // intent class. There are two routes to qualifying:
+    //   (a) the keyword text contains `peptid` (English `peptide`,
+    //       Spanish `peptidos`, German `peptid rechner`, etc.), OR
+    //   (b) the keyword names a known peptide compound (added to
+    //       Tier 3/4 of this ad group as a deliberate substance-name
+    //       experiment). The KNOWN_COMPOUNDS list MUST stay in sync
+    //       with the `Tier 3` / `Tier 4` blocks in the blueprint —
+    //       any compound name added to the blueprint and not listed
+    //       here is a sign of intent drift and the test should fail.
+    "peptide-experiment: every keyword references peptide-intent root or known compound",
+    b.campaigns[0].adGroups[0].keywords.every((k) => {
+      if (/\bpeptid/i.test(k.text)) return true;
+      const KNOWN_COMPOUNDS = [
+        /\bbpc[\s-]?157\b/i,
+        /\btb[\s-]?500\b/i,
+        /\bcjc[\s-]?1295\b/i,
+        /\bipamorelin\b/i,
+        /\bghk[\s-]?cu\b/i,
+        /\bmots[\s-]?c\b/i,
+        /\bselank\b/i,
+        /\bretatrutide\b/i,
+        /\baod[\s-]?9604\b/i,
+        /\bigf[\s-]?1[\s-]?lr3\b/i,
+        /\bnad\b/i,
+      ];
+      return KNOWN_COMPOUNDS.some((re) => re.test(k.text));
+    }),
   );
   ok(
-    // Match-type invariant: PHRASE for the broader expansion keywords,
-    // EXACT for the cheapest/closest-intent ones (specifically the
-    // user-added `peptide calculator` and the multilingual close
-    // variants `peptide rechner` and `calculadora de peptidos`).
-    // BROAD match is forbidden — too policy-risky in this campaign.
-    "peptide-experiment: every keyword is PHRASE or EXACT (no BROAD)",
-    b.campaigns[0].adGroups[0].keywords.every(
-      (k) => k.match === "PHRASE" || k.match === "EXACT",
-    ),
+    // Match-type invariant: BROAD is allowed ONLY for the Tier-3
+    // bare-compound-name family (added 2026-05-01) where we
+    // deliberately want Google's broad matcher to pull in close
+    // variants we couldn't have enumerated. Everything else MUST be
+    // PHRASE or EXACT to keep CPC discipline and avoid pulling in
+    // off-intent expansions. The whitelist is a small, hand-curated
+    // set; a contributor adding BROAD anywhere outside it should
+    // trip this assertion.
+    "peptide-experiment: BROAD match only on Tier-3 bare-compound keywords",
+    b.campaigns[0].adGroups[0].keywords.every((k) => {
+      if (k.match === "PHRASE" || k.match === "EXACT") return true;
+      if (k.match !== "BROAD") return false;
+      const TIER3_BROAD_WHITELIST = new Set([
+        "bpc 157",
+        "bpc 157 peptide",
+        "tb 500",
+        "tb 500 peptide",
+        "retatrutide",
+        "ghk cu",
+        "cjc 1295 ipamorelin",
+        "mots c",
+        "selank",
+      ]);
+      return TIER3_BROAD_WHITELIST.has(k.text);
+    }),
   );
   ok(
     "peptide-experiment: 1 RSA only",
@@ -474,22 +535,39 @@ async function provisionerSection() {
     ok("hard-error blueprint throws", threw);
   }
   {
-    // peptide-experiment dry-run → succeeds (the allowPeptideExperiment
-    // bypass on AG4 lets the word `peptide` through; everything else
-    // still validates clean).
+    // peptide-experiment dry-run is EXPECTED TO FAIL via the bulk
+    // provisioning path. As of 2026-05-01 the ad group has Tier 3
+    // bare-compound keywords (`bpc 157`, `tb 500`, etc.) and as of
+    // 2026-05-06 has Tier 4 phrase-match compound + calculator
+    // keywords (`aod 9604 dosage calculator` etc.). The validator
+    // correctly flags compound names in keywords as hard errors —
+    // we deliberately do NOT relax that gate, because someone
+    // running `npm run blueprint:live -- --mode peptide-experiment`
+    // by accident would otherwise re-create the experiment and
+    // potentially flag the account.
+    //
+    // The Tier 3/4 keywords were added directly via API
+    // (`scripts/list-c2-keywords.js`-adjacent ad-hoc patches) and
+    // are managed there. The blueprint stays canonical for
+    // documentation + the safe Tier 1/2 keywords; bulk provisioning
+    // is gated by design.
     const b = resolveBlueprint({ mode: "peptide-experiment" });
+    let threw = false;
+    let msg = "";
     try {
-      const r = await provisionBlueprint(b, { dryRun: true });
-      ok("peptide-experiment dry-run succeeds", r.mode === "mock");
-      eq(
-        "peptide-experiment dry-run → 0 validation_issues",
-        r.validation_issues.length,
-        0,
-      );
-      ok("peptide-experiment dry-run → 1 campaign", r.campaigns.length === 1);
+      await provisionBlueprint(b, { dryRun: true });
     } catch (err) {
-      ok("peptide-experiment dry-run succeeds", false, String(err));
+      threw = true;
+      msg = String(err);
     }
+    ok(
+      "peptide-experiment bulk-provision is GATED (compound-name keywords block it)",
+      threw,
+    );
+    ok(
+      "peptide-experiment gate cites compound-name keywords as the reason",
+      threw && /compound name/i.test(msg),
+    );
   }
 }
 
@@ -533,7 +611,9 @@ function statsSection() {
     const s = blueprintStats(resolveBlueprint({ mode: "peptide-experiment" }));
     eq("peptide-experiment: 1 campaign", s.campaigns, 1);
     eq("peptide-experiment: 1 ad group", s.adGroups, 1);
-    eq("peptide-experiment: 25 keywords (expanded)", s.keywords, 25);
+    // 25 (Tier 1+2) + 9 (Tier 3 BROAD compound names) + 4 (Tier 4
+    // PHRASE compound + calculator phrases, 2026-05-06) = 38.
+    eq("peptide-experiment: 38 keywords (post-Tier-4)", s.keywords, 38);
     eq("peptide-experiment: 1 RSA", s.ads, 1);
     eq("peptide-experiment: $35/day", s.totalDailyBudgetUsd, 35);
   }
