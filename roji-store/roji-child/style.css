@@ -1604,32 +1604,38 @@ input[type="radio"] {
   color: #fff;
 }
 
-/* "Save with the bundle" — per-card savings chip on individual cards.
- *
- * The above-grid banner/tip versions were retired 2026-05-06; the
- * green chip on each card (rendered after the title) is now the
- * sole bundle-savings cue on the archive. Stronger upsell lives on
- * the individual PDP buy box, where intent is concentrated. */
+/* "−$X bundle" chip — appended inline to the price on each
+ * individual product card on archives. Replaces the old below-title
+ * .roji-card-savings row (2026-05-07): rendering inline next to the
+ * price reads as one visual unit and reclaims a row of vertical
+ * space across the grid. PDPs carry the upsell via the dedicated
+ * bundle-pitch card in the buy box and are excluded from this chip
+ * via the woocommerce_get_price_html filter. */
 
-.roji-card-savings {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 6px 0 0;
-  font-family: var(--roji-font-mono);
-  font-size: 11px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--roji-text-secondary);
-}
-.roji-card-savings__chip {
+.roji-price-bundle-chip {
   display: inline-block;
-  padding: 2px 8px;
+  margin-left: 6px;
+  padding: 1px 7px;
   background: rgba(34, 197, 94, 0.12);
   border: 1px solid rgba(34, 197, 94, 0.35);
   border-radius: 4px;
   color: #22c55e;
+  font-family: var(--roji-font-mono);
+  font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  vertical-align: middle;
+  /* Nudge the chip up by a hair so its baseline sits with the
+     larger price text rather than below it. */
+  position: relative;
+  top: -1px;
+}
+.roji-price-bundle-chip__sub {
+  font-weight: 500;
+  opacity: 0.8;
+  text-transform: lowercase;
+  letter-spacing: 0.04em;
 }
 
 /* Roji helpers */

@@ -634,25 +634,44 @@ add_action(
  */
 
 /**
- * "Save $X with the bundle" badge inside each individual product card on
- * loop archives. The savings number comes from `_bundle_savings_usd`
- * post-meta seeded by import-products.php; absent meta = no badge.
+ * Inline "−$X bundle" chip appended to the price on each individual
+ * product card. The savings number comes from `_bundle_savings_usd`
+ * post-meta seeded by import-products.php; absent meta = no chip.
+ *
+ * 2026-05-07: previously rendered on its own row via
+ * `woocommerce_after_shop_loop_item_title`, which pushed the savings
+ * cue to a separate line below the price and added vertical noise to
+ * the grid. Moved inline next to the price by appending into the
+ * price HTML — visually one tight unit ($99 −$59 bundle). PDP price
+ * is left alone because the dedicated bundle-pitch card in the buy
+ * box already carries the upsell where intent is concentrated.
  */
-add_action(
-	'woocommerce_after_shop_loop_item_title',
-	function () {
-		global $product;
+add_filter(
+	'woocommerce_get_price_html',
+	function ( $price_html, $product ) {
 		if ( ! $product instanceof WC_Product ) {
-			return;
+			return $price_html;
+		}
+		// Only render on loop / archive contexts. PDPs handle the
+		// bundle pitch via the dedicated card in content-single-product.
+		if ( ( function_exists( 'is_product' ) && is_product() ) || is_admin() ) {
+			return $price_html;
 		}
 		$savings = (float) get_post_meta( $product->get_id(), '_bundle_savings_usd', true );
 		if ( $savings <= 0 ) {
-			return;
+			return $price_html;
 		}
-		printf(
-			'<div class="roji-card-savings"><span class="roji-card-savings__chip">−$%s</span><span class="roji-card-savings__txt">with the bundle</span></div>',
+		$chip = sprintf(
+			'<span class="roji-price-bundle-chip" aria-label="%s">−$%s <span class="roji-price-bundle-chip__sub">bundle</span></span>',
+			esc_attr( sprintf(
+				/* translators: %s = dollar savings amount */
+				__( 'Save $%s with the matching bundle', 'roji-child' ),
+				number_format( $savings, 0 )
+			) ),
 			esc_html( number_format( $savings, 0 ) )
 		);
+		return $price_html . ' ' . $chip;
 	},
-	7
+	20,
+	2
 );
