@@ -194,7 +194,7 @@ rt('Combination page (carried stack) shows green "In stock as a stack" CTA', fun
     $GLOBALS['roji_research_current'] = ['type'=>'combination','slug'=>'bpc-157-and-tb-500','data'=>$combos['bpc-157-and-tb-500']];
     $html = roji_research_render_combination($combos['bpc-157-and-tb-500']);
     contains('In stock as a stack', $html);
-    contains('Wolverine Stack', $html);
+    contains('BPC-157 + TB-500 Stack', $html);
     contains('Side-by-side', $html);
 });
 

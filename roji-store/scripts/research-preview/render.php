@@ -75,8 +75,8 @@ $GLOBALS['__products'] = array(
     'cjc-1295-dac-5mg'  => 'CJC-1295 with DAC (5mg)',
     'ipamorelin-5mg'    => 'Ipamorelin (5mg)',
     'mk-677-30caps'     => 'MK-677 (30 capsules)',
-    'wolverine-stack'   => 'Wolverine Stack',
-    'recomp-stack'      => 'Recomp Stack',
+    'wolverine-stack'   => 'BPC-157 + TB-500 Stack',
+    'recomp-stack'      => 'CJC-1295 + Ipamorelin + MK-677 Stack',
     'full-protocol'     => 'Full Protocol',
 );
 function wc_get_product_id_by_sku($sku){ return 0; }

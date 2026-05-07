@@ -85,10 +85,11 @@ return array(
 			) ),
 			roji_el_text( '<p style="color:#a8a8b8;font-size:17px;max-width:600px;margin:0 0 32px;">Three stacks cover most research goals. Each ships with the matching compounds + a research dosing reference card.</p>' ),
 			roji_el_grid( array(
-				// Wolverine
+				// BPC-157 + TB-500 (formerly "Wolverine"; renamed
+				// 2026-05-06 — see import-products.php).
 				roji_el_card( array(
 					roji_el_html( '<div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.1em;">TISSUE-RESEARCH</div><div style="font-family:JetBrains Mono,monospace;font-size:18px;color:#f0f0f5;font-weight:600;">$149</div></div>' ),
-					roji_el_heading( 'Wolverine Stack', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 24, 'sizes' => array() ) ) ),
+					roji_el_heading( 'BPC-157 + TB-500 Stack', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 24, 'sizes' => array() ) ) ),
 					roji_el_text( '<p style="color:#a8a8b8;">BPC-157 10mg + TB-500 10mg. Among the most-referenced two-compound stacks in the published preclinical literature. 4-week supply.</p>' ),
 					roji_el_html( '<ul style="list-style:none;padding:0;margin:0;font-size:13px;color:#8a8a9a;display:flex;flex-direction:column;gap:6px;"><li>↳ 2 compounds</li><li>↳ 4-week supply</li><li>↳ 3 published references</li></ul>' ),
 					roji_el_inner( array(
@@ -101,10 +102,11 @@ return array(
 						roji_el_button_secondary( 'Autoship −15%', '/cart/?protocol_stack=wolverine&autoship=1', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ), '_css_classes' => 'roji-cta-link roji-cta-link--autoship' ) ),
 					) ),
 				) ),
-				// Recomp
+				// CJC-1295 + Ipamorelin + MK-677 (formerly "Recomp";
+				// renamed 2026-05-06).
 				roji_el_card( array(
 					roji_el_html( '<div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.1em;">GH AXIS</div><div style="font-family:JetBrains Mono,monospace;font-size:18px;color:#f0f0f5;font-weight:600;">$199</div></div>' ),
-					roji_el_heading( 'Recomp Stack', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 24, 'sizes' => array() ) ) ),
+					roji_el_heading( 'CJC-1295 + Ipamorelin + MK-677', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 24, 'sizes' => array() ) ) ),
 					roji_el_text( '<p style="color:#a8a8b8;">CJC-1295 (DAC) 5mg + Ipamorelin 5mg + MK-677 30-day oral. Three GH-axis research compounds with extensive published pharmacokinetic data. 4-week supply.</p>' ),
 					roji_el_html( '<ul style="list-style:none;padding:0;margin:0;font-size:13px;color:#8a8a9a;display:flex;flex-direction:column;gap:6px;"><li>↳ 3 compounds</li><li>↳ 4-week supply</li><li>↳ 3 published references</li></ul>' ),
 					roji_el_inner( array(
@@ -117,11 +119,11 @@ return array(
 						roji_el_button_secondary( 'Autoship −15%', '/cart/?protocol_stack=recomp&autoship=1', array( 'typography_font_size' => array( 'unit' => 'px', 'size' => 14, 'sizes' => array() ), '_css_classes' => 'roji-cta-link roji-cta-link--autoship' ) ),
 					) ),
 				) ),
-				// Full
+				// Full Protocol — both stacks combined.
 				roji_el_card( array(
 					roji_el_html( '<div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.1em;">FULL PROTOCOL</div><div style="font-family:JetBrains Mono,monospace;font-size:18px;color:#f0f0f5;font-weight:600;">$399</div></div>' ),
 					roji_el_heading( 'Full Protocol', array( 'header_size' => 'h3', 'typography_font_size' => array( 'unit' => 'px', 'size' => 24, 'sizes' => array() ) ) ),
-					roji_el_text( '<p style="color:#a8a8b8;">Wolverine + Recomp combined across 12 weeks. Ships monthly. Includes printed protocol guide and dosing calendar.</p>' ),
+					roji_el_text( '<p style="color:#a8a8b8;">Both stacks (BPC-157 + TB-500 and CJC-1295 + Ipamorelin + MK-677) combined across 12 weeks. Ships monthly. Includes printed protocol guide and dosing calendar.</p>' ),
 					roji_el_html( '<ul style="list-style:none;padding:0;margin:0;font-size:13px;color:#8a8a9a;display:flex;flex-direction:column;gap:6px;"><li>↳ 5 compounds</li><li>↳ 12-week protocol</li><li>↳ Printed dosing card</li></ul>' ),
 					roji_el_inner( array(
 						'flex_direction' => 'row',

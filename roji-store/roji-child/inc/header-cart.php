@@ -202,3 +202,70 @@ add_filter(
 	10,
 	3
 );
+
+/**
+ * Redirect to /cart/ immediately after Add-to-Cart (changed 2026-05-06).
+ *
+ * Prior behavior: stay on the PDP, show the green success notice +
+ * Checkout / View cart buttons. That worked for power-shoppers who
+ * wanted to keep browsing, but funnel data showed the opposite —
+ * paid-search visitors who *do* add a product almost never browse
+ * for a second one. They want one compound, then to check out.
+ *
+ * Letting them bounce on the PDP after add-to-cart was a soft drop-
+ * off step. Sending them directly to /cart/ is one fewer click to
+ * checkout, the cart page already has the upsell + supplies-kit
+ * cross-sell, and the action they'd take next from a "View cart"
+ * button is exactly that page anyway.
+ *
+ * Implementation note: the `woocommerce_add_to_cart_redirect` filter
+ * fires per add-to-cart action and accepts a redirect URL. Returning
+ * the cart URL bypasses the standard "stay on PDP + show notice"
+ * behavior entirely. We DON'T toggle the WooCommerce
+ * `woocommerce_cart_redirect_after_add` option globally, because
+ * that option is the legacy "redirect to cart" toggle and using the
+ * filter is the more surgical path (works on AJAX + non-AJAX adds,
+ * doesn't conflict with admin settings UI).
+ */
+add_filter(
+	'woocommerce_add_to_cart_redirect',
+	function ( $url ) {
+		// If something upstream already set a redirect URL (e.g. an
+		// "Add to cart and check out now" link with a custom return
+		// URL), respect it and don't override.
+		if ( ! empty( $url ) ) {
+			return $url;
+		}
+		if ( ! function_exists( 'wc_get_cart_url' ) ) {
+			return $url;
+		}
+		return wc_get_cart_url();
+	}
+);
+
+/**
+ * Disable AJAX Add-to-Cart on shop archives so the redirect-to-cart
+ * filter above takes effect EVERYWHERE, not just on PDPs.
+ *
+ * WooCommerce's default behavior is AJAX add-to-cart on archives:
+ * click the button, the cart fragment updates in the header, the
+ * customer stays on the archive. With redirect-to-cart enabled,
+ * keeping AJAX would make archive adds inconsistent with PDP adds
+ * (PDPs go to /cart/, archives stay put on AJAX). Since the
+ * explicit goal is "fewer clicks to checkout," archives should
+ * redirect too.
+ *
+ * Trade-off: the customer loses the ability to add multiple items
+ * from the archive without page reloads. That's fine — funnel
+ * data shows almost nobody adds more than 1-2 items in a single
+ * session anyway.
+ *
+ * Implementation: filter the `woocommerce_enable_ajax_add_to_cart`
+ * option to always return 'no'. This is the same setting that
+ * WooCommerce → Settings → Products → "Enable AJAX add to cart
+ * buttons on archives" toggles, just enforced in code so it can't
+ * drift via admin UI.
+ */
+add_filter( 'pre_option_woocommerce_enable_ajax_add_to_cart', function () {
+	return 'no';
+} );

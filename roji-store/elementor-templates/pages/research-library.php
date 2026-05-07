@@ -14,7 +14,7 @@ $compounds = array(
 		'shop_slug'  => 'bpc-157-10mg',
 		'shop_label' => 'Buy BPC-157 10mg',
 		'stack_slug' => 'wolverine-stack',
-		'stack_label' => 'or as part of the Wolverine Stack',
+		'stack_label' => 'or as part of the BPC-157 + TB-500 Stack',
 		'references' => array(
 			array(
 				'title'  => 'Stable gastric pentadecapeptide BPC 157 in clinical trials as a therapy for inflammatory bowel disease',
@@ -38,7 +38,7 @@ $compounds = array(
 		'shop_slug'  => 'tb-500-10mg',
 		'shop_label' => 'Buy TB-500 10mg',
 		'stack_slug' => 'wolverine-stack',
-		'stack_label' => 'or as part of the Wolverine Stack',
+		'stack_label' => 'or as part of the BPC-157 + TB-500 Stack',
 		'references' => array(
 			array(
 				'title'  => 'Thymosin beta-4: a multi-functional regenerative peptide. Basic properties and clinical applications',
@@ -56,7 +56,7 @@ $compounds = array(
 		'shop_slug'  => 'cjc-1295-dac-5mg',
 		'shop_label' => 'Buy CJC-1295 (DAC) 5mg',
 		'stack_slug' => 'recomp-stack',
-		'stack_label' => 'or as part of the Recomp Stack',
+		'stack_label' => 'or as part of the CJC-1295 + Ipamorelin + MK-677 Stack',
 		'references' => array(
 			array(
 				'title'  => 'A phase I, open-label, ascending-dose study of CJC-1295, a long-acting GHRH analog',
@@ -74,7 +74,7 @@ $compounds = array(
 		'shop_slug'  => 'ipamorelin-5mg',
 		'shop_label' => 'Buy Ipamorelin 5mg',
 		'stack_slug' => 'recomp-stack',
-		'stack_label' => 'or as part of the Recomp Stack',
+		'stack_label' => 'or as part of the CJC-1295 + Ipamorelin + MK-677 Stack',
 		'references' => array(
 			array(
 				'title'  => 'Ipamorelin, the first selective growth hormone secretagogue',
@@ -92,7 +92,7 @@ $compounds = array(
 		'shop_slug'  => 'mk-677-30caps',
 		'shop_label' => 'Buy MK-677 30-day oral',
 		'stack_slug' => 'recomp-stack',
-		'stack_label' => 'or as part of the Recomp Stack',
+		'stack_label' => 'or as part of the CJC-1295 + Ipamorelin + MK-677 Stack',
 		'references' => array(
 			array(
 				'title'  => 'Two-year treatment with the oral growth hormone secretagogue MK-677 in older adults',
@@ -196,7 +196,7 @@ foreach ( $compounds as $c ) {
 $combinations = array(
 	array(
 		'title'      => 'BPC-157 + TB-500 — Combination tissue-repair literature',
-		'eyebrow'    => 'Wolverine Stack compounds',
+		'eyebrow'    => 'BPC-157 + TB-500 Stack compounds',
 		'summary'    => 'Multiple published studies have investigated BPC-157 and TB-500 in parallel tissue-repair models, noting complementary mechanisms — BPC-157 research has focused on angiogenesis and growth-factor receptor expression, while TB-500 literature emphasizes actin sequestration, cell migration, and angiogenesis. Inclusion here is purely informational; the studies below describe in-vitro and animal-model research.',
 		'references' => array(
 			array(
@@ -213,11 +213,11 @@ $combinations = array(
 			),
 		),
 		'stack_slug'  => 'wolverine-stack',
-		'stack_label' => 'View the Wolverine Stack',
+		'stack_label' => 'View the BPC-157 + TB-500 Stack',
 	),
 	array(
 		'title'      => 'CJC-1295 (DAC) + Ipamorelin + MK-677 — GH-axis combination literature',
-		'eyebrow'    => 'Recomp Stack compounds',
+		'eyebrow'    => 'CJC-1295 + Ipamorelin + MK-677 Stack compounds',
 		'summary'    => 'Published pharmacokinetic research has characterized each of these GH-axis compounds independently — CJC-1295 (DAC) as a long-acting GHRH analog producing sustained pulsatile GH release, Ipamorelin as a selective ghrelin-receptor agonist with a clean specificity profile in early studies, and MK-677 as an orally active non-peptide ghrelin mimetic with multi-year clinical research on GH and IGF-1 elevation. Their combined investigation in the literature reflects overlap in mechanism rather than any combined-protocol recommendation by Roji.',
 		'references' => array(
 			array(
@@ -240,7 +240,7 @@ $combinations = array(
 			),
 		),
 		'stack_slug'  => 'recomp-stack',
-		'stack_label' => 'View the Recomp Stack',
+		'stack_label' => 'View the CJC-1295 + Ipamorelin + MK-677 Stack',
 	),
 );
 

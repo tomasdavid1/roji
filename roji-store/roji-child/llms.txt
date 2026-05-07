@@ -4,8 +4,8 @@
 
 ## Products
 
-- [Wolverine Stack (BPC-157 + TB-500)](https://rojipeptides.com/product/wolverine-stack/): Tissue repair research stack
-- [Recomp Stack (CJC-1295 + Ipamorelin)](https://rojipeptides.com/product/recomp-stack/): Growth hormone axis research stack
+- [BPC-157 + TB-500 Stack](https://rojipeptides.com/product/wolverine-stack/): Tissue-research stack (formerly "Wolverine Stack")
+- [CJC-1295 + Ipamorelin + MK-677 Stack](https://rojipeptides.com/product/recomp-stack/): GH-axis research stack (formerly "Recomp Stack")
 - [Full Protocol](https://rojipeptides.com/product/full-protocol/): Complete research protocol combining healing + GH-axis peptides
 - [Research Supplies Kit](https://rojipeptides.com/product/research-supplies-kit/): BAC water, syringes, and swabs bundle
 

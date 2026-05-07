@@ -54,9 +54,12 @@ export function RojiMark({ className }: { className?: string }) {
  *       2026-05-05 reverted to a bordered tinted-accent pill. With
  *                  the new in-tool HeroShopCTA also fill-accent on
  *                  every calculator page, having the header ALSO be
- *                  fill-accent was visually noisy. Bordered version
- *                  is still clearly a button (not a quiet text link)
- *                  but defers to the in-tool CTA for primary emphasis.
+ *                  fill-accent was visually noisy.
+ *       2026-05-06 dropped the border + tinted background entirely.
+ *                  Plain accent-colored text reads as a navigation
+ *                  link (which is what it is) and stays out of the
+ *                  way of the in-tool HeroShopCTA, which is now the
+ *                  single visually-loud shop bridge per page.
  *   - No tool-name dropdown. The directory page is the entry point
  *     and the only place the tool catalog should be enumerated.
  */
@@ -90,10 +93,9 @@ export function SiteHeader() {
           href={`${STORE_URL}/shop/?utm_source=tools&utm_medium=header&utm_campaign=site_header`}
           onClick={() => track("header_shop_click", { surface: "site_header" })}
           className={[
-            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-roji",
-            "bg-roji-accent/10 border border-roji-accent/30 text-roji-accent",
-            "hover:bg-roji-accent/15 hover:border-roji-accent/50 transition-colors",
-            "text-xs sm:text-sm font-medium",
+            "inline-flex items-center gap-1.5",
+            "text-roji-accent hover:text-roji-accent-hover transition-colors",
+            "text-sm font-medium",
           ].join(" ")}
           aria-label="Shop research stacks at rojipeptides.com"
         >

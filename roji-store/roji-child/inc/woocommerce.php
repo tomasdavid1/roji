@@ -480,14 +480,21 @@ add_action(
 		}
 		$shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
 
-		// /shop/ defaults to the Bundles view because that's where the
-		// savings story lives. ?roji_view=all is the explicit opt-in
-		// to see everything (single + autoship + supplies + bundles).
+		// /shop/ defaults to the Individuals view (changed 2026-05-06).
+		// Most paid-search traffic arrives from compound-name keywords
+		// (`bpc 157`, `tb 500`, etc.) and wants to see one product
+		// matching that compound, not a bundle they didn't search for.
+		// Researchers who *do* want the bundle savings can opt in via
+		// the chip filter; a small inline tip on the individuals view
+		// keeps the savings story discoverable without stealing focus
+		// from the products themselves.
+		// ?roji_view=all is the explicit opt-in to see everything
+		// (single + autoship + supplies + bundles).
 		$requested_view = isset( $_GET['roji_view'] ) ? sanitize_key( wp_unslash( $_GET['roji_view'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		$current_view = '';
 		if ( is_shop() && '' === $requested_view ) {
-			$current_view = 'bundles';
+			$current_view = 'individuals';
 		} elseif ( 'bundles' === $requested_view ) {
 			$current_view = 'bundles';
 		} elseif ( 'all' === $requested_view ) {
@@ -501,20 +508,20 @@ add_action(
 			$current_view = isset( $term->slug ) ? $term->slug : '';
 		}
 
-		// Order chosen deliberately: Bundles first (highest-margin, best
-		// for the customer), then Individuals (where most lookers will
-		// land first), Supplies, and All as the catch-all on the right.
+		// Order chosen deliberately: Individuals first (the default
+		// landing — what compound-name searchers came for), Bundles
+		// second (the savings upsell), Supplies, then All.
 		$individuals_term_link = get_term_link( roji_individuals_category_slug(), 'product_cat' );
 		$chips = array(
 			array(
-				'label' => __( 'Bundles', 'roji-child' ),
-				'url'   => $shop_url, // canonical /shop/ now lands on bundles
-				'key'   => 'bundles',
+				'label' => __( 'Individuals', 'roji-child' ),
+				'url'   => $shop_url, // canonical /shop/ now lands on individuals
+				'key'   => 'individuals',
 			),
 			array(
-				'label' => __( 'Individuals', 'roji-child' ),
-				'url'   => is_wp_error( $individuals_term_link ) ? $shop_url : $individuals_term_link,
-				'key'   => 'individuals',
+				'label' => __( 'Bundles', 'roji-child' ),
+				'url'   => add_query_arg( 'roji_view', 'bundles', $shop_url ),
+				'key'   => 'bundles',
 			),
 			array(
 				'label' => __( 'Supplies', 'roji-child' ),
@@ -545,12 +552,13 @@ add_action(
 );
 
 /**
- * Restrict the shop loop to bundle categories when:
- *   - The user explicitly requested `?roji_view=bundles`, OR
- *   - They landed on the bare /shop/ URL with no view parameter at all
- *     (the canonical entry point now defaults to the bundle story).
- *
- * `?roji_view=all` is the explicit opt-out to see the full catalog.
+ * Restrict the shop loop based on `?roji_view`:
+ *   - default (no param) → individual compounds (changed 2026-05-06;
+ *     paid-search traffic arrives from compound-name keywords and
+ *     wants to see those products, not a bundle upsell)
+ *   - `?roji_view=bundles` → only bundle categories
+ *   - `?roji_view=all` → no taxonomy restriction
+ *   - any other value → passes through unchanged
  *
  * Uses the main query's tax_query via pre_get_posts so pagination +
  * sorting still behave.
@@ -566,20 +574,32 @@ add_action(
 		}
 		$requested_view = isset( $_GET['roji_view'] ) ? sanitize_key( wp_unslash( $_GET['roji_view'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		// Default (no param) and explicit 'bundles' both filter to bundles.
-		// Anything else (including 'all') passes through unchanged.
-		if ( '' !== $requested_view && 'bundles' !== $requested_view ) {
+		$tax_query = (array) $q->get( 'tax_query' );
+
+		if ( '' === $requested_view ) {
+			// Default landing — restrict to the individuals category.
+			$tax_query[] = array(
+				'taxonomy' => 'product_cat',
+				'field'    => 'slug',
+				'terms'    => array( roji_individuals_category_slug() ),
+				'operator' => 'IN',
+			);
+			$q->set( 'tax_query', $tax_query );
 			return;
 		}
 
-		$tax_query   = (array) $q->get( 'tax_query' );
-		$tax_query[] = array(
-			'taxonomy' => 'product_cat',
-			'field'    => 'slug',
-			'terms'    => roji_bundle_category_slugs(),
-			'operator' => 'IN',
-		);
-		$q->set( 'tax_query', $tax_query );
+		if ( 'bundles' === $requested_view ) {
+			$tax_query[] = array(
+				'taxonomy' => 'product_cat',
+				'field'    => 'slug',
+				'terms'    => roji_bundle_category_slugs(),
+				'operator' => 'IN',
+			);
+			$q->set( 'tax_query', $tax_query );
+			return;
+		}
+
+		// `all` and any other value: no restriction.
 	}
 );
 
@@ -593,14 +613,30 @@ add_action(
  * -------------------------------------------------------------------------- */
 
 /**
- * Banner above the Individuals archive nudging customers toward the
- * matching bundle. Hooked at priority 6 so it sits between the chip
- * filter (priority 5) and the product grid.
+ * Small inline tip above the Individuals archive nudging customers
+ * toward the matching bundle.
+ *
+ * Shown both on the explicit individuals category archive AND on the
+ * bare /shop/ URL (which since 2026-05-06 also defaults to the
+ * individuals view). Hooked at priority 6 so it sits between the
+ * chip filter (priority 5) and the product grid.
+ *
+ * Visual brief (2026-05-06): the previous full-width card with an
+ * accent CTA pill stole focus from the product grid (which is the
+ * thing visitors actually came for). Compressed to a single line of
+ * text + a quiet inline link. No card, no border, no pill.
  */
 add_action(
 	'woocommerce_before_shop_loop',
 	function () {
-		if ( ! is_product_category( roji_individuals_category_slug() ) ) {
+		// Show on the individuals category page OR on the bare /shop/
+		// (which now defaults to individuals).
+		$is_individuals_category = function_exists( 'is_product_category' )
+			&& is_product_category( roji_individuals_category_slug() );
+		$is_default_shop = function_exists( 'is_shop' )
+			&& is_shop()
+			&& empty( $_GET['roji_view'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! $is_individuals_category && ! $is_default_shop ) {
 			return;
 		}
 		$bundles_url = add_query_arg(
@@ -609,14 +645,11 @@ add_action(
 			function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' )
 		);
 		?>
-		<div class="roji-individuals-banner" role="note">
-			<div class="roji-individuals-banner__body">
-				<div class="roji-individuals-banner__eyebrow">Tip · save 25–30%</div>
-				<div class="roji-individuals-banner__title">Most researchers save by bundling.</div>
-				<div class="roji-individuals-banner__sub">The Wolverine and Recomp Stacks bundle the same compounds at ~30% off the individual price. Worth a look.</div>
-			</div>
-			<a class="roji-individuals-banner__cta" href="<?php echo esc_url( $bundles_url ); ?>">See the bundles &rarr;</a>
-		</div>
+		<p class="roji-individuals-tip" role="note">
+			<span class="roji-individuals-tip__eyebrow">Tip</span>
+			<?php esc_html_e( 'Bundling the matching compounds saves ~30%.', 'roji-child' ); ?>
+			<a class="roji-individuals-tip__link" href="<?php echo esc_url( $bundles_url ); ?>"><?php esc_html_e( 'View bundles', 'roji-child' ); ?></a>
+		</p>
 		<?php
 	},
 	6
