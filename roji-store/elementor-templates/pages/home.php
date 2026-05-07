@@ -6,52 +6,107 @@ return array(
 	'content' => array(
 
 		// ── HERO ─────────────────────────────────────────────────────────────
+		// Image-led, shop-first hero (rebuilt 2026-05-07).
+		//
+		// Why: the previous hero was four blocks of text (eyebrow, 72px H1,
+		// 22px subhead, two CTAs, trust strip, compliance disclaimer)
+		// before a visitor saw a single product image. For paid traffic
+		// arriving from compound-name searches, "what do they sell?" is
+		// the only question that matters in the first 2 seconds.
+		//
+		// New layout: two-column on desktop, stacked on mobile.
+		//   Left: small chip + short H1 + ONE primary CTA → /shop/.
+		//   Right: collage of the three bundle product images, slightly
+		//          rotated/staggered with soft shadows.
+		//
+		// Trust strip + compliance line moved to a dedicated section
+		// below so they're still visible but don't block the first
+		// impression.
+		//
+		// Implemented as a single roji_el_html so flex/grid + media
+		// queries work cleanly without fighting Elementor column widgets.
+		// Image URLs come from the live attachment IDs (121/122/123)
+		// pinned by import-product-images.sh.
 		roji_el_container( array(
-			'padding' => array( 'top' => '120', 'right' => '20', 'bottom' => '80', 'left' => '20', 'unit' => 'px', 'isLinked' => false ),
-			'padding_mobile' => array( 'top' => '32', 'right' => '20', 'bottom' => '48', 'left' => '20', 'unit' => 'px', 'isLinked' => false ),
-			'padding_tablet' => array( 'top' => '60', 'right' => '20', 'bottom' => '60', 'left' => '20', 'unit' => 'px', 'isLinked' => false ),
+			'padding' => array( 'top' => '80', 'right' => '20', 'bottom' => '40', 'left' => '20', 'unit' => 'px', 'isLinked' => false ),
+			'padding_mobile' => array( 'top' => '24', 'right' => '20', 'bottom' => '24', 'left' => '20', 'unit' => 'px', 'isLinked' => false ),
+			'padding_tablet' => array( 'top' => '48', 'right' => '20', 'bottom' => '32', 'left' => '20', 'unit' => 'px', 'isLinked' => false ),
 			'content_width' => 'boxed',
-			'flex_gap' => array( 'column' => '24', 'row' => '24', 'unit' => 'px', 'isLinked' => true ),
 			'background_overlay_background' => 'gradient',
 			'background_overlay_color' => 'rgba(79,109,245,0.04)',
 			'background_overlay_color_b' => 'rgba(10,10,15,0)',
 			'background_overlay_gradient_angle' => array( 'unit' => 'deg', 'size' => 180, 'sizes' => array() ),
 		), array(
-			roji_el_html( '<div style="display:inline-flex;align-items:center;gap:8px;padding:6px 12px;background:rgba(79,109,245,0.1);border:1px solid rgba(79,109,245,0.25);border-radius:999px;font-family:JetBrains Mono,monospace;font-size:11px;color:#4f6df5;letter-spacing:0.1em;text-transform:uppercase;width:fit-content;"><span style="width:6px;height:6px;background:#22c55e;border-radius:50%;display:inline-block;"></span>Now shipping · COA on every batch</div>' ),
-			roji_el_heading( 'Research-grade peptides, with the receipts.', array(
-				'header_size' => 'h1',
-				'typography_font_size' => array( 'unit' => 'px', 'size' => 72, 'sizes' => array() ),
-				'typography_line_height' => array( 'unit' => 'em', 'size' => 1.0, 'sizes' => array() ),
-				'typography_letter_spacing' => array( 'unit' => 'px', 'size' => -2, 'sizes' => array() ),
-			) ),
-			roji_el_text( '<p style="font-size:22px;line-height:1.5;color:#a8a8b8;max-width:680px;">Tested every batch. Cited every product. Backed by a suite of free research calculators and reference databases.</p>' ),
-			roji_el_inner( array(
-				'flex_direction' => 'row',
-				'flex_wrap' => 'wrap',
-				'flex_gap' => array( 'column' => '12', 'row' => '12', 'unit' => 'px', 'isLinked' => true ),
-				'padding' => array( 'top' => '12', 'right' => '0', 'bottom' => '0', 'left' => '0', 'unit' => 'px', 'isLinked' => false ),
-			), array(
-				roji_el_button( 'Browse the shop', '/shop/', array(
-					'size' => 'lg',
-					'text_padding' => array( 'top' => '18', 'right' => '32', 'bottom' => '18', 'left' => '32', 'unit' => 'px', 'isLinked' => false ),
-					'typography_font_size' => array( 'unit' => 'px', 'size' => 16, 'sizes' => array() ),
-				) ),
-				roji_el_button_secondary( 'Or browse research tools →', 'https://tools.rojipeptides.com', array(
-					'size' => 'lg',
-					'text_padding' => array( 'top' => '18', 'right' => '32', 'bottom' => '18', 'left' => '32', 'unit' => 'px', 'isLinked' => false ),
-					'typography_font_size' => array( 'unit' => 'px', 'size' => 16, 'sizes' => array() ),
-					'_css_classes' => 'roji-cta-link',
-				) ),
-			) ),
+			roji_el_html(
+				'<style>
+					.roji-hero-shop { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; min-height: 480px; }
+					@media (max-width: 900px) { .roji-hero-shop { grid-template-columns: 1fr; gap: 32px; min-height: 0; } }
+					.roji-hero-shop__left { display: flex; flex-direction: column; gap: 20px; }
+					.roji-hero-shop__chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(79,109,245,0.1); border: 1px solid rgba(79,109,245,0.25); border-radius: 999px; font-family: JetBrains Mono, monospace; font-size: 11px; color: #4f6df5; letter-spacing: 0.1em; text-transform: uppercase; width: fit-content; }
+					.roji-hero-shop__chip-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; display: inline-block; }
+					.roji-hero-shop__h1 { margin: 0; font-size: 64px; line-height: 1.0; letter-spacing: -0.02em; color: #f0f0f5; font-weight: 700; }
+					@media (max-width: 900px) { .roji-hero-shop__h1 { font-size: 44px; } }
+					.roji-hero-shop__sub { margin: 0; font-size: 18px; line-height: 1.5; color: #a8a8b8; max-width: 540px; }
+					.roji-hero-shop__cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
+					.roji-hero-shop__cta { display: inline-flex; align-items: center; gap: 8px; padding: 18px 32px; background: #4f6df5; color: #fff; font-size: 16px; font-weight: 600; border-radius: 8px; text-decoration: none; transition: background 0.15s ease; }
+					.roji-hero-shop__cta:hover { background: #3954d8; color: #fff; }
+					.roji-hero-shop__cta-sub { font-size: 13px; color: #8a8a9a; }
+					.roji-hero-shop__cta-sub a { color: #4f6df5; text-decoration: none; }
+					.roji-hero-shop__cta-sub a:hover { text-decoration: underline; }
 
-			// Trust strip
-			roji_el_html( '<div style="display:flex;flex-wrap:wrap;gap:24px;margin-top:32px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06);font-size:13px;color:#8a8a9a;">
+					/* Image collage — three bundle covers, gently fanned. */
+					.roji-hero-shop__right { position: relative; min-height: 380px; }
+					@media (max-width: 900px) { .roji-hero-shop__right { min-height: 280px; order: -1; } }
+					.roji-hero-shop__img { position: absolute; width: 58%; aspect-ratio: 1 / 1; border-radius: 16px; overflow: hidden; background: #0d0d14; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 24px 48px -16px rgba(0,0,0,0.6), 0 8px 16px -8px rgba(79,109,245,0.2); transition: transform 0.4s ease; }
+					.roji-hero-shop__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+					.roji-hero-shop__img--back  { top: 0;     right: 0;   transform: rotate(4deg); z-index: 1; }
+					.roji-hero-shop__img--mid   { top: 20%;   left: 18%;  transform: rotate(-3deg); z-index: 2; }
+					.roji-hero-shop__img--front { bottom: 0;  left: 0;    transform: rotate(2deg); z-index: 3; }
+					.roji-hero-shop:hover .roji-hero-shop__img--back  { transform: rotate(6deg) translate(4px, -4px); }
+					.roji-hero-shop:hover .roji-hero-shop__img--mid   { transform: rotate(-4deg) translate(-2px, -2px); }
+					.roji-hero-shop:hover .roji-hero-shop__img--front { transform: rotate(0deg) translate(0, 4px); }
+				</style>
+				<div class="roji-hero-shop">
+					<div class="roji-hero-shop__left">
+						<div class="roji-hero-shop__chip">
+							<span class="roji-hero-shop__chip-dot"></span>Now shipping · COA on every batch
+						</div>
+						<h1 class="roji-hero-shop__h1">Research-grade peptides, with the receipts.</h1>
+						<p class="roji-hero-shop__sub">Three peer-reviewed stacks. ≥99% purity. Janoshik third-party COA on every batch.</p>
+						<div class="roji-hero-shop__cta-row">
+							<a class="roji-hero-shop__cta" href="/shop/">Browse the shop &rarr;</a>
+							<span class="roji-hero-shop__cta-sub">or <a href="https://tools.rojipeptides.com">browse the free research tools</a></span>
+						</div>
+					</div>
+					<div class="roji-hero-shop__right">
+						<div class="roji-hero-shop__img roji-hero-shop__img--back" aria-hidden="true">
+							<img src="https://rojipeptides.com/wp-content/uploads/2026/04/full-protocol-1.png" alt="" loading="eager" />
+						</div>
+						<div class="roji-hero-shop__img roji-hero-shop__img--mid" aria-hidden="true">
+							<img src="https://rojipeptides.com/wp-content/uploads/2026/04/recomp-stack-1.png" alt="" loading="eager" />
+						</div>
+						<div class="roji-hero-shop__img roji-hero-shop__img--front">
+							<img src="https://rojipeptides.com/wp-content/uploads/2026/04/wolverine-stack-1.png" alt="Roji bundle covers: BPC-157 + TB-500, CJC-1295 + Ipamorelin + MK-677, and Full Protocol" loading="eager" />
+						</div>
+					</div>
+				</div>'
+			),
+		) ),
+
+		// ── TRUST STRIP ─────────────────────────────────────────────────────
+		// Pulled out of the hero (2026-05-07) so the hero can be image-led.
+		// Still above the fold on desktop; tucked under the hero on mobile.
+		roji_el_container( array(
+			'padding' => array( 'top' => '0', 'right' => '20', 'bottom' => '32', 'left' => '20', 'unit' => 'px', 'isLinked' => false ),
+			'content_width' => 'boxed',
+		), array(
+			roji_el_html( '<div style="display:flex;flex-wrap:wrap;gap:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06);font-size:13px;color:#8a8a9a;">
 				<div style="display:flex;align-items:center;gap:8px;"><span style="color:#22c55e;font-size:16px;">✓</span>Janoshik third-party COA on every batch</div>
 				<div style="display:flex;align-items:center;gap:8px;"><span style="color:#22c55e;font-size:16px;">✓</span>Free shipping over $200</div>
 				<div style="display:flex;align-items:center;gap:8px;"><span style="color:#22c55e;font-size:16px;">✓</span>21+ verified · US ship only</div>
 				<div style="display:flex;align-items:center;gap:8px;"><span style="color:#22c55e;font-size:16px;">✓</span>Card + crypto accepted</div>
 			</div>
-			<div style="margin-top:16px;font-family:JetBrains Mono,monospace;font-size:11px;color:#55556a;letter-spacing:0.05em;line-height:1.6;max-width:680px;">
+			<div style="margin-top:16px;font-family:JetBrains Mono,monospace;font-size:11px;color:#55556a;letter-spacing:0.05em;line-height:1.6;max-width:760px;">
 				All products are intended strictly for laboratory and preclinical research use. We do not provide usage instructions, dosing guidelines, or any advice regarding the application of our products.
 			</div>' ),
 		) ),
