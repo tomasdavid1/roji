@@ -84,6 +84,88 @@ add_filter( 'wc_empty_cart_message', '__return_empty_string' );
  * cycle = $398 total). `weeks` is the calibrated cycle length so we can
  * print "~$50/week for 8 weeks of protocol" under the line item.
  */
+
+/**
+ * Paid-traffic homepage redirect: send Google Ads clicks landing on
+ * the bare homepage straight to /shop/ so they see products
+ * immediately instead of the marketing hero.
+ *
+ * Why: today (2026-05-07) ~12 paid sessions landed on / and we have
+ * no signal they're converting through the hero. The hero is fine
+ * for organic/SEO/social-share traffic — they're earlier-stage and
+ * benefit from the trust pillars, the calculator pitch, etc. But
+ * paid clicks have already chosen "I'm shopping for peptides" by
+ * clicking an ad on a compound-name search; the homepage just
+ * delays the click that matters.
+ *
+ * Detection rule: any URL param that Google Ads ever attaches to a
+ * paid click — gclid (standard), gbraid / wbraid (iOS/Privacy
+ * Sandbox variants), gclsrc, or our own utm_medium=cpc convention.
+ * That's the same signal Google Ads uses to attribute conversions,
+ * so it's reliable and survives Cloudflare's URL-stripping rules.
+ *
+ * Important: we preserve the FULL query string in the redirect target
+ * so the gclid travels with the user to /shop/ and lands in their
+ * GA4 session — losing it would break Ads conversion attribution.
+ *
+ * Bots (Googlebot, Bingbot, etc.) bypass this redirect via the
+ * is_robots() check so they continue to crawl the marketing
+ * homepage for SEO. We use 302 (temporary) not 301 (permanent) so
+ * search engines never index the redirect.
+ */
+add_action(
+	'template_redirect',
+	function () {
+		if ( ! is_front_page() && ! is_home() ) {
+			return;
+		}
+		// Bots: leave alone. They need the homepage indexed.
+		if ( function_exists( 'is_robots' ) && is_robots() ) {
+			return;
+		}
+		$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? (string) $_SERVER['HTTP_USER_AGENT'] : '';
+		if ( $ua && preg_match( '/bot|crawl|spider|slurp|bingpreview|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot/i', $ua ) ) {
+			return;
+		}
+		// Editors / admins logged in: leave alone so the page stays editable.
+		if ( is_user_logged_in() && current_user_can( 'edit_posts' ) ) {
+			return;
+		}
+
+		$paid_param_keys = array( 'gclid', 'gbraid', 'wbraid', 'gclsrc' );
+		$has_paid_param  = false;
+		foreach ( $paid_param_keys as $k ) {
+			if ( ! empty( $_GET[ $k ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$has_paid_param = true;
+				break;
+			}
+		}
+		// Also accept our own utm_medium convention as a paid signal —
+		// covers Bing Ads, Reddit, and any future paid channel that
+		// follows the standard utm_medium=cpc tagging.
+		if ( ! $has_paid_param && isset( $_GET['utm_medium'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$medium = strtolower( sanitize_text_field( wp_unslash( $_GET['utm_medium'] ) ) );
+			if ( in_array( $medium, array( 'cpc', 'ppc', 'paid', 'paidsearch' ), true ) ) {
+				$has_paid_param = true;
+			}
+		}
+		if ( ! $has_paid_param ) {
+			return;
+		}
+
+		$shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
+		// Preserve the full query string (gclid + utm_*) so Ads
+		// attribution survives the redirect.
+		$qs = isset( $_SERVER['QUERY_STRING'] ) ? (string) $_SERVER['QUERY_STRING'] : '';
+		if ( $qs ) {
+			$shop_url .= ( false === strpos( $shop_url, '?' ) ? '?' : '&' ) . $qs;
+		}
+		wp_safe_redirect( $shop_url, 302 );
+		exit;
+	},
+	1 // Priority 1 so we beat WooCommerce's own template_redirect hooks.
+);
+
 add_action(
 	'template_redirect',
 	function () {
