@@ -75,8 +75,24 @@ export default function RootLayout({
     .map((d) => d.trim())
     .filter(Boolean);
 
+  // Cross-domain navigation latency: the slowest part of clicking
+  // any "shop" CTA on a tool page is the cold DNS+TLS handshake to
+  // rojipeptides.com (the store is on a different origin). Preconnect
+  // gets that handshake out of the way during the user's first
+  // page-render so the eventual click feels near-instant.
+  //
+  // dns-prefetch is a fallback for browsers that don't preconnect
+  // (or that ignore preconnect when the connection-pool is full).
+  const storeOrigin = (
+    process.env.NEXT_PUBLIC_STORE_URL ?? "https://rojipeptides.com"
+  ).replace(/\/+$/, "");
+
   return (
     <html lang="en" className={`${inter.variable} ${mono.variable}`}>
+      <head>
+        <link rel="preconnect" href={storeOrigin} crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href={storeOrigin} />
+      </head>
       <body className="bg-roji-black text-roji-text min-h-screen flex flex-col">
         {gtagAnyId && (
           <>
