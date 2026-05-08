@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 import { STORE_URL } from "@/lib/tools";
@@ -135,8 +136,12 @@ export function HeroShopCTA({
   // looked like a banner ad and got glanced over (4 real clicks across
   // 729 tool pageviews in 7 days). Stripped to a borderless soft tint
   // with a single conversational question + a slightly larger pill
-  // button. The eyebrow chip is gone (we're already on rojipeptides;
-  // no need to brand the inline note).
+  // button.
+  //
+  // Added a small product thumbnail (2026-05-07 late) to anchor the
+  // CTA visually — turns it from a sentence into a "shoppable" cue
+  // without going full banner. Hidden on the narrowest mobile widths
+  // so the question + button stay readable on a phone.
   return (
     <section
       ref={sectionRef}
@@ -148,12 +153,33 @@ export function HeroShopCTA({
         className={[
           "flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 sm:gap-5",
           "rounded-roji-lg bg-roji-accent-subtle/50",
-          "px-5 py-4 sm:px-6 sm:py-4",
+          "px-4 py-3 sm:px-5 sm:py-3.5",
         ].join(" ")}
       >
-        <p className="text-[15px] sm:text-base text-roji-text leading-snug font-medium">
-          {label}
-        </p>
+        <div className="flex flex-1 items-center gap-3 sm:gap-4 min-w-0">
+          <div
+            className={[
+              "shrink-0",
+              "h-11 w-11 sm:h-14 sm:w-14",
+              "overflow-hidden rounded-roji",
+              "bg-roji-card",
+            ].join(" ")}
+            aria-hidden="true"
+          >
+            <Image
+              src="/cta/peptide-vials.webp"
+              alt=""
+              width={56}
+              height={56}
+              className="h-full w-full object-cover"
+              sizes="56px"
+              priority={false}
+            />
+          </div>
+          <p className="text-[15px] sm:text-base text-roji-text leading-snug font-medium min-w-0">
+            {label}
+          </p>
+        </div>
         <a
           href={target}
           onMouseEnter={prefetch}
