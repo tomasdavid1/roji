@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 import { STORE_URL } from "@/lib/tools";
@@ -51,8 +50,13 @@ interface HeroShopCTAProps {
  */
 export function HeroShopCTA({
   toolSlug,
+  // `label` is no longer rendered (see render below) but kept in the
+  // props so existing per-tool overrides at the page level don't
+  // trigger TypeScript errors. We may bring it back later in a
+  // different visual treatment.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   label = "Need peptides for your research?",
-  buttonLabel = "Shop peptides →",
+  buttonLabel = "Shop peptides for research →",
   href,
 }: HeroShopCTAProps) {
   const target =
@@ -131,77 +135,55 @@ export function HeroShopCTA({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Visual brief (2026-05-07 PM): the previous boxed style — white-ish
-  // accent border + tinted card + monospace "From Roji" eyebrow chip —
-  // looked like a banner ad and got glanced over (4 real clicks across
-  // 729 tool pageviews in 7 days). Stripped to a borderless soft tint
-  // with a single conversational question + a slightly larger pill
-  // button.
-  //
-  // Added a small product thumbnail (2026-05-07 late) to anchor the
-  // CTA visually — turns it from a sentence into a "shoppable" cue
-  // without going full banner. Hidden on the narrowest mobile widths
-  // so the question + button stay readable on a phone.
+  // Visual journey:
+  //   v1 (2026-05-06): boxed card, accent border, "From Roji" eyebrow,
+  //                    long sentence + chunky button. 4 real clicks /
+  //                    729 tool pageviews in 7 days.
+  //   v2 (2026-05-07 PM): stripped border + eyebrow + jargon, kept
+  //                       a soft tinted bar with question + button.
+  //   v3 (2026-05-07 late): added a small product thumbnail.
+  //   v4 (2026-05-07 late, this): user feedback was the bar still
+  //                               looked off and the white photo bg
+  //                               clashed with the dark page. Stripped
+  //                               down to JUST the accent button —
+  //                               no surrounding tinted bar, no
+  //                               thumbnail, no question text. The
+  //                               button itself carries the entire
+  //                               message ("Shop peptides for
+  //                               research →") and sits right-aligned
+  //                               on desktop / centered on mobile.
+  //                               Same visual register as our other
+  //                               primary CTAs (header Shop button,
+  //                               StoreCTA card button) so it reads
+  //                               as "click me" not "I'm a banner".
   return (
     <section
       ref={sectionRef}
-      className="mx-auto max-w-3xl px-6 -mt-1 mb-6"
+      className="mx-auto max-w-3xl px-6 -mt-1 mb-6 flex justify-center sm:justify-end"
       data-hero-shop-cta
       data-tool-slug={toolSlug}
     >
-      <div
+      <a
+        href={target}
+        onMouseEnter={prefetch}
+        onFocus={prefetch}
+        onTouchStart={prefetch}
+        onClick={() =>
+          track("hero_shop_cta_click", {
+            tool: toolSlug,
+            surface: "tool_hero_cta",
+            label: buttonLabel,
+          })
+        }
         className={[
-          "flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 sm:gap-5",
-          "rounded-roji-lg bg-roji-accent-subtle/50",
-          "px-4 py-3 sm:px-5 sm:py-3.5",
+          "inline-flex items-center gap-1.5 rounded-roji",
+          "px-5 py-2.5",
+          "bg-roji-accent text-roji-black hover:bg-roji-accent/90 transition-colors",
+          "text-sm sm:text-[15px] font-semibold whitespace-nowrap",
         ].join(" ")}
       >
-        <div className="flex flex-1 items-center gap-3 sm:gap-4 min-w-0">
-          <div
-            className={[
-              "shrink-0",
-              "h-11 w-11 sm:h-14 sm:w-14",
-              "overflow-hidden rounded-roji",
-              "bg-roji-card",
-            ].join(" ")}
-            aria-hidden="true"
-          >
-            <Image
-              src="/cta/peptide-vials.webp"
-              alt=""
-              width={56}
-              height={56}
-              className="h-full w-full object-cover"
-              sizes="56px"
-              priority={false}
-            />
-          </div>
-          <p className="text-[15px] sm:text-base text-roji-text leading-snug font-medium min-w-0">
-            {label}
-          </p>
-        </div>
-        <a
-          href={target}
-          onMouseEnter={prefetch}
-          onFocus={prefetch}
-          onTouchStart={prefetch}
-          onClick={() =>
-            track("hero_shop_cta_click", {
-              tool: toolSlug,
-              surface: "tool_hero_cta",
-              label: buttonLabel,
-            })
-          }
-          className={[
-            "inline-flex shrink-0 items-center gap-1.5 rounded-roji",
-            "px-5 py-2.5 sm:px-5 sm:py-2.5",
-            "bg-roji-accent text-roji-black hover:bg-roji-accent/90 transition-colors",
-            "text-sm sm:text-[15px] font-semibold whitespace-nowrap",
-          ].join(" ")}
-        >
-          {buttonLabel}
-        </a>
-      </div>
+        {buttonLabel}
+      </a>
     </section>
   );
 }
