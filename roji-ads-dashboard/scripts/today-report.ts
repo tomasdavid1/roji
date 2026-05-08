@@ -23,6 +23,7 @@
  */
 
 import { getCampaignPerformance, getKeywordPerformance } from "../src/lib/google-ads";
+import { ga4WithoutSelfTraffic } from "../src/lib/ga4-self-filter";
 
 /**
  * Funnel events we count, with the underlying GA4 event names.
@@ -32,6 +33,10 @@ import { getCampaignPerformance, getKeywordPerformance } from "../src/lib/google
  * for an EOD snapshot. We re-implement the same query here against the
  * standard endpoint with explicit `today`/`today` dates so we get the
  * full day's totals.
+ *
+ * Self-traffic (developer/QA) is excluded via ga4-self-filter so a
+ * solo dev clicking through their own deploy doesn't get logged as
+ * "first ATC today!" — see src/lib/ga4-self-filter.ts.
  */
 type FunnelStep =
   | "tool_view"
@@ -91,6 +96,7 @@ async function fetchFunnel(
   }
   const token = await ga4AccessToken();
   const url = `https://analyticsdata.googleapis.com/v1beta/properties/${process.env.GA4_PROPERTY_ID}:runReport`;
+  const dimensionFilter = ga4WithoutSelfTraffic();
   const resp = await fetch(url, {
     method: "POST",
     headers: {
@@ -101,6 +107,7 @@ async function fetchFunnel(
       dateRanges: [{ startDate, endDate }],
       dimensions: [{ name: "eventName" }],
       metrics: [{ name: "eventCount" }],
+      ...(dimensionFilter ? { dimensionFilter } : {}),
       limit: "200",
     }),
   });

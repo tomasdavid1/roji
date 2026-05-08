@@ -498,7 +498,7 @@ Each step in the funnel cites its data source inline. The page never fakes data 
 | 3. Tool used (any per-tool engagement event) | GA4 Data API | ⚠ Needs GA4 service account |
 | 4. Store CTA click (`store_outbound_click`) | GA4 Data API | ⚠ Needs GA4 service account |
 | 5. Add to cart | GA4 Data API | ⚠ Needs GA4 service account |
-| 6. Checkout view | GA4 Data API | ⚠ Needs GA4 service account |
+| 6. Checkout view ok| GA4 Data API | ⚠ Needs GA4 service account |
 | 7. Reserve order (purchase conversion) | Google Ads API | ✅ Yes |
 
 The "implied CAC" KPI in the page header is `total_spend / reserve_orders` — both sides are Google Ads numbers, so this works today even without GA4. The mid-funnel just shows you *why* CAC is what it is.
@@ -700,6 +700,50 @@ When a payment processor (AllayPay / Durango / Coinbase Commerce / Stripe High-R
 3. **Blueprint**: re-run `npm run blueprint:live -- --mode full` to add Brand Defense + the second ad group on Campaign 1.
 
 The blueprint provisioner is idempotent: re-running it doesn't duplicate campaigns (it looks them up by the `[roji-blueprint]` name suffix). Fresh ad-copy variants get appended on each run — useful when iterating.
+
+---
+
+## Self-traffic exclusion (don't get fooled by your own QA)
+
+When the team is small, the dashboard's "first ATC today!" can be the dev clicking through their own deploy. Filter your QA out of every report so the numbers stay honest.
+
+### Two-layer setup (do both)
+
+**Layer 1 — Query-time filter (already wired in our scripts).**
+
+`src/lib/ga4-self-filter.ts` exports `ga4WithoutSelfTraffic()` and a `SELF_TRAFFIC_RULES` array. Every report (today-report.ts, the dashboard funnel, etc.) wraps its `dimensionFilter` with `ga4WithoutSelfTraffic()` so internal traffic is invisible at query time. Each rule is a soft-fingerprint AND-group of:
+
+- `country` (e.g. "Brazil")
+- `city` (e.g. "Rio de Janeiro")
+- `sessionMedium` (e.g. ["hero_cta"])
+- `sessionSource` (e.g. ["tools"])
+- `deviceCategory` (e.g. ["mobile"])
+
+**To add a rule** — append a new entry to `SELF_TRAFFIC_RULES` matching your own (city × device × session origin) tuple. Keep rules narrow so they don't swallow real traffic. Verify by running `npm run report:today` before/after — the deltas tell you which events the rule caught.
+
+**Layer 2 — GA4 Admin "Internal Traffic" filter (one-time UI work).**
+
+The Data API can't write Data Filters; you have to do this in the GA4 web UI. Once configured it cleans up the GA4 reports you and other humans see directly:
+
+1. **GA4** → Admin → Data Streams → click your stream → **Configure tag settings** → **Show all** → **Define internal traffic** → **Create**.
+2. **Match type:** *IP address equals* or *IP address in CIDR range* (use [whatismyip.com](https://www.whatismyip.com) on each device that does QA — phone too if you test on cellular).
+3. **`traffic_type` value:** `internal`.
+4. Back to **Admin** → **Data Settings** → **Data Filters** → **Create Filter** → **Internal Traffic** → set the filter to **Active** (not "Testing", which is the default — Testing leaves the data in but tags it).
+
+Once active, sessions matching those IPs get `traffic_type=internal` stamped on them and are dropped from every standard GA4 report. The filter applies forward-only (historical data isn't reprocessed), so the query-time filter in Layer 1 is also needed for reports that look back over days when the filter wasn't yet active.
+
+### How to verify a rule is working
+
+Run before / after:
+
+```bash
+cd roji-ads-dashboard
+npm run report:today
+# add the new rule to SELF_TRAFFIC_RULES, save
+npm run report:today
+```
+
+The delta in `add_to_cart` / `tool_engagement` / `page_view` tells you what the rule caught. If a rule is too broad it'll wipe out hundreds of events; that means a real-traffic dimension is also matching. Tighten by adding more dimensions.
 
 ---
 
