@@ -22,7 +22,7 @@ export default function InteractionsPage() {
       />
       <HeroShopCTA
         toolSlug="interactions"
-        label="Looking for ≥99% verified inputs to your stack? See research-grade compounds."
+        label="Want verified peptides for your research?"
       />
       <InteractionChecker />
       <p className="mx-auto max-w-3xl px-6 pb-10 text-center text-xs text-roji-dim">

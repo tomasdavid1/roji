@@ -35,8 +35,8 @@ export default function CostPerDosePage() {
       />
       <HeroShopCTA
         toolSlug="cost-per-dose"
-        label="See Roji's pricing before you compare — add it as a vendor row below."
-        buttonLabel="See Roji pricing →"
+        label="Compare against Roji pricing too?"
+        buttonLabel="See Roji prices →"
       />
       <CostPerDoseCalculator />
       <StoreCTA

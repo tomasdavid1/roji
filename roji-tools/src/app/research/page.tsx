@@ -23,8 +23,7 @@ export default function ResearchPage() {
       />
       <HeroShopCTA
         toolSlug="research"
-        label="Many compounds in this database are stocked as ≥99% Janoshik-verified vials."
-        buttonLabel="Browse referenced stacks →"
+        label="Want peptides for your research?"
       />
       <ResearchSearch />
       <p className="mx-auto max-w-3xl px-6 pb-10 text-center text-xs text-roji-dim">

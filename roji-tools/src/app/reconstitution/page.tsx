@@ -35,7 +35,7 @@ export default function ReconstitutionPage() {
       />
       <HeroShopCTA
         toolSlug="reconstitution"
-        label="Need vials + BAC water + syringes for your research? We ship the whole kit."
+        label="Need peptides + BAC water for your research?"
       />
       <ReconCalculator />
       <section className="mx-auto max-w-3xl px-6 pb-10">

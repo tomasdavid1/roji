@@ -50,8 +50,8 @@ interface HeroShopCTAProps {
  */
 export function HeroShopCTA({
   toolSlug,
-  label = "Skip the math — browse research-grade vials",
-  buttonLabel = "Browse research stacks →",
+  label = "Need peptides for your research?",
+  buttonLabel = "Shop peptides →",
   href,
 }: HeroShopCTAProps) {
   const target =
@@ -130,24 +130,28 @@ export function HeroShopCTA({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Visual brief (2026-05-07 PM): the previous boxed style — white-ish
+  // accent border + tinted card + monospace "From Roji" eyebrow chip —
+  // looked like a banner ad and got glanced over (4 real clicks across
+  // 729 tool pageviews in 7 days). Stripped to a borderless soft tint
+  // with a single conversational question + a slightly larger pill
+  // button. The eyebrow chip is gone (we're already on rojipeptides;
+  // no need to brand the inline note).
   return (
     <section
       ref={sectionRef}
-      className="mx-auto max-w-3xl px-6 -mt-2 mb-6"
+      className="mx-auto max-w-3xl px-6 -mt-1 mb-6"
       data-hero-shop-cta
       data-tool-slug={toolSlug}
     >
       <div
         className={[
-          "flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 sm:gap-4",
-          "rounded-roji-lg border border-roji-accent/25 bg-roji-accent-subtle/40",
-          "px-4 py-3 sm:px-5 sm:py-3.5",
+          "flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 sm:gap-5",
+          "rounded-roji-lg bg-roji-accent-subtle/50",
+          "px-5 py-4 sm:px-6 sm:py-4",
         ].join(" ")}
       >
-        <p className="text-sm text-roji-text leading-snug">
-          <span className="font-mono uppercase text-roji-accent text-[10px] tracking-[0.18em] mr-2">
-            From Roji
-          </span>
+        <p className="text-[15px] sm:text-base text-roji-text leading-snug font-medium">
           {label}
         </p>
         <a
@@ -163,9 +167,10 @@ export function HeroShopCTA({
             })
           }
           className={[
-            "inline-flex shrink-0 items-center gap-1.5 rounded-roji px-3.5 py-1.5",
+            "inline-flex shrink-0 items-center gap-1.5 rounded-roji",
+            "px-5 py-2.5 sm:px-5 sm:py-2.5",
             "bg-roji-accent text-roji-black hover:bg-roji-accent/90 transition-colors",
-            "text-xs sm:text-sm font-semibold",
+            "text-sm sm:text-[15px] font-semibold whitespace-nowrap",
           ].join(" ")}
         >
           {buttonLabel}

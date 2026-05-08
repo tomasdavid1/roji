@@ -22,7 +22,7 @@ export default function AiPage() {
       />
       <HeroShopCTA
         toolSlug="ai"
-        label="Once you've narrowed in on a compound, we ship it ≥99% Janoshik-verified."
+        label="Want peptides for your research?"
       />
       <AiAssistant />
       <p className="mx-auto max-w-3xl px-6 pb-10 text-center text-xs text-roji-dim">

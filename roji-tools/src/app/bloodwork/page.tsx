@@ -23,7 +23,7 @@ export default function BloodworkPage() {
       />
       <HeroShopCTA
         toolSlug="bloodwork"
-        label="Researching peptides alongside your bloodwork? See what we ship."
+        label="Want peptides for your research?"
       />
       <BloodworkInterpreter />
       <p className="mx-auto max-w-3xl px-6 pb-10 text-center text-xs text-roji-dim">

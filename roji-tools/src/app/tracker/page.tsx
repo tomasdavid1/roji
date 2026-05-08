@@ -23,7 +23,7 @@ export default function TrackerPage() {
       />
       <HeroShopCTA
         toolSlug="tracker"
-        label="Need research-grade compounds to track? Janoshik-verified, COA on every batch."
+        label="Need peptides to track in your research?"
       />
       <StackTracker />
       <p className="mx-auto max-w-3xl px-6 pb-10 text-center text-xs text-roji-dim">

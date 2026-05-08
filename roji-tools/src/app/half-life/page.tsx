@@ -43,8 +43,7 @@ export default function HalfLifePage() {
       />
       <HeroShopCTA
         toolSlug="half-life"
-        label="Most compounds in this database are in stock as ≥99% Janoshik-verified vials."
-        buttonLabel="See available compounds →"
+        label="Want peptides for your research?"
       />
       <HalfLifeBrowser />
       <StoreCTA
