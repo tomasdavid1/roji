@@ -1253,6 +1253,18 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
   }
 
   // Shared C1 + C3 builders for tool-only and full modes (full adds C4).
+  //
+  // 2026-05-10 — DEPRECATED. C1 was removed live in Google Ads on this
+  // date after 30 days of $5-25/day spend with zero conversions. Going
+  // forward we focus exclusively on C2 (peptide-experiment mode), which
+  // had 18% CTR vs C1's much-lower CTR on calculator-name keywords.
+  // The C1 definition is kept here for history and in case we ever
+  // want to revive a calculator-keywords campaign, but the existing
+  // `tool-only` and `full` provisioner modes will create a NEW C1 if
+  // run today (different campaign ID; the original 23802331833 is
+  // permanently removed). Do NOT run `blueprint:live --mode tool-only`
+  // or `--mode full` without expecting a fresh C1 to be created.
+  // For the active campaign, use `--mode peptide-experiment`.
   const c1: BlueprintCampaign = {
     name: "C1 — Research Tools — Calculators [roji-blueprint]",
     dailyBudgetUsd: opts.campaign1Budget ?? 25,

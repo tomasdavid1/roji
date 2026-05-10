@@ -405,6 +405,13 @@ Use this during daily check-ins. Every decision has a data threshold so we don't
 | C2: 50+ clicks, 0 conversions | 14 days | Pause. "Peptide" intent ≠ buy-here |
 | C2: approved and converting | Any | Bump to $10-15/day |
 
+#### Campaign actions taken (receipts)
+
+| Date | Campaign | Action | Why |
+| --- | --- | --- | --- |
+| 2026-05-10 | C1 — Research Tools — Calculators (id 23802331833) | **REMOVED** (irreversible) | $5/day × 30+ days, 21 clicks / $48 spend / 0 conversions in last 7d. Calculator-name keywords didn't convert to store visits. Decision: focus exclusively on C2. Live action via `scripts/campaign-c1-remove-c2-resume.ts --live`. |
+| 2026-05-10 | C2 — Peptide Research — Experiment (id 23813304892) | RESUMED at $40/day | Strongest performer in account (18% CTR on `research peptide`). Tools-site funnel fixes (cart layout, GA4 events, paid-homepage redirect, checkout reassurance) all just shipped after Vercel deploys had been silently failing for 3 days — first run with the *actual* fixes live. |
+
 ### C2 (Peptide Experiment) escalation ladder
 
 | Phase | Budget | Trigger to advance |
