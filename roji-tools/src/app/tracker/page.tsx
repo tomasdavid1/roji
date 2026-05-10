@@ -23,7 +23,7 @@ export default function TrackerPage() {
       />
       <HeroShopCTA
         toolSlug="tracker"
-        label="Need peptides to track in your research?"
+        label="Peptides for your protocol."
       />
       <StackTracker />
       <p className="mx-auto max-w-3xl px-6 pb-10 text-center text-xs text-roji-dim">

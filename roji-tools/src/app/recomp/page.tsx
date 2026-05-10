@@ -23,7 +23,7 @@ export default function RecompPage() {
       />
       <HeroShopCTA
         toolSlug="recomp"
-        label="Want peptides for your recomp research?"
+        label="Peptides for body-recomp research."
       />
       <RecompCalculator />
       <StoreCTA

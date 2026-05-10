@@ -52,7 +52,7 @@ export default function CoaPage() {
       />
       <HeroShopCTA
         toolSlug="coa"
-        label="Want peptides whose COAs already pass these checks?"
+        label="Our peptides already pass these checks."
         buttonLabel="See COA library →"
         href={(process.env.NEXT_PUBLIC_STORE_URL ?? "https://rojipeptides.com") + "/coa/"}
       />

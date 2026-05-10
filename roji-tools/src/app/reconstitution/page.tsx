@@ -35,7 +35,7 @@ export default function ReconstitutionPage() {
       />
       <HeroShopCTA
         toolSlug="reconstitution"
-        label="Need peptides + BAC water for your research?"
+        label="Peptides + BAC water, ready to ship."
       />
       <ReconCalculator />
       <section className="mx-auto max-w-3xl px-6 pb-10">

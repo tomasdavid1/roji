@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 import { STORE_URL } from "@/lib/tools";
@@ -13,15 +14,13 @@ interface HeroShopCTAProps {
    */
   toolSlug: string;
   /**
-   * Short framing line. Shown to the left of the button. Keep it
+   * Short framing line. Shown next to the button. Keep it tight —
    * one line on desktop. Per-tool override so we can match the
    * compound the page is about ("BPC-157 vials in stock" reads
    * very differently on the half-life page vs. the COA page).
-   *
-   * Defaults to a generic research-stack pitch.
    */
   label?: string;
-  /** Override the button text. Defaults to "Browse research stacks →". */
+  /** Override the button text. Defaults to "Shop peptides →". */
   buttonLabel?: string;
   /** Custom href. Defaults to /shop/ on the store with UTM. */
   href?: string;
@@ -35,11 +34,21 @@ interface HeroShopCTAProps {
    */
   surface?: string;
   /**
+   * Visual variant.
+   *   "card"        — full card with product thumbnail + label + button.
+   *                   Default; this is what tool pages render above
+   *                   the calculator.
+   *   "button-only" — just the prefetching/tracked accent button. Use
+   *                   when the parent already provides framing copy
+   *                   and an enclosing card (e.g. the homepage shop
+   *                   bridge), to avoid double-cards.
+   */
+  variant?: "card" | "button-only";
+  /**
    * Override the outer <section> wrapper classes. Defaults to the
-   * tool-page positioning (centered on mobile, right-aligned on
-   * desktop, with vertical margin to slot in between PageHero and
-   * the calculator). Set this when embedding inside another card
-   * (e.g. the homepage shop bridge) to neutralize the margins.
+   * tool-page positioning (centered on mobile, with vertical margin
+   * to slot in between PageHero and the calculator). Set this when
+   * embedding inside another card.
    */
   wrapperClassName?: string;
 }
@@ -67,16 +76,20 @@ interface HeroShopCTAProps {
  */
 export function HeroShopCTA({
   toolSlug,
-  // `label` is no longer rendered visually but remains in the props
-  // contract so existing per-tool overrides at the page level don't
-  // break, and we keep it accessible via aria-label / data-attr so
-  // analytics + screen readers can still read the framing copy.
   label = "Need peptides for your research?",
-  buttonLabel = "Shop peptides for research →",
+  buttonLabel = "Shop peptides →",
   href,
   surface = "tool_hero_cta",
-  wrapperClassName = "mx-auto max-w-3xl px-6 -mt-1 mb-6 flex justify-center sm:justify-end",
+  variant = "card",
+  wrapperClassName,
 }: HeroShopCTAProps) {
+  // Wrapper defaults differ per variant — the card needs a wider canvas
+  // and centered layout, the button-only variant should be tight.
+  const resolvedWrapper =
+    wrapperClassName ??
+    (variant === "card"
+      ? "mx-auto max-w-3xl px-6 -mt-1 mb-6"
+      : "mx-auto max-w-3xl px-6 -mt-1 mb-6 flex justify-center sm:justify-end");
   const target =
     href ??
     `${STORE_URL}/shop/?utm_source=tools&utm_medium=hero_cta&utm_campaign=${encodeURIComponent(
@@ -160,50 +173,152 @@ export function HeroShopCTA({
   //   v2 (2026-05-07 PM): stripped border + eyebrow + jargon, kept
   //                       a soft tinted bar with question + button.
   //   v3 (2026-05-07 late): added a small product thumbnail.
-  //   v4 (2026-05-07 late, this): user feedback was the bar still
-  //                               looked off and the white photo bg
-  //                               clashed with the dark page. Stripped
-  //                               down to JUST the accent button —
-  //                               no surrounding tinted bar, no
-  //                               thumbnail, no question text. The
-  //                               button itself carries the entire
-  //                               message ("Shop peptides for
-  //                               research →") and sits right-aligned
-  //                               on desktop / centered on mobile.
-  //                               Same visual register as our other
-  //                               primary CTAs (header Shop button,
-  //                               StoreCTA card button) so it reads
-  //                               as "click me" not "I'm a banner".
+  //   v4 (2026-05-07 late): user feedback was the bar still looked
+  //                         off and the white photo bg clashed with
+  //                         the dark page. Stripped down to JUST the
+  //                         accent button. NOTE: this version never
+  //                         actually shipped to users — Vercel
+  //                         deploys had been silently failing for
+  //                         3 days (ESLint rule disable comment for
+  //                         a rule not in Next 14's plugin set).
+  //                         What users saw the whole time was v3.
+  //   v5 (2026-05-10): unblocked Vercel by removing the offending
+  //                    eslint-disable comment, so v4 finally went
+  //                    live. User reviewed v4 live for the first
+  //                    time and confirmed they wanted the image
+  //                    back — this v5 brings it back, with two
+  //                    fixes for the original issues: (a) the
+  //                    white-photo-on-dark clash is solved by
+  //                    putting the vials in a cream-tinted circular
+  //                    frame, so the white blends into a deliberate
+  //                    disc; (b) cramped multi-line text is solved
+  //                    by tightening every per-tool label to ≤6
+  //                    words. Card layout is [disc][label][button]
+  //                    inside a soft accent border + subtle gradient
+  //                    so it reads as one shoppable unit rather
+  //                    than three loose elements.
+  //                    Also adds variant="button-only" for places
+  //                    that already provide their own framing card
+  //                    (the homepage shop bridge), to avoid
+  //                    rendering a card-inside-a-card.
   return (
     <section
       ref={sectionRef}
-      className={wrapperClassName}
+      className={resolvedWrapper}
       data-hero-shop-cta
       data-tool-slug={toolSlug}
       data-cta-label={label}
+      data-variant={variant}
       aria-label={label}
     >
-      <a
-        href={target}
-        onMouseEnter={prefetch}
-        onFocus={prefetch}
-        onTouchStart={prefetch}
-        onClick={() =>
-          track("hero_shop_cta_click", {
-            tool: toolSlug,
-            surface,
-            label: buttonLabel,
-          })
-        }
-        className={[
-          "inline-flex items-center gap-1.5 rounded-roji",
-          "px-5 py-2.5",
-          "bg-roji-accent text-roji-black hover:bg-roji-accent/90 transition-colors",
-          "text-sm sm:text-[15px] font-semibold whitespace-nowrap",
-        ].join(" ")}
-      >
-        {buttonLabel}
-      </a>
+      {variant === "button-only" ? (
+        <a
+          href={target}
+          onMouseEnter={prefetch}
+          onFocus={prefetch}
+          onTouchStart={prefetch}
+          onClick={() =>
+            track("hero_shop_cta_click", {
+              tool: toolSlug,
+              surface,
+              label: buttonLabel,
+            })
+          }
+          className={[
+            "inline-flex items-center gap-1.5 rounded-roji",
+            "px-5 py-2.5",
+            "bg-roji-accent text-roji-black hover:bg-roji-accent/90 transition-colors",
+            "text-sm sm:text-[15px] font-semibold whitespace-nowrap",
+          ].join(" ")}
+        >
+          {buttonLabel}
+        </a>
+      ) : (
+        // CARD VARIANT
+        // Layout: [thumbnail in light circular frame] [label] [button]
+        // - Thumbnail: the product photo has a white background. To
+        //   stop it clashing with the dark page, we wrap it in an
+        //   off-white circular container — the white photo bg blends
+        //   into the circle, so the vials look like they're sitting
+        //   on a deliberate disc rather than a foreign rectangle.
+        // - Label: single line on desktop, allowed to wrap to 2 on
+        //   the narrowest mobile widths.
+        // - Button: solid accent, dominant CTA, never wraps.
+        // - Whole card: subtle accent border + faint gradient so it
+        //   reads as a coherent shoppable unit, not a banner ad.
+        <a
+          href={target}
+          onMouseEnter={prefetch}
+          onFocus={prefetch}
+          onTouchStart={prefetch}
+          onClick={() =>
+            track("hero_shop_cta_click", {
+              tool: toolSlug,
+              surface,
+              label: buttonLabel,
+            })
+          }
+          className={[
+            "group block rounded-roji-lg border",
+            "px-3 py-3 sm:px-4 sm:py-4",
+            "transition-[border-color,background-color] duration-200",
+            "hover:border-roji-accent/60",
+          ].join(" ")}
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(79,109,245,0.08) 0%, rgba(79,109,245,0.02) 100%)",
+            borderColor: "rgba(79,109,245,0.30)",
+          }}
+        >
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Thumbnail in cream-tinted circular frame */}
+            <div
+              aria-hidden="true"
+              className={[
+                "shrink-0 overflow-hidden rounded-full",
+                "h-12 w-12 sm:h-14 sm:w-14",
+                "ring-1 ring-roji-accent/25",
+                "flex items-center justify-center",
+              ].join(" ")}
+              style={{ background: "#f5f1ea" }}
+            >
+              <Image
+                src="/cta/peptide-vials.webp"
+                alt=""
+                width={56}
+                height={56}
+                className="h-full w-full object-cover"
+                sizes="56px"
+                priority={false}
+              />
+            </div>
+
+            {/* Framing copy — single line on desktop */}
+            <span
+              className={[
+                "min-w-0 flex-1",
+                "text-[14px] sm:text-[15px] font-medium leading-snug",
+                "text-roji-text",
+              ].join(" ")}
+            >
+              {label}
+            </span>
+
+            {/* Button — never wraps, never shrinks */}
+            <span
+              className={[
+                "shrink-0 inline-flex items-center gap-1.5 rounded-roji",
+                "px-4 py-2 sm:px-5 sm:py-2.5",
+                "bg-roji-accent text-roji-black",
+                "group-hover:bg-roji-accent/90 transition-colors",
+                "text-[13px] sm:text-[15px] font-semibold whitespace-nowrap",
+              ].join(" ")}
+            >
+              {buttonLabel}
+            </span>
+          </div>
+        </a>
+      )}
     </section>
   );
 }

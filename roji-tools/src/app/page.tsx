@@ -138,6 +138,7 @@ export default function HomePage() {
               toolSlug="home"
               surface="home_hero_cta"
               buttonLabel="Shop peptides →"
+              variant="button-only"
               wrapperClassName="flex shrink-0 justify-center sm:justify-end"
             />
           </div>
