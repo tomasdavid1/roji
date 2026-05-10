@@ -104,15 +104,22 @@ export function HeroToolPicker() {
         ))}
       </div>
 
-      {/* Secondary action — shop is one click away from the hero. */}
-      <div className="mt-5 flex items-center justify-center gap-4 text-sm">
+      {/* Secondary action — shop is one click away from the hero.
+          Layout note: previously these two links sat side-by-side with
+          gap-4 and the heavy accent pill made the whole row look
+          offset to the left of the tile grid (the pill's mass is
+          much greater than the ghost link's). We now stack them on
+          their own lines so the pill sits dead-center under the
+          grid and the "See all tools" link reads as a quieter
+          secondary action below. */}
+      <div className="mt-5 flex flex-col items-center gap-3 text-sm">
         <a
           href={`${STORE_URL}/shop/?utm_source=tools&utm_medium=hero&utm_campaign=hero_picker`}
           onClick={() =>
             track("hero_shop_click", { surface: "homepage_hero" })
           }
           className={[
-            "inline-flex items-center gap-1.5 px-4 py-2 rounded-roji-lg",
+            "inline-flex items-center gap-1.5 px-5 py-2.5 rounded-roji-lg",
             "bg-roji-accent text-roji-black",
             "hover:bg-roji-accent/90 transition-colors",
             "font-semibold",
@@ -123,7 +130,7 @@ export function HeroToolPicker() {
         </a>
         <a
           href="#tools-heading"
-          className="text-roji-muted hover:text-roji-text transition-colors"
+          className="text-roji-muted hover:text-roji-text transition-colors text-[13px]"
         >
           See all tools ↓
         </a>

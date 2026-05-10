@@ -67,11 +67,10 @@ interface HeroShopCTAProps {
  */
 export function HeroShopCTA({
   toolSlug,
-  // `label` is no longer rendered (see render below) but kept in the
-  // props so existing per-tool overrides at the page level don't
-  // trigger TypeScript errors. We may bring it back later in a
-  // different visual treatment.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // `label` is no longer rendered visually but remains in the props
+  // contract so existing per-tool overrides at the page level don't
+  // break, and we keep it accessible via aria-label / data-attr so
+  // analytics + screen readers can still read the framing copy.
   label = "Need peptides for your research?",
   buttonLabel = "Shop peptides for research →",
   href,
@@ -181,6 +180,8 @@ export function HeroShopCTA({
       className={wrapperClassName}
       data-hero-shop-cta
       data-tool-slug={toolSlug}
+      data-cta-label={label}
+      aria-label={label}
     >
       <a
         href={target}
