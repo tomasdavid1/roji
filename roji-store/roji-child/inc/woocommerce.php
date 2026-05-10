@@ -250,6 +250,57 @@ add_action(
 	1
 );
 
+/**
+ * Checkout-page trust + "what happens next" banner.
+ *
+ * Why: walkthrough on 2026-05-10 caught that the checkout page opens
+ * with 9 required-field rows and zero context. Real first-time
+ * visitors arriving from a paid ad have no idea (a) that no card is
+ * charged today, (b) that we'll email a payment link, (c) that the
+ * order is reserved while we confirm. The Reserve Order gateway
+ * description explains all of this — but it's at the bottom of the
+ * form, after the user has already decided to bail.
+ *
+ * Placement: woocommerce_before_checkout_form fires BEFORE the form
+ * opens (not before the order-review section), so this block sits at
+ * the very top of /checkout/, above the existing Trustpilot mini
+ * widget and the supply upsell. Three short reassurance lines,
+ * formatted as a card so the eye reads them in <2 seconds.
+ *
+ * Hidden if the user is logged in and already has past orders — they
+ * already know how this works.
+ */
+add_action(
+	'woocommerce_before_checkout_form',
+	function () {
+		if ( is_user_logged_in() ) {
+			$customer_id = get_current_user_id();
+			$has_orders  = wc_get_orders(
+				array(
+					'customer_id' => $customer_id,
+					'limit'       => 1,
+					'status'      => array( 'on-hold', 'processing', 'completed' ),
+					'return'      => 'ids',
+				)
+			);
+			if ( ! empty( $has_orders ) ) {
+				return;
+			}
+		}
+		?>
+<div class="roji-checkout-reassure" role="region" aria-label="What happens next">
+	<div class="roji-checkout-reassure__title">What happens after you place the order</div>
+	<ul class="roji-checkout-reassure__list">
+		<li><strong>Nothing is charged today.</strong> No card details collected on this page.</li>
+		<li><strong>You'll get a secure payment link by email within 24 hours.</strong> Pay then; your order ships after.</li>
+		<li><strong>No account needed.</strong> Just shipping + email so we can send the link.</li>
+	</ul>
+</div>
+		<?php
+	},
+	3
+);
+
 add_action(
 	'template_redirect',
 	function () {

@@ -3386,38 +3386,131 @@ header .current-menu-item > a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 16px;
+  padding: 10px 18px;
   border-radius: var(--roji-radius);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0;
   text-decoration: none !important;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   white-space: nowrap;
 }
+/* Primary "Checkout" CTA — solid filled, slight glow so it reads as
+   THE button to press, not just one of two equal options. The
+   previous outline-only look made it visually competitive with the
+   ghost "View cart" link, which dropped click-through. */
 .roji-cart-notice__btn--primary {
-  background: var(--roji-accent);
+  background: var(--roji-accent) !important;
   color: #fff !important;
-  border: 1px solid var(--roji-accent);
+  border: 1px solid var(--roji-accent) !important;
+  box-shadow: 0 2px 8px rgba(79,109,245,0.30);
 }
-.roji-cart-notice__btn--primary:hover {
-  background: var(--roji-accent-hover);
-  border-color: var(--roji-accent-hover);
+.roji-cart-notice__btn--primary:hover,
+.roji-cart-notice__btn--primary:focus {
+  background: var(--roji-accent-hover) !important;
+  border-color: var(--roji-accent-hover) !important;
   color: #fff !important;
+  box-shadow: 0 4px 12px rgba(79,109,245,0.45);
 }
+/* Ghost "View cart" — quieter still. Now a borderless text link so
+   the eye is unambiguously pulled to the primary Checkout. */
 .roji-cart-notice__btn--ghost {
-  background: transparent;
-  color: var(--roji-text-primary) !important;
-  border: 1px solid var(--roji-border);
+  background: transparent !important;
+  color: var(--roji-text-secondary) !important;
+  border: 1px solid transparent !important;
+  font-weight: 500;
+  padding: 10px 12px;
 }
-.roji-cart-notice__btn--ghost:hover {
-  background: rgba(255,255,255,0.04);
-  border-color: var(--roji-border-hover);
+.roji-cart-notice__btn--ghost:hover,
+.roji-cart-notice__btn--ghost:focus {
+  background: rgba(255,255,255,0.04) !important;
+  color: var(--roji-text-primary) !important;
+  border-color: transparent !important;
 }
 @media (max-width: 480px) {
   .roji-cart-notice { flex-direction: column; align-items: stretch; }
-  .roji-cart-notice__actions { width: 100%; }
-  .roji-cart-notice__btn { flex: 1 1 50%; }
+  .roji-cart-notice__actions { width: 100%; flex-direction: column; gap: 6px; }
+  .roji-cart-notice__btn { flex: 0 0 auto; width: 100%; }
+}
+
+/* ============================================================
+   Checkout — "What happens next" reassurance card
+   ============================================================
+   Sits at the top of /checkout/ (above the Trustpilot widget),
+   only for new users. Explains the Reserve Order flow up front
+   instead of leaving the user to discover "nothing is charged
+   today" only after filling out 9 form fields.
+   ============================================================ */
+.roji-checkout-reassure {
+  background: linear-gradient(180deg, rgba(79,109,245,0.08) 0%, rgba(79,109,245,0.03) 100%);
+  border: 1px solid rgba(79,109,245,0.25);
+  border-left: 3px solid var(--roji-accent);
+  border-radius: var(--roji-radius);
+  padding: 16px 20px;
+  margin: 0 0 22px;
+  color: var(--roji-text-primary);
+}
+.roji-checkout-reassure__title {
+  font-size: 11px;
+  font-family: var(--roji-font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--roji-accent);
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+.roji-checkout-reassure__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.roji-checkout-reassure__list li {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--roji-text-secondary);
+  padding-left: 22px;
+  position: relative;
+}
+.roji-checkout-reassure__list li strong {
+  color: var(--roji-text-primary);
+  font-weight: 600;
+}
+.roji-checkout-reassure__list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--roji-accent);
+  font-weight: 700;
+}
+
+/* ============================================================
+   Cart line item — collapse the duplicate "$99.00" rendering
+   ============================================================
+   On mobile the cart line is laid out as a 2-row card:
+     row 1 = image + product name + price     ($99.00)
+     row 2 = quantity stepper + line subtotal ($99.00)
+   With qty=1 those two prices are identical and the card looks
+   like it's saying "$99 + $99 = $198." Confusing enough that the
+   walk-through user flagged it as "looks weird."
+   Fix: hide the per-row product-price label inside the card on
+   mobile. The line subtotal in the footer row carries the price,
+   and the qty stepper is right next to it so the math is obvious.
+   ============================================================ */
+@media (max-width: 768px) {
+  .woocommerce-cart table.cart tbody tr.cart_item td.product-price {
+    display: none !important;
+  }
+  /* Strengthen the line subtotal so it reads as the price label,
+     not a quiet right-aligned number. */
+  .woocommerce-cart table.cart tbody tr.cart_item td.product-subtotal {
+    font-family: var(--roji-font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--roji-text-primary);
+  }
 }
 
 /* ============================================================
