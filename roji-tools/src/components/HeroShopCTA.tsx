@@ -270,18 +270,24 @@ export function HeroShopCTA({
             borderColor: "rgba(79,109,245,0.30)",
           }}
         >
-          {/* Two columns: a left "[disc][label]" unit that grows
-              together, and the button on the right. The disc and
-              label are paired so they read as one thought ("here's
-              what we sell, here's what it is"). At wide widths the
-              label is one line and the row breathes; at narrow
-              widths the label wraps to 2-3 short lines next to the
-              disc, which the disc's height (h-14 = 56px) comfortably
-              anchors. The middle dead space from the previous
-              "label-hidden-on-mobile" version is gone — the label
-              fills it on every viewport. */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            {/* Left unit: disc + label, packed tight */}
+          {/* Responsive layout strategy:
+              - MOBILE: a 2-row stack. Top row = [disc][label] (label
+                gets the full card width minus the disc, ~250px on a
+                normal phone, plenty for one line of "Peptides + BAC
+                water, ready to ship."). Bottom row = full-width
+                button. This solves the cramming problem from the
+                previous attempts: there's no third element competing
+                for horizontal space, and the button as a full-width
+                bar is the dominant CTA the eye lands on last.
+              - DESKTOP (sm and up): a single row, [disc][label][button],
+                breathing freely.
+
+              The wrapper switches between flex-col (mobile) and flex-row
+              (sm+) plus a gap. items-stretch on mobile + w-full on the
+              button gets us the full-width bar; sm:w-auto on the button
+              releases it back to its natural width on desktop. */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            {/* Top row (mobile) / left side (desktop): disc + label */}
             <div className="flex flex-1 items-center gap-3 sm:gap-4 min-w-0">
               {/* Thumbnail in cream-tinted circular frame */}
               <div
@@ -305,37 +311,36 @@ export function HeroShopCTA({
                 />
               </div>
 
-              {/* Framing copy — wraps naturally; balanced for short,
-                  even line breaks. min-w-0 lets the flex item shrink
-                  below its content's intrinsic width so wrapping
-                  actually happens instead of overflowing the row. */}
+              {/* Framing copy. min-w-0 + text-wrap: balance produces
+                  good wrapping if it ever happens, but with the label
+                  now claiming a full card-row on mobile it should
+                  fit on one line for normal phone widths (~358px
+                  inner). Even on a 320px iPhone SE the label has
+                  ~245px which fits "Peptides + BAC water, ready
+                  to ship." in one line at 13px. */}
               <span
                 className={[
                   "min-w-0",
-                  "text-[13px] sm:text-[15px] font-medium leading-snug",
+                  "text-[14px] sm:text-[15px] font-medium leading-snug",
                   "text-roji-text",
                 ].join(" ")}
-                // text-wrap: balance evens out the line breaks so a
-                // 7-word label like "Peptides + BAC water, ready to
-                // ship." wraps to two roughly-equal lines on phones
-                // instead of one fat line + one orphan word. Modern
-                // CSS, supported in Chrome 114+ / Safari 17.4+; older
-                // browsers fall back to default wrapping which is
-                // still fine.
                 style={{ textWrap: "balance" }}
               >
                 {label}
               </span>
             </div>
 
-            {/* Button — never wraps, never shrinks. */}
+            {/* Button — full width on mobile (commanding bar at the
+                bottom of the card), natural width on desktop where
+                it returns to right-side pill. */}
             <span
               className={[
-                "shrink-0 inline-flex items-center gap-1.5 rounded-roji",
-                "px-4 py-2 sm:px-5 sm:py-2.5",
+                "shrink-0 inline-flex items-center justify-center gap-1.5 rounded-roji",
+                "w-full sm:w-auto",
+                "px-4 py-2.5 sm:px-5 sm:py-2.5",
                 "bg-roji-accent text-roji-black",
                 "group-hover:bg-roji-accent/90 transition-colors",
-                "text-[13px] sm:text-[15px] font-semibold whitespace-nowrap",
+                "text-[14px] sm:text-[15px] font-semibold whitespace-nowrap",
               ].join(" ")}
             >
               {buttonLabel}
