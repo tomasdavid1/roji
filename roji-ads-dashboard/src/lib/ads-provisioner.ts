@@ -1037,7 +1037,32 @@ async function addCampaignCallouts(
   const cust = await getCustomer();
   const customerId = process.env.GOOGLE_ADS_CUSTOMER_ID!;
 
-  const assetOps = callouts.map((co) => ({
+  // Idempotency: skip callouts whose text is already linked to the campaign.
+  // Without this, every `blueprint:live` run would create another full copy
+  // of the callout set on every campaign that has any (so a second run
+  // doubles them, third run triples, etc.). The asset-side dedupe needs
+  // this query because Google Ads will happily create N identical
+  // callout_asset records and link them all to the same campaign.
+  const existing = (await cust.query(`
+    SELECT
+      campaign.id,
+      asset.callout_asset.callout_text
+    FROM campaign_asset
+    WHERE campaign.id = ${campaignId}
+      AND campaign_asset.field_type = 'CALLOUT'
+      AND campaign_asset.status != 'REMOVED'
+  `)) as Array<{ asset?: { callout_asset?: { callout_text?: string } } }>;
+  const existingTexts = new Set(
+    existing
+      .map((r) => r.asset?.callout_asset?.callout_text)
+      .filter((t): t is string => !!t)
+      .map((t) => t.trim().toLowerCase()),
+  );
+
+  const toAdd = callouts.filter((co) => !existingTexts.has(co.text.trim().toLowerCase()));
+  if (toAdd.length === 0) return 0;
+
+  const assetOps = toAdd.map((co) => ({
     callout_asset: {
       callout_text: co.text,
     },
@@ -1045,7 +1070,8 @@ async function addCampaignCallouts(
 
   const assetResp = await cust.assets.create(assetOps as never);
   const assetResources = (assetResp as { results?: Array<{ resource_name?: string }> })
-    .results?.map((r) => r.resource_name ?? "") ?? [];
+    .results?.map((r) => r.resource_name ?? "")
+    .filter(Boolean) ?? [];
 
   const linkOps = assetResources.map((resource) => ({
     asset: resource,
@@ -1054,7 +1080,7 @@ async function addCampaignCallouts(
   }));
 
   await cust.campaignAssets.create(linkOps as never);
-  return callouts.length;
+  return toAdd.length;
 }
 
 async function excludeAge18to24(campaignId: string): Promise<number> {

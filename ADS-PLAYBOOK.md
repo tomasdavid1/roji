@@ -747,6 +747,41 @@ The delta in `add_to_cart` / `tool_engagement` / `page_view` tells you what the 
 
 ---
 
+## Google Ads "Recommendations" panel — what to act on, what to ignore
+
+Google's Recommendations tab is **80% optimization-score gaming and 20% real signal**. The score itself is a gamified vanity metric — Google bumps it whenever you accept anything that broadens reach or hands more control to their automated systems. We do not optimize for opt-score; we optimize for purchase CAC.
+
+Default policy:
+
+| Recommendation type | Default action | Why |
+| --- | --- | --- |
+| Verify your identity (advertiser verification) | **Always do it** within the deadline | Mandatory; ignoring pauses ads. The only Recommendations item with hard consequences. |
+| Conflicting / redundant negative keywords | Investigate before accepting | Often **stale UI state** — Google may flag negatives that don't actually exist when you query the API. Run `npm run ads:apply-c2-recs` (dry-run first) to verify before accepting in the UI. |
+| Add callouts / sitelinks / structured snippets | **Accept**, but author them yourself | Real CTR levers (~2-3% lift each) with no policy risk. Add them via blueprint (callouts, sitelinks) or `apply-c2-recommendations.ts` (structured snippets — no blueprint support yet). Never accept Google's auto-generated suggestions; they pull arbitrary text from your landing page. |
+| "Bid more efficiently with Maximize Conversions" | **Reject until you have 30+ purchases in 30 days** | Smart bidding without a real conversion signal burns budget learning from noise. Stick with MAXIMIZE_CLICKS until the threshold per "Bid strategy transitions" table above. |
+| Add dynamic images / link Merchant Center / Performance Max | **Always reject** | "AI Essential" recs that hand spend control to Google's blackbox. PMax is a budget-vacuum on accounts with no conversion data. |
+| Add new keywords (Google's suggestions) | Reject — blueprint is source of truth | Google's keyword recs ignore our policy-sensitivity context (compound names, therapeutic claims). Curated additions go in `ads-blueprint.ts`. |
+| Use business logo / portfolio bid strategy | Optional, low priority | Logo helps once verified; portfolio strategy only applies once you have 3+ campaigns sharing a budget. |
+
+### Why you usually find the real state via the API, not the UI
+
+The Recommendations panel uses cached data and runs heuristics that don't always survive a live query. Examples we've hit:
+
+- **2026-05-07** — Google's panel said `[research grade peptides]` and `[research grade peptide]` were conflicting EXACT negatives blocking C2 positives. Direct GAQL sweep across `campaign_criterion`, `customer_negative_criterion`, and `shared_set` returned **zero matches**. The corresponding positives were ENABLED / ELIGIBLE / APPROVED. The recommendation was ghost state.
+- The script `roji-ads-dashboard/scripts/apply-c2-recommendations.ts` documents the resolution flow: it queries actual state, applies only the genuine actions (callouts + structured snippet), and skips false-positive items idempotently.
+
+Run pattern when a new recommendation appears:
+
+```bash
+cd roji-ads-dashboard
+npm run ads:apply-c2-recs            # dry-run; prints what's actually live
+npm run ads:apply-c2-recs -- --live  # apply
+```
+
+Mirror anything you accepted into `ads-blueprint.ts` (or document it in the script's header) so the blueprint provisioner stays in sync as the source of truth.
+
+---
+
 ## Troubleshooting
 
 | Symptom | Likely cause | Fix |

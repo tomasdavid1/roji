@@ -1224,6 +1224,28 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
             "names + therapeutic claims still blocked by safety.ts.",
           adGroups: [peptideExperimentAdGroup(toolsUrl)],
           negativeKeywords: POLICY_NEGATIVE_KEYWORDS,
+          // Mirror C1's callout set — added 2026-05-07 in response to
+          // Google Ads' "Callouts are missing from 1 campaign"
+          // recommendation. Same six trust hooks; they line up cleanly
+          // with C2's calculator landing page (free, browser-based,
+          // research-cited tools for adult researchers). Applied live
+          // via scripts/apply-c2-recommendations.ts; declaring them here
+          // so the provisioner sees them as the source of truth and
+          // doesn't duplicate-create on next sync.
+          callouts: [
+            { text: "Free" },
+            { text: "No Signup Required" },
+            { text: "Browser-Based" },
+            { text: "Cites Published Research" },
+            { text: "20+ Data Entries" },
+            { text: "For Researchers Only" },
+          ],
+          // NOTE: C2 also has a "Services" structured-snippet asset
+          // (Reconstitution Calculator / Half-Life Database / Cost Per
+          // Dose / COA Analyzer). Structured snippets are not yet
+          // managed by the blueprint provisioner; they are owned by
+          // scripts/apply-c2-recommendations.ts. If you ever bring
+          // structured snippets into BlueprintCampaign, mirror them here.
           excludeAge18to24: true,
         },
       ],
