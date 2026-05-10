@@ -9,7 +9,7 @@ interface HeroShopCTAProps {
   /**
    * Tool slug — used as the utm_campaign suffix and as the
    * `tool` event param so the funnel can segment which calculator
-   * sourced the click.
+   * sourced the click. Use "home" for the tools landing page.
    */
   toolSlug: string;
   /**
@@ -25,6 +25,23 @@ interface HeroShopCTAProps {
   buttonLabel?: string;
   /** Custom href. Defaults to /shop/ on the store with UTM. */
   href?: string;
+  /**
+   * GA4 event surface — distinguishes where on the site the CTA
+   * lives so we can compare conversion rates per placement.
+   * Defaults to "tool_hero_cta" (above-the-tool position).
+   * Use "home_hero_cta" when rendered on the tools landing page,
+   * which gets ~2x more traffic than any individual tool page but
+   * was generating zero clicks before.
+   */
+  surface?: string;
+  /**
+   * Override the outer <section> wrapper classes. Defaults to the
+   * tool-page positioning (centered on mobile, right-aligned on
+   * desktop, with vertical margin to slot in between PageHero and
+   * the calculator). Set this when embedding inside another card
+   * (e.g. the homepage shop bridge) to neutralize the margins.
+   */
+  wrapperClassName?: string;
 }
 
 /**
@@ -58,6 +75,8 @@ export function HeroShopCTA({
   label = "Need peptides for your research?",
   buttonLabel = "Shop peptides for research →",
   href,
+  surface = "tool_hero_cta",
+  wrapperClassName = "mx-auto max-w-3xl px-6 -mt-1 mb-6 flex justify-center sm:justify-end",
 }: HeroShopCTAProps) {
   const target =
     href ??
@@ -159,7 +178,7 @@ export function HeroShopCTA({
   return (
     <section
       ref={sectionRef}
-      className="mx-auto max-w-3xl px-6 -mt-1 mb-6 flex justify-center sm:justify-end"
+      className={wrapperClassName}
       data-hero-shop-cta
       data-tool-slug={toolSlug}
     >
@@ -171,7 +190,7 @@ export function HeroShopCTA({
         onClick={() =>
           track("hero_shop_cta_click", {
             tool: toolSlug,
-            surface: "tool_hero_cta",
+            surface,
             label: buttonLabel,
           })
         }

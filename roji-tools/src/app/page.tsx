@@ -1,3 +1,4 @@
+import { HeroShopCTA } from "@/components/HeroShopCTA";
 import { HeroToolPicker } from "@/components/HeroToolPicker";
 import { ToolCard } from "@/components/ToolCard";
 import { TrustSignals } from "@/components/TrustSignals";
@@ -97,6 +98,48 @@ export default function HomePage() {
             {DIRECTORY_TOOLS.map((tool) => (
               <ToolCard key={tool.slug} tool={tool} />
             ))}
+          </div>
+        </section>
+
+        {/* ── SHOP BRIDGE ─────────────────────────────────────────── */}
+        {/* Homepage funnel data (May 2026): 696 pageviews / 30d → 0
+            store clicks. The only existing store link was a thin
+            "Explore research stacks →" text link buried in the About
+            section near the bottom of the page. This card sits right
+            after the tool grid (so users have already seen we run
+            real free tools = legit) and uses the same HeroShopCTA
+            component as the per-tool pages, with surface="home_hero_cta"
+            so we can compare conversion rates per placement. */}
+        <section
+          className="mt-12 max-w-3xl mx-auto"
+          aria-labelledby="home-shop-heading"
+        >
+          <div
+            className="rounded-roji border px-6 py-6 sm:px-8 sm:py-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(79,109,245,0.08) 0%, rgba(79,109,245,0.02) 100%)",
+              borderColor: "rgba(79,109,245,0.25)",
+            }}
+          >
+            <div className="text-left">
+              <h2
+                id="home-shop-heading"
+                className="text-roji-text font-semibold text-lg sm:text-xl leading-snug"
+              >
+                Need peptides for your research?
+              </h2>
+              <p className="mt-1.5 text-roji-muted text-sm sm:text-[15px] leading-relaxed">
+                Same standard as our tools — third-party tested, 99%+ purity,
+                citations on every product page.
+              </p>
+            </div>
+            <HeroShopCTA
+              toolSlug="home"
+              surface="home_hero_cta"
+              buttonLabel="Shop peptides →"
+              wrapperClassName="flex shrink-0 justify-center sm:justify-end"
+            />
           </div>
         </section>
 
