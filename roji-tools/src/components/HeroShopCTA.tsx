@@ -270,58 +270,67 @@ export function HeroShopCTA({
             borderColor: "rgba(79,109,245,0.30)",
           }}
         >
+          {/* Two columns: a left "[disc][label]" unit that grows
+              together, and the button on the right. The disc and
+              label are paired so they read as one thought ("here's
+              what we sell, here's what it is"). At wide widths the
+              label is one line and the row breathes; at narrow
+              widths the label wraps to 2-3 short lines next to the
+              disc, which the disc's height (h-14 = 56px) comfortably
+              anchors. The middle dead space from the previous
+              "label-hidden-on-mobile" version is gone — the label
+              fills it on every viewport. */}
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Thumbnail in cream-tinted circular frame */}
-            <div
-              aria-hidden="true"
-              className={[
-                "shrink-0 overflow-hidden rounded-full",
-                "h-12 w-12 sm:h-14 sm:w-14",
-                "ring-1 ring-roji-accent/25",
-                "flex items-center justify-center",
-              ].join(" ")}
-              style={{ background: "#f5f1ea" }}
-            >
-              <Image
-                src="/cta/peptide-vials.webp"
-                alt=""
-                width={56}
-                height={56}
-                className="h-full w-full object-cover"
-                sizes="56px"
-                priority={false}
-              />
+            {/* Left unit: disc + label, packed tight */}
+            <div className="flex flex-1 items-center gap-3 sm:gap-4 min-w-0">
+              {/* Thumbnail in cream-tinted circular frame */}
+              <div
+                aria-hidden="true"
+                className={[
+                  "shrink-0 overflow-hidden rounded-full",
+                  "h-12 w-12 sm:h-14 sm:w-14",
+                  "ring-1 ring-roji-accent/25",
+                  "flex items-center justify-center",
+                ].join(" ")}
+                style={{ background: "#f5f1ea" }}
+              >
+                <Image
+                  src="/cta/peptide-vials.webp"
+                  alt=""
+                  width={56}
+                  height={56}
+                  className="h-full w-full object-cover"
+                  sizes="56px"
+                  priority={false}
+                />
+              </div>
+
+              {/* Framing copy — wraps naturally; balanced for short,
+                  even line breaks. min-w-0 lets the flex item shrink
+                  below its content's intrinsic width so wrapping
+                  actually happens instead of overflowing the row. */}
+              <span
+                className={[
+                  "min-w-0",
+                  "text-[13px] sm:text-[15px] font-medium leading-snug",
+                  "text-roji-text",
+                ].join(" ")}
+                // text-wrap: balance evens out the line breaks so a
+                // 7-word label like "Peptides + BAC water, ready to
+                // ship." wraps to two roughly-equal lines on phones
+                // instead of one fat line + one orphan word. Modern
+                // CSS, supported in Chrome 114+ / Safari 17.4+; older
+                // browsers fall back to default wrapping which is
+                // still fine.
+                style={{ textWrap: "balance" }}
+              >
+                {label}
+              </span>
             </div>
 
-            {/* Framing copy — hidden on mobile to keep [thumb][button]
-                on a single tidy line. At narrow widths there isn't room
-                for thumb + meaningful label + button without word-by-word
-                wrapping (rendered as "Peptides / + / BAC / water, / ready
-                / to / ship." in May 2026 user feedback). The label is
-                still in the DOM for screen readers via aria-label on the
-                section wrapper, and it's preserved as a data-cta-label
-                attribute. Desktop (sm and up) shows it inline as designed. */}
+            {/* Button — never wraps, never shrinks. */}
             <span
               className={[
-                "hidden sm:inline",
-                "min-w-0 flex-1",
-                "text-[14px] sm:text-[15px] font-medium leading-snug",
-                "text-roji-text",
-              ].join(" ")}
-            >
-              {label}
-            </span>
-
-            {/* Button — never wraps, never shrinks. ml-auto pushes
-                it to the right edge of the card on mobile (where
-                the label is hidden, so without ml-auto disc + button
-                would sit shoulder-to-shoulder on the left with empty
-                space behind the button). On sm+ the visible label
-                takes flex-1 between disc and button so ml-auto is a
-                no-op. */}
-            <span
-              className={[
-                "ml-auto sm:ml-0",
                 "shrink-0 inline-flex items-center gap-1.5 rounded-roji",
                 "px-4 py-2 sm:px-5 sm:py-2.5",
                 "bg-roji-accent text-roji-black",
