@@ -293,9 +293,17 @@ export function HeroShopCTA({
               />
             </div>
 
-            {/* Framing copy — single line on desktop */}
+            {/* Framing copy — hidden on mobile to keep [thumb][button]
+                on a single tidy line. At narrow widths there isn't room
+                for thumb + meaningful label + button without word-by-word
+                wrapping (rendered as "Peptides / + / BAC / water, / ready
+                / to / ship." in May 2026 user feedback). The label is
+                still in the DOM for screen readers via aria-label on the
+                section wrapper, and it's preserved as a data-cta-label
+                attribute. Desktop (sm and up) shows it inline as designed. */}
             <span
               className={[
+                "hidden sm:inline",
                 "min-w-0 flex-1",
                 "text-[14px] sm:text-[15px] font-medium leading-snug",
                 "text-roji-text",
@@ -304,9 +312,16 @@ export function HeroShopCTA({
               {label}
             </span>
 
-            {/* Button — never wraps, never shrinks */}
+            {/* Button — never wraps, never shrinks. ml-auto pushes
+                it to the right edge of the card on mobile (where
+                the label is hidden, so without ml-auto disc + button
+                would sit shoulder-to-shoulder on the left with empty
+                space behind the button). On sm+ the visible label
+                takes flex-1 between disc and button so ml-auto is a
+                no-op. */}
             <span
               className={[
+                "ml-auto sm:ml-0",
                 "shrink-0 inline-flex items-center gap-1.5 rounded-roji",
                 "px-4 py-2 sm:px-5 sm:py-2.5",
                 "bg-roji-accent text-roji-black",

@@ -14,8 +14,14 @@ interface PageHeroProps {
 }
 
 export function PageHero({ pill, title, lede }: PageHeroProps) {
+  // Note: the bottom border that used to live here was removed
+  // 2026-05-10. It bled through the HeroShopCTA card sitting just
+  // below — the card has a translucent gradient background, so any
+  // hairline beneath it shows up as a "line crossing the banner."
+  // The hero already has plenty of vertical separation via padding;
+  // the border was decorative-only.
   return (
-    <section className="relative overflow-hidden border-b border-roji-border">
+    <section className="relative overflow-hidden">
       <div className="roji-orb" aria-hidden="true" />
       <div className="relative mx-auto max-w-3xl px-6 pt-16 pb-12 text-center">
         <div className="roji-pill mb-4">{pill}</div>
