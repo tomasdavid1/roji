@@ -1080,15 +1080,15 @@ input[type="radio"] {
     grid-template-columns: 72px 1fr;
     grid-template-areas:
       "thumb  name"
-      "thumb  price"
       "thumb  meta"
-      "footer footer";
-    column-gap: 14px;
-    row-gap: 4px;
+      "divide divide"
+      "qty    sub";
+    column-gap: 16px;
+    row-gap: 6px;
     background: var(--roji-card);
     border: 1px solid var(--roji-border);
     border-radius: var(--roji-radius-lg);
-    padding: 14px 14px 12px;
+    padding: 16px 16px 14px;
     margin: 0 0 12px;
     position: relative;
   }
@@ -1103,15 +1103,18 @@ input[type="radio"] {
     font-size: 14px;
   }
   .woocommerce-cart table.cart td.product-thumbnail { grid-area: thumb; }
-  .woocommerce-cart table.cart td.product-name      { grid-area: name; }
-  .woocommerce-cart table.cart td.product-price     { grid-area: price; }
-  /* Per-line subtotal shows in the footer next to the qty stepper.
-     We keep .product-subtotal in the DOM (some plugins read it) but
-     reposition it via grid into the footer area. */
-  .woocommerce-cart table.cart td.product-subtotal  { grid-area: footer; justify-self: end; align-self: center; }
-  .woocommerce-cart table.cart td.product-quantity  { grid-area: footer; justify-self: start; align-self: center; }
-  /* Remove pinned to top-right of the card so the footer row can
-     stay clean (qty + line subtotal). */
+  .woocommerce-cart table.cart td.product-name      { grid-area: name; align-self: start; }
+  /* Hide the per-row product-price entirely on mobile — the line
+     subtotal in the bottom row is the source-of-truth price. With
+     qty=1 the two values are identical and reading $99 / $99 looked
+     like a doubled charge in walkthrough QA. */
+  .woocommerce-cart table.cart td.product-price    { display: none !important; }
+  /* Footer row: qty stepper on the left, line subtotal on the right.
+     No overlap with the thumb column — both cells live below the
+     full-width divider, with the qty cell starting at column 1. */
+  .woocommerce-cart table.cart td.product-quantity  { grid-area: qty; justify-self: start; align-self: center; }
+  .woocommerce-cart table.cart td.product-subtotal  { grid-area: sub; justify-self: end;   align-self: center; }
+  /* Remove pinned to top-right of the card. */
   .woocommerce-cart table.cart td.product-remove {
     position: absolute;
     top: 10px;
@@ -1135,27 +1138,24 @@ input[type="radio"] {
     padding-right: 36px;
     display: inline-block;
   }
-  .woocommerce-cart table.cart td.product-price {
-    color: var(--roji-text-secondary);
+
+  /* Strengthen the line subtotal so it reads as "this is the price." */
+  .woocommerce-cart table.cart td.product-subtotal {
     font-family: var(--roji-font-mono);
-    font-size: 13px;
-    margin-top: 2px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--roji-text-primary);
   }
 
-  /* Footer row separator — divides the product block from the
-     qty/subtotal controls so the card has clear visual hierarchy. */
-  .woocommerce-cart table.cart tbody tr.cart_item::before {
+  /* Full-width horizontal divider between the product info row and
+     the qty/subtotal footer row. Lives in its own grid area so it
+     can't overlap the thumbnail or stretch into adjacent cells. */
+  .woocommerce-cart table.cart tbody tr.cart_item::after {
     content: "";
-    grid-area: footer;
+    grid-area: divide;
     height: 1px;
-    background: rgba(255, 255, 255, 0.05);
-    align-self: start;
-    margin: 10px -14px 8px;
-  }
-  /* Stretch the rule across the full card width regardless of
-     the absolute remove button. */
-  .woocommerce-cart table.cart tbody tr.cart_item {
-    /* nothing extra; the ::before negative margins above handle bleed */
+    background: rgba(255, 255, 255, 0.06);
+    margin: 6px -16px 4px;
   }
 
   /* Quantity stepper — minus / input / plus, integrated. */
@@ -3486,32 +3486,10 @@ header .current-menu-item > a {
   font-weight: 700;
 }
 
-/* ============================================================
-   Cart line item — collapse the duplicate "$99.00" rendering
-   ============================================================
-   On mobile the cart line is laid out as a 2-row card:
-     row 1 = image + product name + price     ($99.00)
-     row 2 = quantity stepper + line subtotal ($99.00)
-   With qty=1 those two prices are identical and the card looks
-   like it's saying "$99 + $99 = $198." Confusing enough that the
-   walk-through user flagged it as "looks weird."
-   Fix: hide the per-row product-price label inside the card on
-   mobile. The line subtotal in the footer row carries the price,
-   and the qty stepper is right next to it so the math is obvious.
-   ============================================================ */
-@media (max-width: 768px) {
-  .woocommerce-cart table.cart tbody tr.cart_item td.product-price {
-    display: none !important;
-  }
-  /* Strengthen the line subtotal so it reads as the price label,
-     not a quiet right-aligned number. */
-  .woocommerce-cart table.cart tbody tr.cart_item td.product-subtotal {
-    font-family: var(--roji-font-mono);
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--roji-text-primary);
-  }
-}
+/* Cart line-item layout fixes are integrated into the @media block
+   above (see the .woocommerce-cart table.cart tbody tr.cart_item
+   grid). The duplicate price collapse and the divider/spacing fixes
+   live there so they share one source of truth. */
 
 /* ============================================================
    Research-library inline shop CTAs
