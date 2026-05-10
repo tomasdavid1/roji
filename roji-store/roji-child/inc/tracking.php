@@ -258,23 +258,58 @@ add_action(
 				'price'     => $product ? (float) $product->get_price() : 0,
 			);
 		} elseif ( is_cart() ) {
-			$event = 'cart_view';
+			// `view_cart` is the GA4-standard ecommerce event name. We
+			// previously emitted `cart_view`; renamed 2026-05-10 so
+			// GA4's built-in funnel reports + Google Ads conversion
+			// imports can see the cart-page visit. The legacy event
+			// is also emitted on the same load so any existing report
+			// or audience definition keyed to `cart_view` keeps working.
+			$event = 'view_cart';
 			$cart  = WC()->cart;
 			if ( $cart ) {
+				$items = array();
+				foreach ( $cart->get_cart() as $cart_item ) {
+					$product = isset( $cart_item['data'] ) ? $cart_item['data'] : null;
+					if ( ! $product ) { continue; }
+					$items[] = array(
+						'item_id'   => (string) $product->get_sku(),
+						'item_name' => (string) $product->get_name(),
+						'price'     => (float) $product->get_price(),
+						'quantity'  => (int) $cart_item['quantity'],
+					);
+				}
 				$extra = array(
 					'value'       => (float) $cart->get_total( 'edit' ),
 					'currency'    => get_woocommerce_currency(),
 					'items_count' => (int) $cart->get_cart_contents_count(),
+					'items'       => $items,
 				);
 			}
 		} elseif ( is_checkout() && ! is_wc_endpoint_url( 'order-received' ) ) {
-			$event = 'checkout_view';
+			// `begin_checkout` is the GA4-standard event. We previously
+			// emitted `checkout_view`; renamed 2026-05-10 so GA4's
+			// purchase-funnel reports + Google Ads "Begin checkout"
+			// conversion can attribute. Legacy `checkout_view` still
+			// fires below so existing reports don't go dark.
+			$event = 'begin_checkout';
 			$cart  = WC()->cart;
 			if ( $cart ) {
+				$items = array();
+				foreach ( $cart->get_cart() as $cart_item ) {
+					$product = isset( $cart_item['data'] ) ? $cart_item['data'] : null;
+					if ( ! $product ) { continue; }
+					$items[] = array(
+						'item_id'   => (string) $product->get_sku(),
+						'item_name' => (string) $product->get_name(),
+						'price'     => (float) $product->get_price(),
+						'quantity'  => (int) $cart_item['quantity'],
+					);
+				}
 				$extra = array(
 					'value'       => (float) $cart->get_total( 'edit' ),
 					'currency'    => get_woocommerce_currency(),
 					'items_count' => (int) $cart->get_cart_contents_count(),
+					'items'       => $items,
 				);
 			}
 		}
@@ -282,11 +317,28 @@ add_action(
 		if ( empty( $event ) ) {
 			return;
 		}
+
+		// For backwards compatibility, also emit the legacy event name
+		// so any GA4 audience or report still keyed to the old names
+		// keeps reading data while we migrate them. Mapping:
+		//   view_cart       → cart_view (legacy)
+		//   begin_checkout  → checkout_view (legacy)
+		// Other events have no legacy counterpart.
+		$legacy_event = '';
+		if ( 'view_cart' === $event ) {
+			$legacy_event = 'cart_view';
+		} elseif ( 'begin_checkout' === $event ) {
+			$legacy_event = 'checkout_view';
+		}
 		?>
 <script>
 (function () {
   if (typeof gtag !== 'function') return;
-  gtag('event', <?php echo wp_json_encode( $event ); ?>, <?php echo wp_json_encode( $extra ); ?>);
+  var payload = <?php echo wp_json_encode( $extra ); ?>;
+  gtag('event', <?php echo wp_json_encode( $event ); ?>, payload);
+		<?php if ( $legacy_event ) : ?>
+  gtag('event', <?php echo wp_json_encode( $legacy_event ); ?>, payload);
+		<?php endif; ?>
 })();
 </script>
 		<?php
