@@ -754,6 +754,32 @@ The delta in `add_to_cart` / `tool_engagement` / `page_view` tells you what the 
 
 ---
 
+## Daily funnel snapshot (auto-cron)
+
+`.github/workflows/daily-funnel-report.yml` runs `npm run report:today` once a day at **23:30 UTC** (= ~7:30 PM EDT, end of the US prime ad window) and commits the captured output to `roji-ads-dashboard/reports/YYYY-MM-DD.md` on `main`. This is how we get a rolling trajectory rather than spot-checks.
+
+**One-time setup (do this BEFORE the first scheduled run, or it will fail):**
+
+GitHub repo Settings → Secrets and variables → Actions → New repository secret. Add nine secrets, copying the values from `roji-ads-dashboard/.env.local`:
+
+| Secret name | Source |
+| --- | --- |
+| `GOOGLE_ADS_CLIENT_ID` | OAuth client (shared with GA4) |
+| `GOOGLE_ADS_CLIENT_SECRET` | OAuth client (shared with GA4) |
+| `GOOGLE_ADS_DEVELOPER_TOKEN` | Google Ads developer console |
+| `GOOGLE_ADS_REFRESH_TOKEN` | `node scripts/get-refresh-token.js` |
+| `GOOGLE_ADS_CUSTOMER_ID` | Google Ads UI top-right |
+| `GOOGLE_ADS_LOGIN_CUSTOMER_ID` | Manager account ID (if MCC) |
+| `GA4_PROPERTY_ID` | GA4 Admin → Property Settings (numeric) |
+| `GA4_REFRESH_TOKEN` | `node scripts/get-ga4-refresh-token.js` |
+| `GA4_PAID_FILTER` | optional; defaults to `lenient` |
+
+To run ad-hoc (mid-day spot check, or after a token rotation): GitHub Actions tab → "Daily funnel snapshot" → "Run workflow". An ad-hoc run on the same date as the scheduled run **appends** rather than overwrites — the day's file accumulates re-runs as separate "Re-run at HH:MM UTC" sections.
+
+If a scheduled run fails, the workflow exits non-zero and you'll get a GitHub email. Common causes: GA4 refresh token expired (run `scripts/get-ga4-refresh-token.js` and update the secret), Google Ads developer-token rate limit hit (rerun manually 5 min later), or a transient API error (rerun manually).
+
+---
+
 ## Google Ads "Recommendations" panel — what to act on, what to ignore
 
 Google's Recommendations tab is **80% optimization-score gaming and 20% real signal**. The score itself is a gamified vanity metric — Google bumps it whenever you accept anything that broadens reach or hands more control to their automated systems. We do not optimize for opt-score; we optimize for purchase CAC.

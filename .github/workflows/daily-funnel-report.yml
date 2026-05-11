@@ -1,0 +1,224 @@
+name: Daily funnel snapshot
+
+# Runs roji-ads-dashboard's `report:today` end-of-day, saves the
+# captured output to roji-ads-dashboard/reports/YYYY-MM-DD.md, and
+# commits the file back to main.
+#
+# Why this exists: between the C2 budget bump and the funnel fixes
+# of May 2026, we need a rolling daily record of spend × clicks ×
+# tool_views × store_outbound_clicks × ATC × begin_checkout so we
+# can see trajectory over weeks, not just spot-check today vs
+# yesterday. Manually running the report and pasting it into a chat
+# is fine once or twice; it's not a system. This is.
+#
+# Schedule: 23:30 UTC daily = 7:30 PM EST / 4:30 PM PST = end of the
+# US prime advertising window. By that time all of "today's" Google
+# Ads spend has been booked and GA4 has flushed the day's events.
+# A 30-minute delay before midnight UTC also avoids edge cases
+# where the cron fires before all upstream APIs have closed the
+# day's books.
+#
+# Required GitHub repo secrets (Settings → Secrets → Actions):
+#   GOOGLE_ADS_CLIENT_ID
+#   GOOGLE_ADS_CLIENT_SECRET
+#   GOOGLE_ADS_DEVELOPER_TOKEN
+#   GOOGLE_ADS_REFRESH_TOKEN
+#   GOOGLE_ADS_CUSTOMER_ID
+#   GOOGLE_ADS_LOGIN_CUSTOMER_ID
+#   GA4_PROPERTY_ID
+#   GA4_REFRESH_TOKEN
+#   GA4_PAID_FILTER  (optional — defaults to "lenient" if unset)
+#
+# All eight are already set on Vercel for the same project, so
+# copying their values into GitHub Settings → Secrets is a one-time
+# manual step. The values are identical (same OAuth refresh tokens
+# work in both contexts).
+
+on:
+  schedule:
+    # 23:30 UTC every day. GitHub's cron has best-effort scheduling
+    # — actual run time may slip 5-15 minutes during peak load.
+    # That's fine for a daily report.
+    - cron: '30 23 * * *'
+  workflow_dispatch:
+    # Manual trigger for ad-hoc runs (e.g. mid-day spot-check, or
+    # backfilling a missed day after a token rotation).
+    inputs:
+      reason:
+        description: 'Why running ad-hoc? (logged to commit message)'
+        required: false
+        default: 'manual'
+
+# One run at a time. If two cron firings somehow overlap (unlikely
+# but possible during GitHub Actions outages catching up), serialize
+# them so we don't double-commit a same-day report.
+concurrency:
+  group: daily-funnel-report
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      # Need write access to push the report markdown back to main.
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: roji-ads-dashboard/package-lock.json
+
+      - name: Install deps
+        working-directory: roji-ads-dashboard
+        run: npm ci --no-audit --no-fund
+
+      - name: Compute report date (US-Eastern day boundary)
+        id: today
+        run: |
+          # Use America/New_York for the date stamp so a 23:30 UTC run
+          # (= 7:30 PM EDT / 6:30 PM EST) labels the file with the US
+          # day that just finished, not the UTC day that is still in
+          # progress. Manual ad-hoc runs at any UTC time also get the
+          # current US-Eastern date, which is what someone running
+          # the report intuitively means by "today."
+          d=$(TZ=America/New_York date +%Y-%m-%d)
+          echo "date=$d" >> "$GITHUB_OUTPUT"
+          echo "Report date: $d"
+
+      - name: Run today-report.ts and capture output
+        id: run
+        working-directory: roji-ads-dashboard
+        env:
+          GOOGLE_ADS_CLIENT_ID: ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
+          GOOGLE_ADS_CLIENT_SECRET: ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
+          GOOGLE_ADS_DEVELOPER_TOKEN: ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_REFRESH_TOKEN: ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
+          GOOGLE_ADS_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
+          GOOGLE_ADS_LOGIN_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          GA4_REFRESH_TOKEN: ${{ secrets.GA4_REFRESH_TOKEN }}
+          # Default to lenient if unset (matches the in-app default
+          # in src/lib/ga4.ts so the workflow's behavior matches a
+          # local `npm run report:today`).
+          GA4_PAID_FILTER: ${{ secrets.GA4_PAID_FILTER || 'lenient' }}
+          # Quiet the dotenvx tip lines so they don't clutter the
+          # captured output.
+          DOTENV_CONFIG_QUIET: 'true'
+        run: |
+          set -o pipefail
+          mkdir -p reports
+          # Run with `--require ./scripts/_cli-bootstrap.cjs --import tsx`
+          # via the existing npm script. Pipe through a filter that drops
+          # the dotenv tip lines and Node DeprecationWarnings, but keeps
+          # everything else. tee writes to a tmp file we'll wrap below.
+          tmp=$(mktemp)
+          set +e
+          npm run --silent report:today 2>&1 \
+            | grep -v -E '^◇ injected env|DeprecationWarning:|Use \`node --trace-deprecation' \
+            > "$tmp"
+          rc=${PIPESTATUS[0]}
+          set -e
+          # Always show the captured output in the job log so a failed
+          # run is debuggable from GitHub UI without re-runs.
+          echo "----- captured output -----"
+          cat "$tmp"
+          echo "----- end captured output (rc=$rc) -----"
+          if [ "$rc" -ne 0 ]; then
+            echo "::error::report:today exited non-zero (rc=$rc)"
+            exit "$rc"
+          fi
+          # Stash the path for the next step.
+          echo "tmp_output=$tmp" >> "$GITHUB_OUTPUT"
+
+      - name: Wrap output as dated markdown report
+        id: write
+        working-directory: roji-ads-dashboard
+        env:
+          REPORT_DATE: ${{ steps.today.outputs.date }}
+          TMP_OUTPUT: ${{ steps.run.outputs.tmp_output }}
+          TRIGGER: ${{ github.event_name }}
+          REASON: ${{ github.event.inputs.reason }}
+        run: |
+          set -euo pipefail
+          out="reports/${REPORT_DATE}.md"
+          # If the same date already has a report (manual re-run), append
+          # the new run as a second section instead of clobbering. That
+          # way ad-hoc spot-checks during the day are preserved alongside
+          # the scheduled end-of-day snapshot.
+          if [ -f "$out" ]; then
+            {
+              echo ""
+              echo "---"
+              echo ""
+              echo "## Re-run at $(date -u +%H:%M) UTC ($TRIGGER${REASON:+ — $REASON})"
+              echo ""
+              echo '```'
+              cat "$TMP_OUTPUT"
+              echo '```'
+            } >> "$out"
+            echo "Appended to existing $out"
+          else
+            {
+              echo "# Daily funnel snapshot — $REPORT_DATE"
+              echo ""
+              echo "_Generated $(date -u +'%Y-%m-%d %H:%M') UTC by .github/workflows/daily-funnel-report.yml_"
+              echo "_Trigger: $TRIGGER${REASON:+ ($REASON)}_"
+              echo ""
+              echo '```'
+              cat "$TMP_OUTPUT"
+              echo '```'
+            } > "$out"
+            echo "Wrote $out"
+          fi
+          # Expose for the commit step.
+          echo "out_path=$out" >> "$GITHUB_OUTPUT"
+
+      - name: Commit report
+        env:
+          REPORT_DATE: ${{ steps.today.outputs.date }}
+          OUT_PATH: ${{ steps.write.outputs.out_path }}
+          TRIGGER: ${{ github.event_name }}
+          REASON: ${{ github.event.inputs.reason }}
+        run: |
+          set -euo pipefail
+          # Configure the bot identity. Per the safety rules we never
+          # set this globally — only for this single run.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Pull right before commit to avoid push races with concurrent
+          # workflow runs (different paths, but same branch). --rebase
+          # keeps history linear.
+          git pull --rebase --quiet origin main
+
+          git add "roji-ads-dashboard/$OUT_PATH"
+
+          # If nothing changed (e.g. an idempotent re-run produced the
+          # same bytes), bail cleanly without an empty commit.
+          if git diff --cached --quiet; then
+            echo "No changes to commit — report content matched what's already on main."
+            exit 0
+          fi
+
+          msg="reports: daily funnel snapshot for $REPORT_DATE"
+          if [ "$TRIGGER" = "workflow_dispatch" ]; then
+            msg="$msg (manual${REASON:+ — $REASON})"
+          fi
+
+          git commit -m "$msg"
+          # If the push fails because of a race (rare, given concurrency:
+          # group), one quick re-pull + push attempt recovers without
+          # needing manual intervention.
+          if ! git push origin main; then
+            echo "First push failed — re-pulling and retrying once."
+            git pull --rebase --quiet origin main
+            git push origin main
+          fi
