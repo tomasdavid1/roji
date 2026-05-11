@@ -45,19 +45,37 @@ type SelfRule = {
  */
 export const SELF_TRAFFIC_RULES: SelfRule[] = [
   {
-    label: "Tomas — mobile QA via tools→store HeroShopCTA",
+    // The blanket rule. The developer (Tomas) lives in Rio de Janeiro
+    // and is the only known person who tests this site from there.
+    // Both campaigns C1 (removed 2026-05-10) and C2 are geo-targeted
+    // to US-only, so legitimate paid traffic from Rio is impossible
+    // by configuration. The store is not advertised in Brazil, and
+    // peptide regulation in Brazil makes organic Brazilian buyers
+    // extremely unlikely. Therefore: ANY session originating in Rio
+    // de Janeiro is treated as self-traffic, regardless of source/
+    // medium/device.
+    //
+    // History of this rule:
+    //   v1 (initial): Rio + mobile + sessionMedium=hero_cta + sessionSource=tools.
+    //                 Missed sessions where medium was "hero" instead of "hero_cta".
+    //   v2 (2026-05-09): Added "hero" to sessionMediums.
+    //   v3 (2026-05-09): Added a second rule for direct/(not set)
+    //                    Rio visits (typed URLs, bookmarks).
+    //   v4 (2026-05-11): The day after C2 resumed, the dev clicked
+    //                    their own Google Ads link from Rio to QA
+    //                    the funnel. GA4 attributed those as
+    //                    google/cpc, neither prior rule caught them,
+    //                    and the 2 self-clicks produced 2 ATCs +
+    //                    1 checkout_view that almost got celebrated
+    //                    as "first conversions ever!". Replaced the
+    //                    narrow per-source rules with this single
+    //                    blanket "anything from Rio" rule.
+    //
+    // Risk of false-negatives (swallowing real traffic): essentially
+    // zero given the targeting + business reality.
+    label: "Tomas — any traffic from Rio de Janeiro (developer location)",
     country: "Brazil",
     city: "Rio de Janeiro",
-    sessionMediums: ["hero_cta"],
-    sessionSources: ["tools"],
-    deviceCategories: ["mobile"],
-  },
-  {
-    label: "Tomas — direct visits from Rio (any device)",
-    country: "Brazil",
-    city: "Rio de Janeiro",
-    sessionMediums: ["(none)", "(not set)"],
-    sessionSources: ["(direct)", "(not set)"],
   },
 ];
 
