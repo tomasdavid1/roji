@@ -1204,13 +1204,14 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
           // isolation (a disapproval here can't pause C1), and clean
           // per-campaign reporting in the Google Ads UI.
           name: "C2 — Peptide Research — Experiment [roji-blueprint]",
-          // Bumped from $5 → $15 → $35 across 2026-05-01. C2 is the
-          // strongest performer in the account (18.18% CTR on
-          // `research peptide`, $0.70 CPC and dropping as Quality
-          // Score kicks in). $35/day is the project's stated ad
-          // budget ceiling — every dollar at this CTR is going
-          // farther than anywhere else.
-          dailyBudgetUsd: opts.peptideExperimentBudget ?? 35,
+          // Bumped from $5 → $15 → $35 across 2026-05-01. Bumped to
+          // $40 on 2026-05-10 when C2 resumed and C1 was removed
+          // (focus all spend here). Trimmed back to $30 on 2026-05-12
+          // after 2 days at $40 produced 0 real reserve-orders against
+          // ~$78 spend; user wanted to slow the burn while we wait
+          // for the funnel signal to develop. $30 keeps the campaign
+          // visible without spending into noise.
+          dailyBudgetUsd: opts.peptideExperimentBudget ?? 30,
           channel: "SEARCH",
           language: "en",
           geoTargets: ["US"],

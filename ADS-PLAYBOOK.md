@@ -411,6 +411,7 @@ Use this during daily check-ins. Every decision has a data threshold so we don't
 | --- | --- | --- | --- |
 | 2026-05-10 | C1 — Research Tools — Calculators (id 23802331833) | **REMOVED** (irreversible) | $5/day × 30+ days, 21 clicks / $48 spend / 0 conversions in last 7d. Calculator-name keywords didn't convert to store visits. Decision: focus exclusively on C2. Live action via `scripts/campaign-c1-remove-c2-resume.ts --live`. |
 | 2026-05-10 | C2 — Peptide Research — Experiment (id 23813304892) | RESUMED at $40/day | Strongest performer in account (18% CTR on `research peptide`). Tools-site funnel fixes (cart layout, GA4 events, paid-homepage redirect, checkout reassurance) all just shipped after Vercel deploys had been silently failing for 3 days — first run with the *actual* fixes live. |
+| 2026-05-12 | C2 — Peptide Research — Experiment (id 23813304892) | Budget trimmed $40 → $30/day | After 2 days at $40 (May 10-11) the funnel produced ~$78 spend, ~12 real store visits (Rio self-traffic excluded), 1 ATC, 0 reserve orders. Inside the playbook's "100+ clicks, 0 conversions over 3-4 weeks" tolerance, but slowing the burn while we wait for signal to develop. Reconvene Wednesday night. Live action via `node scripts/set-campaign-budget.js 23813304892 30`. |
 
 ### C2 (Peptide Experiment) escalation ladder
 
