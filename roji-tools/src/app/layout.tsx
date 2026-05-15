@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 
+import { LlmReferralTracker } from "@/components/LlmReferralTracker";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteJsonLd } from "@/components/SiteJsonLd";
@@ -112,6 +113,7 @@ export default function RootLayout({
           </>
         )}
         <SiteJsonLd />
+        <LlmReferralTracker />
         <SiteHeader />
         <div className="flex-1">{children}</div>
         <SiteFooter />

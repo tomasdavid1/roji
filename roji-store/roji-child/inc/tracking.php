@@ -59,6 +59,64 @@ gtag('config', '<?php echo esc_js( $ads_id ); ?>', { linker: { domains: <?php ec
 );
 
 /**
+ * Fire `llm_referral` once per session whenever a visitor arrives via a
+ * known LLM product (ChatGPT, Perplexity, Claude, Gemini, Copilot, etc.).
+ *
+ * Why a dedicated event?
+ *   - GA4's source attribution lumps `chatgpt.com`, `perplexity.ai`,
+ *     `claude.ai`, etc. under different mediums and sometimes misses
+ *     the referrer entirely (desktop apps, in-page link openers).
+ *   - Treating LLM-referred traffic as a first-class channel requires
+ *     a stable event-level signal so we can build a "LLM funnel"
+ *     report and import it as a Google Ads audience later.
+ *
+ * Detection runs client-side because `document.referrer` is the most
+ * reliable signal. The data sent to gtag is non-PII (host + path).
+ * sessionStorage flag prevents double-fires on internal navigation.
+ */
+add_action(
+	'wp_footer',
+	function () {
+		if ( empty( ROJI_GA4_ID ) ) {
+			return;
+		}
+		?>
+<script>
+(function () {
+  if (typeof gtag !== 'function') return;
+  if (!document.referrer) return;
+  try {
+    if (window.sessionStorage.getItem('roji_llm_referral_fired_v1') === '1') return;
+  } catch (e) { /* private mode / iframe — fall through */ }
+  var host;
+  try { host = new URL(document.referrer).hostname.toLowerCase(); }
+  catch (e) { return; }
+  var llms = {
+    'chatgpt.com': 1, 'chat.openai.com': 1, 'openai.com': 1,
+    'perplexity.ai': 1, 'www.perplexity.ai': 1,
+    'claude.ai': 1, 'anthropic.com': 1,
+    'gemini.google.com': 1, 'bard.google.com': 1,
+    'copilot.microsoft.com': 1,
+    'you.com': 1, 'phind.com': 1, 'kagi.com': 1, 'duckduckgo.com': 1,
+    'poe.com': 1, 'character.ai': 1, 'groq.com': 1, 'mistral.ai': 1,
+    'huggingface.co': 1
+  };
+  if (!llms[host]) return;
+  gtag('event', 'llm_referral', {
+    llm_source: host,
+    landing_path: window.location.pathname,
+    landing_host: window.location.hostname
+  });
+  try { window.sessionStorage.setItem('roji_llm_referral_fired_v1', '1'); }
+  catch (e) { /* ignore */ }
+})();
+</script>
+		<?php
+	},
+	2  // Run early so it fires before page-specific scripts may navigate.
+);
+
+/**
  * Fire `add_to_cart` (+ optional Google Ads conversion) whenever a user
  * actually adds something to their cart — from anywhere on the site
  * (single-product page, shop archive, cart upsell, tools deep-link).
@@ -217,20 +275,28 @@ add_action(
 );
 
 /**
- * Fire generic funnel-step events on shop / cart / checkout pages so we
- * can build a clean funnel report in GA4 without relying solely on
- * `page_view` URL matching (which is fragile across WC versions).
+ * Fire generic funnel-step events on shop / PDP / cart / checkout pages
+ * so we can build a clean funnel report in GA4 without relying solely
+ * on `page_view` URL matching (which is fragile across WC versions).
  *
- *   - `shop_view`     — anywhere on the WC shop archive or a single-product page
- *   - `cart_view`     — anywhere on the cart page (any source, not just deep-link)
- *   - `checkout_view` — anywhere on the checkout page, regardless of payment method
+ *   - `shop_view`      — anywhere on the WC shop archive
+ *   - `view_item`      — anywhere on a single-product page (GA4 standard)
+ *   - `view_cart`      — anywhere on the cart page (GA4 standard)
+ *   - `begin_checkout` — anywhere on the checkout page (GA4 standard)
+ *
+ * Each of view_item / view_cart / begin_checkout carries a GA4-standard
+ * `items: [...]` array so the built-in ecommerce funnel + item-revenue
+ * reports can attribute to specific products. Legacy event names
+ * (product_view / cart_view / checkout_view) are dual-emitted for
+ * backwards compatibility with existing audiences and reports.
  *
  * Combined with `roji-tools` events (`tool_view`, `directory_card_click`,
- * `store_outbound_click`) and the `reserve_order_submitted` from the
- * Reserve gateway, this gives us the complete cross-domain funnel:
+ * `store_outbound_click`) and `reserve_order_submitted` from the Reserve
+ * gateway, this gives us the complete cross-domain funnel:
  *
- *   tool_view (tools.) → store_outbound_click → shop_view → add_to_cart
- *   → cart_view → checkout_view → reserve_order_submitted (or purchase)
+ *   tool_view (tools.) → store_outbound_click → shop_view → view_item
+ *   → add_to_cart → view_cart → begin_checkout → reserve_order_submitted
+ *   (or purchase)
  */
 add_action(
 	'wp_footer',
@@ -249,14 +315,42 @@ add_action(
 			$event = 'shop_view';
 			$extra = array( 'shop_section' => is_shop() ? 'all' : ( is_product_category() ? 'category' : 'tag' ) );
 		} elseif ( is_product() ) {
+			// `view_item` is the GA4-standard ecommerce event name. We
+			// previously emitted only `product_view` (a custom event),
+			// which made GA4's built-in funnel + item-revenue reports
+			// blind to PDP attention. Renamed 2026-05-15 to `view_item`
+			// with the standard `items: [...]` shape so GA4 can compute
+			// per-product `items_viewed` -> `items_added_to_cart` rates.
+			// Legacy `product_view` is still emitted on the same load
+			// so any existing report or audience keyed to the old name
+			// keeps working.
 			global $post;
 			$product = $post ? wc_get_product( $post->ID ) : null;
-			$event   = 'product_view';
-			$extra   = array(
-				'item_id'   => $product ? (string) $product->get_sku() : '',
-				'item_name' => $product ? (string) $product->get_name() : '',
-				'price'     => $product ? (float) $product->get_price() : 0,
-			);
+			$event   = 'view_item';
+			if ( $product ) {
+				$item = array(
+					'item_id'   => (string) $product->get_sku(),
+					'item_name' => (string) $product->get_name(),
+					'price'     => (float) $product->get_price(),
+					'quantity'  => 1,
+				);
+				// Tag the primary category so GA4 can show "PDP views by
+				// category" (peptides vs accessories vs bundles).
+				$cats = wc_get_product_term_ids( $product->get_id(), 'product_cat' );
+				if ( ! empty( $cats ) ) {
+					$term = get_term( $cats[0], 'product_cat' );
+					if ( $term && ! is_wp_error( $term ) ) {
+						$item['item_category'] = (string) $term->name;
+					}
+				}
+				$extra = array(
+					'value'    => (float) $product->get_price(),
+					'currency' => get_woocommerce_currency(),
+					'items'    => array( $item ),
+				);
+			} else {
+				$extra = array();
+			}
 		} elseif ( is_cart() ) {
 			// `view_cart` is the GA4-standard ecommerce event name. We
 			// previously emitted `cart_view`; renamed 2026-05-10 so
@@ -321,11 +415,14 @@ add_action(
 		// For backwards compatibility, also emit the legacy event name
 		// so any GA4 audience or report still keyed to the old names
 		// keeps reading data while we migrate them. Mapping:
+		//   view_item       → product_view (legacy)
 		//   view_cart       → cart_view (legacy)
 		//   begin_checkout  → checkout_view (legacy)
 		// Other events have no legacy counterpart.
 		$legacy_event = '';
-		if ( 'view_cart' === $event ) {
+		if ( 'view_item' === $event ) {
+			$legacy_event = 'product_view';
+		} elseif ( 'view_cart' === $event ) {
 			$legacy_event = 'cart_view';
 		} elseif ( 'begin_checkout' === $event ) {
 			$legacy_event = 'checkout_view';

@@ -1209,9 +1209,15 @@ export function resolveBlueprint(opts: ResolveOptions): ResolvedBlueprint {
           // (focus all spend here). Trimmed back to $30 on 2026-05-12
           // after 2 days at $40 produced 0 real reserve-orders against
           // ~$78 spend; user wanted to slow the burn while we wait
-          // for the funnel signal to develop. $30 keeps the campaign
-          // visible without spending into noise.
-          dailyBudgetUsd: opts.peptideExperimentBudget ?? 30,
+          // for the funnel signal to develop. Trimmed again to $20 on
+          // 2026-05-15: a week of post-fix data showed 2 real ATCs at
+          // ~$110/conversion, which is workable, but $30/day was still
+          // burning into low-converting calculator-intent traffic.
+          // At $20/day we still get 15-20 US clicks/day (enough signal)
+          // for ~$140/week, while we focus engineering effort on
+          // converting more of the inbound traffic instead of buying
+          // more of it.
+          dailyBudgetUsd: opts.peptideExperimentBudget ?? 20,
           channel: "SEARCH",
           language: "en",
           geoTargets: ["US"],

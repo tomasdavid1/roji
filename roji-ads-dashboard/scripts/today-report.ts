@@ -129,6 +129,134 @@ async function fetchFunnel(
   };
 }
 
+/**
+ * Pull a 7-day snapshot of LLM-referred traffic (chatgpt.com,
+ * perplexity.ai, claude.ai, gemini, copilot, etc.).
+ *
+ * Three angles, in one round-trip per angle:
+ *   - source breakdown (which LLMs send us users)
+ *   - landing pages (where the LLM points users — usually /coa)
+ *   - llm_referral event count (the explicit event fired by
+ *     LlmReferralTracker / tracking.php)
+ *
+ * Self-traffic is excluded so a Rio-based dev opening the site via
+ * a ChatGPT preview link doesn't show up as an LLM session.
+ */
+const LLM_HOSTS = [
+  "chatgpt.com",
+  "chat.openai.com",
+  "openai.com",
+  "perplexity.ai",
+  "www.perplexity.ai",
+  "claude.ai",
+  "anthropic.com",
+  "gemini.google.com",
+  "bard.google.com",
+  "copilot.microsoft.com",
+  "you.com",
+  "phind.com",
+  "kagi.com",
+  "duckduckgo.com",
+  "poe.com",
+  "groq.com",
+  "mistral.ai",
+];
+
+type LlmChannel = {
+  totalSessions: number;
+  eventCount: number;
+  bySource: Array<{ source: string; sessions: number; users: number }>;
+  topLanding: Array<{ host: string; path: string; sessions: number }>;
+};
+
+async function fetchLlmChannel(): Promise<LlmChannel> {
+  if (!process.env.GA4_PROPERTY_ID || !process.env.GA4_REFRESH_TOKEN) {
+    return { totalSessions: 0, eventCount: 0, bySource: [], topLanding: [] };
+  }
+  const token = await ga4AccessToken();
+  const url = `https://analyticsdata.googleapis.com/v1beta/properties/${process.env.GA4_PROPERTY_ID}:runReport`;
+  const selfFilter = ga4WithoutSelfTraffic();
+  const llmFilter = {
+    filter: {
+      fieldName: "sessionSource",
+      inListFilter: { values: LLM_HOSTS },
+    },
+  };
+  const baseFilter = {
+    andGroup: {
+      expressions: [llmFilter, ...(selfFilter ? [selfFilter] : [])],
+    },
+  };
+  const dateRanges = [{ startDate: "7daysAgo", endDate: "today" }];
+
+  type Row = { dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> };
+
+  async function run(body: unknown): Promise<Row[]> {
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) throw new Error(`GA4: ${r.status}`);
+    return ((await r.json()) as { rows?: Row[] }).rows ?? [];
+  }
+
+  const [sources, landings, events] = await Promise.all([
+    run({
+      dateRanges,
+      dimensions: [{ name: "sessionSource" }],
+      metrics: [{ name: "sessions" }, { name: "totalUsers" }],
+      dimensionFilter: baseFilter,
+      orderBys: [{ metric: { metricName: "sessions" }, desc: true }],
+      limit: 20,
+    }),
+    run({
+      dateRanges,
+      dimensions: [{ name: "hostName" }, { name: "landingPage" }],
+      metrics: [{ name: "sessions" }],
+      dimensionFilter: baseFilter,
+      orderBys: [{ metric: { metricName: "sessions" }, desc: true }],
+      limit: 20,
+    }),
+    run({
+      dateRanges,
+      dimensions: [{ name: "eventName" }],
+      metrics: [{ name: "eventCount" }],
+      dimensionFilter: {
+        andGroup: {
+          expressions: [
+            { filter: { fieldName: "eventName", stringFilter: { value: "llm_referral" } } },
+            ...(selfFilter ? [selfFilter] : []),
+          ],
+        },
+      },
+      limit: 5,
+    }),
+  ]);
+
+  let totalSessions = 0;
+  const bySource: LlmChannel["bySource"] = [];
+  for (const r of sources) {
+    const sess = Number(r.metricValues?.[0]?.value ?? 0);
+    totalSessions += sess;
+    bySource.push({
+      source: r.dimensionValues?.[0]?.value ?? "?",
+      sessions: sess,
+      users: Number(r.metricValues?.[1]?.value ?? 0),
+    });
+  }
+
+  const topLanding: LlmChannel["topLanding"] = landings.map((r) => ({
+    host: r.dimensionValues?.[0]?.value ?? "?",
+    path: r.dimensionValues?.[1]?.value ?? "?",
+    sessions: Number(r.metricValues?.[0]?.value ?? 0),
+  }));
+
+  const eventCount = events.length > 0 ? Number(events[0].metricValues?.[0]?.value ?? 0) : 0;
+
+  return { totalSessions, eventCount, bySource, topLanding };
+}
+
 type AdsTotals = {
   impressions: number;
   clicks: number;
@@ -290,6 +418,37 @@ async function main() {
   console.log(
     `    ATC → checkout:           ${ac > 0 ? fmt.pct(cv / ac) : "—"}  (${fmt.int(cv)} / ${fmt.int(ac)})`,
   );
+
+  // ── LLM-channel snapshot (last 7 days) ──────────────────────────────
+  // We pull a 7-day window because LLM traffic is currently low-volume
+  // (~1-2 sessions/day) and a single-day view is too noisy to read.
+  // This block answers: "is the LLM channel growing, and where are
+  // they landing?" — see ADS-PLAYBOOK.md "LLM-discoverability" section.
+  try {
+    const llm = await fetchLlmChannel();
+    if (llm.totalSessions > 0) {
+      console.log("\n┌─ LLM channel (last 7 days, self-traffic excluded)");
+      console.log(`│  Total sessions:  ${fmt.int(llm.totalSessions)}`);
+      console.log(`│  llm_referral events: ${fmt.int(llm.eventCount)}  (events, not sessions — fires once/session)`);
+      if (llm.bySource.length > 0) {
+        console.log(`│  By source:`);
+        for (const s of llm.bySource.slice(0, 6)) {
+          console.log(`│    ${s.source.padEnd(20)} ${fmt.int(s.sessions).padStart(4)} sess  ${fmt.int(s.users).padStart(4)} users`);
+        }
+      }
+      if (llm.topLanding.length > 0) {
+        console.log(`│  Top landing pages:`);
+        for (const p of llm.topLanding.slice(0, 5)) {
+          const label = p.host === "tools.rojipeptides.com" ? "tools" : "store";
+          console.log(`│    [${label}] ${p.path.padEnd(36)} ${fmt.int(p.sessions).padStart(4)} sess`);
+        }
+      }
+      console.log("└──");
+    }
+  } catch (e) {
+    // Don't break the report on LLM-channel failure.
+    console.log(`\n  (LLM channel snapshot skipped: ${e instanceof Error ? e.message : "error"})`);
+  }
   console.log();
 }
 

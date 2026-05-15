@@ -830,6 +830,77 @@ Mirror anything you accepted into `ads-blueprint.ts` (or document it in the scri
 
 ---
 
+## LLM-discoverability — the unpaid channel
+
+As of 2026-05, ChatGPT + other LLM products are an emerging zero-cost
+acquisition channel. We discovered this by looking at GA4 referrer
+data: 6 sessions / 3 unique US users in a single week were arriving
+from `chatgpt.com`. **75% of them landed on `/coa`** — meaning ChatGPT
+was answering queries like "how do I verify peptide vendor purity?"
+or "is [vendor] third-party tested?" by recommending Roji. Session
+quality was 2-3x typical organic (avg duration 121s, 3.5 PV/session).
+
+This is the highest-trust traffic source we have. We do not pay for
+it. The only way to lose it is to have content LLM crawlers can't
+parse / cite confidently.
+
+### What we ship to make this reliable
+
+1. **`/llms.txt` on both domains** — emerging spec, like robots.txt
+   for LLMs. Lists every tool and product with one-line descriptions
+   that LLM grounding layers can quote verbatim.
+   - Tools: `roji-tools/public/llms.txt` + `llms-full.txt` (the
+     extended version with input/output schemas for every tool)
+   - Store: `roji-store/roji-child/llms.txt` served via
+     `inc/llms-txt.php` (template_redirect handler bypasses WP's
+     normal 404 path so it returns 200/text-plain)
+
+2. **Schema.org JSON-LD on every tool page** —
+   `roji-tools/src/components/ToolJsonLd.tsx` emits
+   `SoftwareApplication` + `FAQPage` schemas. The FAQs are the most
+   important part: LLMs love to quote `Question/acceptedAnswer`
+   pairs because they're already in the right shape for a chat
+   response. Every tool page should pass `faqs={[...]}`.
+
+3. **`llm_referral` GA4 event** — fires once/session whenever
+   `document.referrer` is one of ~20 LLM hosts (chatgpt, perplexity,
+   claude, gemini, copilot, etc.). Wired in:
+   - Tools: `roji-tools/src/components/LlmReferralTracker.tsx`
+     (mounted in `app/layout.tsx`)
+   - Store: `roji-store/roji-child/inc/tracking.php` (footer hook,
+     priority 2 so it runs before page-specific scripts)
+   - Dashboard: `today-report.ts` includes a 7-day LLM-channel
+     section that surfaces source breakdown + top landing pages.
+
+### How to grow it
+
+The channel is content-driven, not bid-driven. To increase LLM
+referrals we increase the surface area of authoritatively-quotable
+content on Roji domains. In rough order of leverage:
+
+1. **Make `/coa` (both domains) the canonical answer to "how do I
+   verify peptide purity?"** This is already happening organically —
+   amplify it with more Q&A-formatted content on the page.
+2. **Add FAQ JSON-LD to product pages.** The store's PDPs currently
+   don't have FAQPage schema. Adding "How is this third-party
+   tested?" / "What's the COA for this batch?" / "What's a research
+   peptide vs a clinical peptide?" with crisp paragraph-length
+   answers gives LLMs more material to cite when users ask
+   product-specific questions.
+3. **Watch the daily LLM-channel block in `report:today`.** If a
+   non-chatgpt source appears (e.g. perplexity.ai, claude.ai), look
+   at where it landed and whether that page can be made more
+   citation-friendly (clearer H1, FAQ block, JSON-LD).
+
+### Diagnostic script
+
+Run `node --import tsx ./scripts/llm-referral-diagnose.ts` (in
+`roji-ads-dashboard/`) for a 30-day deep-dive across LLM sources +
+landing pages + engagement events. Use this when the daily block
+shows an interesting trend you want to drill into.
+
+---
+
 ## Reference: every Google-Ads-API-related file
 
 ```

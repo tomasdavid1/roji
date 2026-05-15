@@ -668,10 +668,19 @@ async function createCampaignShell(
     // is configured separately via campaign_criterion (see
     // `setCampaignGeoTargets` below).
     geo_target_type_setting: {
+      // SDK enum values for google-ads-api v17:
+      //   PositiveGeoTargetType.PRESENCE_OR_INTEREST = 5  (DEFAULT — LEAKS)
+      //   PositiveGeoTargetType.SEARCH_INTEREST      = 6
+      //   PositiveGeoTargetType.PRESENCE             = 7  ← we want this
+      //   NegativeGeoTargetType.PRESENCE_OR_INTEREST = 4
+      //   NegativeGeoTargetType.PRESENCE             = 5  ← we want this
+      // The fallback used to be `5` for both, which silently set the
+      // POSITIVE side to PRESENCE_OR_INTEREST and was the bug that
+      // leaked C2 to LatAm clicks for the first 2 weeks of its life.
       positive_geo_target_type:
-        enums.PositiveGeoTargetType?.PRESENCE ?? 5,
+        enums.PositiveGeoTargetType?.PRESENCE ?? 7,
       negative_geo_target_type:
-        enums.NegativeGeoTargetType?.PRESENCE ?? 2,
+        enums.NegativeGeoTargetType?.PRESENCE ?? 5,
     },
   };
   if (bid === "MAXIMIZE_CLICKS") {
