@@ -1,0 +1,126 @@
+
+=== Week deep-dive: 2026-05-13 → 2026-05-19 ===
+
+Fetching Google Ads per-day...
+Fetching keyword breakdown...
+Fetching GA4 daily events (tools+store, self-filtered)...
+Fetching store page-path breakdown...
+Fetching product-level ATC breakdown...
+Fetching session source/medium for store traffic...
+
+
+========================================================
+  PART 1 — DAILY GOOGLE ADS BREAKDOWN
+========================================================
+
+  day             spend  clicks    impr     CTR     CPC   conv
+  ------------ -------- ------- ------- ------- ------- ------
+  Tue 05-12       $0.00       0       0    0.0%   $0.00    0.0
+  Wed 05-13      $29.64      32     956    3.3%   $0.93    0.0
+  Thu 05-14      $28.46      31     678    4.6%   $0.92    0.0
+  Fri 05-15      $22.86      25     564    4.4%   $0.91    0.0
+  Sat 05-16      $21.02      26     304    8.6%   $0.81    0.0
+  Sun 05-17      $19.07      23     369    6.2%   $0.83    0.0
+  Mon 05-18      $23.15      31     473    6.6%   $0.75    0.0
+  ------------ -------- ------- ------- ------- ------- ------
+  TOTAL         $144.20     168    3344    5.0%   $0.86    0.0
+
+  ⚠ "conv" comes from Google Ads attribution which DOES NOT see our GA4 self-traffic filter — it can include the developer's QA clicks from Rio.
+
+
+========================================================
+  PART 2 — DAILY FUNNEL (GA4, RIO SELF-TRAFFIC EXCLUDED)
+========================================================
+
+  day            tools_pv tool_view hero_pill hero_card    →store  store_pv  PDP_view       ATC view_cart begin_chk  purchase
+  ------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+  Tue 05-12             0         0         0         0         0         0         0         0         0         0         0
+  Wed 05-13           122        48         2         4         0         9         0         0         0         0         0
+  Thu 05-14           132        44         0         6         2         8         0         0         0         0         0
+  Fri 05-15           110        34         0         0         0         1         0         0         0         0         0
+  Sat 05-16           116        48         0         6         2         8         1         0         1         0         0
+  Sun 05-17           111        42         0         2         0        10         3         0         1         0         0
+  Mon 05-18           145        60         2         2         0        13         1         0         0         0         0
+
+
+========================================================
+  PART 3 — INSIDE THE STORE — PAGE BY PAGE
+========================================================
+
+  Aggregated across the whole window. The 'sessions' column is the
+  number of distinct sessions that hit each page (so a session that hits
+  /shop/ then /product/foo/ counts in BOTH rows).
+
+  path                                                 sessions   pageviews   users
+  -------------------------------------------------- ---------- ----------- -------
+  /shop/                                                     25          26      22
+  /                                                          12          11      12
+  /product/bpc-157-10mg/                                      2           2       2
+  /cart/                                                      2           2       2
+  /coa/                                                       2           4       2
+  /product/wolverine-stack/                                   2           2       2
+  /product/full-protocol/                                     1           1       1
+  /product/recomp-stack/                                      1           1       1
+  /product-category/accessories/                              1           1       1
+
+
+========================================================
+  PART 4 — WHICH PRODUCTS ARE GETTING VIEWED / ATC'D?
+========================================================
+
+  product                                     views     ATCs   ATC rate
+  ---------------------------------------- -------- -------- ----------
+  BPC-157 (10mg)                                  2        0          —
+  BPC-157 + TB-500 Stack                          2        0          —
+  CJC-1295 + Ipamorelin + MK-677 Stack            1        0          —
+
+
+========================================================
+  PART 5 — STORE TRAFFIC SOURCES (last 5 days)
+========================================================
+
+  source                 medium         country          sessions    users
+  ---------------------- -------------- -------------- ---------- --------
+  google                 cpc            United States           9        9
+  (direct)               (none)         United States           7        7
+  (data not available)   (data not avai United States           4        4
+  (not set)              (not set)      United States           3        3
+  (direct)               (none)         Poland                  2        2
+  chatgpt.com            (not set)      United States           2        1
+  google                 organic        Singapore               2        1
+  google                 organic        United States           2        1
+  tools                  hero           United States           2        1
+  (direct)               (none)         Saudi Arabia            1        1
+  chatgpt.com            (not set)      Bosnia & Herze          1        1
+  google                 cpc            Colombia                1        1
+  tools                  hero_cta       United States           1        1
+  tools                  referral       United States           1        1
+
+
+========================================================
+  PART 6 — TOP KEYWORDS (week aggregate)
+========================================================
+
+  keyword                                     impr  clicks     cost     CTR     CPC
+  ---------------------------------------- ------- ------- -------- ------- -------
+  peptide reconstitution calculator            515      44   $37.46    8.5%   $0.85
+  peptide calculator                           656      43   $35.76    6.6%   $0.83
+  bpc 157 tb 500 blend dosage calculator       119      14   $11.86   11.8%   $0.85
+  peptide solubility calculator                268      11    $9.80    4.1%   $0.89
+  pepcalc                                      186      11    $9.26    5.9%   $0.84
+  mots c                                       260      10    $8.78    3.8%   $0.88
+  cjc 1295 ipamorelin dosage calculator        134       9    $7.97    6.7%   $0.89
+  calculadora de peptidos                       55       9    $7.74   16.4%   $0.86
+  bpc 157 dosage calculator                    227       7    $5.40    3.1%   $0.77
+  cjc 1295 ipamorelin                          108       6    $5.10    5.6%   $0.85
+  ghk cu                                       134       5    $4.57    3.7%   $0.91
+  igf 1 lr3 dosage calculator                   18       2    $1.77   11.1%   $0.89
+  aod 9604 dosage calculator                    10       1    $0.94   10.0%   $0.94
+  peptides calculator                            5       1    $0.93   20.0%   $0.93
+  peptide research calculator                    2       1    $0.93   50.0%   $0.93
+  bpc 157                                        1       1    $0.91  100.0%   $0.91
+  tb 500                                         3       1    $0.82   33.3%   $0.82
+  peptide mass calculator                       11       1    $0.83    9.1%   $0.83
+
+=== end ===
+
