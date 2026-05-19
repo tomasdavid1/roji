@@ -22,8 +22,51 @@
  *   - Output is plain text so it pastes cleanly into a chat.
  */
 
-import { getCampaignPerformance, getKeywordPerformance } from "../src/lib/google-ads";
+import { getCampaignPerformance, getKeywordPerformance, isLive } from "../src/lib/google-ads";
 import { ga4WithoutSelfTraffic } from "../src/lib/ga4-self-filter";
+
+/**
+ * CRITICAL: refuse to run on mock data.
+ *
+ * `lib/google-ads.ts` falls back to MOCK_CAMPAIGNS when any of the
+ * GOOGLE_ADS_* env vars are missing. That fallback exists for local
+ * dashboard dev (so a fresh checkout renders without secrets), but
+ * it's poison for the CLI / cron path: a daily cron with empty
+ * GitHub Actions secrets will silently commit hardcoded mock numbers
+ * as if they were real data, polluting reports/ for days before
+ * anyone notices.
+ *
+ * This happened May 15-18, 2026: the GH Actions secrets were never
+ * set, every cron run returned mock data, and 4 "successful"
+ * commits contained fake $1,533/day spend with campaign names that
+ * don't exist in our account. Hence this guard.
+ *
+ * Same story for GA4: fetchFunnel below already throws if
+ * GA4_PROPERTY_ID / GA4_REFRESH_TOKEN are missing, but that throw
+ * happens AFTER we've already pulled (mock) Ads data. Guard up
+ * front so the cron fails fast with a clear error.
+ */
+function assertLiveCredentials(): void {
+  const missing: string[] = [];
+  if (!isLive()) {
+    for (const k of [
+      "GOOGLE_ADS_DEVELOPER_TOKEN",
+      "GOOGLE_ADS_CLIENT_ID",
+      "GOOGLE_ADS_CLIENT_SECRET",
+      "GOOGLE_ADS_REFRESH_TOKEN",
+      "GOOGLE_ADS_CUSTOMER_ID",
+    ]) {
+      if (!process.env[k]) missing.push(k);
+    }
+  }
+  if (!process.env.GA4_PROPERTY_ID) missing.push("GA4_PROPERTY_ID");
+  if (!process.env.GA4_REFRESH_TOKEN) missing.push("GA4_REFRESH_TOKEN");
+  if (missing.length > 0) {
+    throw new Error(
+      `today-report refuses to run on mock data. Missing required env vars:\n  ${missing.join("\n  ")}\n\nIf this is local: copy from .env.local or run \`vercel env pull\`.\nIf this is CI: set the matching repository secrets in GitHub Settings → Secrets → Actions.`,
+    );
+  }
+}
 
 /**
  * Funnel events we count, with the underlying GA4 event names.
@@ -301,6 +344,8 @@ function delta(today: number, baseline: number): string {
 }
 
 async function main() {
+  assertLiveCredentials();
+
   console.log("\n→ Roji daily funnel snapshot");
   console.log(`  ${new Date().toLocaleString("en-US", { dateStyle: "full", timeStyle: "short" })}\n`);
 

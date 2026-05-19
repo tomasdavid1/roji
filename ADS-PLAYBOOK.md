@@ -827,6 +827,8 @@ Mirror anything you accepted into `ads-blueprint.ts` (or document it in the scri
 | Provisioner fails with `developer_token_not_approved` | Trying to mutate against a production account from Test Access | You have Explorer — should be fine. If not: apply for Basic Access. |
 | Validation fails on a real ad | Forbidden term in copy | Check `src/lib/safety.ts` — adjust copy in `ads-blueprint.ts`. Brand-defense ads exempt the word "peptide" only. |
 | Disapproval rate > 5% in first week | Ad copy borderline; too aggressive on "biohacker" framing | Pull the worst-performing RSA, soften copy, re-provision. |
+| Daily funnel snapshot reports show identical "$1,533/day" / "Research Tools — Search (US)" numbers | GitHub Actions secrets are empty; `lib/google-ads.ts` falls back to MOCK_CAMPAIGNS when `isLive()` returns false | (a) `today-report.ts` now hard-asserts `isLive()` so it can no longer commit mock data — verify the cron is failing loudly. (b) Run `bash scripts/sync-gh-secrets.sh --apply` from `roji-ads-dashboard/` to push the 8 secrets from `.env.local` to GitHub. (c) If `gh secret set` returns 403, run `gh auth refresh -h github.com -s repo` first. |
+| GA4 token refresh returns `400 invalid_grant` | OAuth app is in Google's "Testing" mode — refresh tokens expire weekly | Regenerate via `node scripts/get-refresh-token.js` (Google Ads OAuth flow works for both Ads and GA4 since they share the client_id/secret). Long-term: publish the OAuth app to "Production" mode or set as Internal under a Workspace. |
 
 ---
 
