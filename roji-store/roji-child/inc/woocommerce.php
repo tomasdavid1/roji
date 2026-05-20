@@ -407,56 +407,33 @@ add_action(
 	2 // Before the reassurance card (priority 3).
 );
 
-/**
- * Checkout-page trust + "what happens next" banner.
+/*
+ * Checkout-page "What happens after you place the order" reassurance card.
  *
- * Why: walkthrough on 2026-05-10 caught that the checkout page opens
- * with 9 required-field rows and zero context. Real first-time
- * visitors arriving from a paid ad have no idea (a) that no card is
- * charged today, (b) that we'll email a payment link, (c) that the
- * order is reserved while we confirm. The Reserve Order gateway
- * description explains all of this — but it's at the bottom of the
- * form, after the user has already decided to bail.
+ * Removed 2026-05-20 (was: priority-3 hook on woocommerce_before_checkout_form).
  *
- * Placement: woocommerce_before_checkout_form fires BEFORE the form
- * opens (not before the order-review section), so this block sits at
- * the very top of /checkout/, above the existing Trustpilot mini
- * widget and the supply upsell. Three short reassurance lines,
- * formatted as a card so the eye reads them in <2 seconds.
+ * Original rationale (kept for historical context):
+ *   The reassurance card explained the Reserve-Order flow up front so
+ *   visitors knew nothing would be charged on this page. That info is
+ *   ALSO carried by the Reserve Order gateway description that renders
+ *   inside the order-review block — same three lines, slightly more
+ *   contextual placement (right next to the Place Order button, where
+ *   the trust question is actually being asked).
  *
- * Hidden if the user is logged in and already has past orders — they
- * already know how this works.
+ * Why removed:
+ *   With the cart-merge change shipping the line items to the top of
+ *   /checkout/, the reassurance card pushed the billing form well below
+ *   the fold on mobile. The supply-upsell card adds further vertical
+ *   distance. Surveying the rendered DOM showed customer_details didn't
+ *   start until line ~629, with the cart summary at 433 and reassure at
+ *   457. Removing the duplicate trust copy here pulls the form ~150px
+ *   higher without losing the messaging — the gateway description still
+ *   carries it where it counts.
+ *
+ * The .roji-checkout-reassure CSS in style.css is left in place because
+ * removing it would require an extra deploy and the rules don't render
+ * anything when the markup is gone. Safe to garbage-collect later.
  */
-add_action(
-	'woocommerce_before_checkout_form',
-	function () {
-		if ( is_user_logged_in() ) {
-			$customer_id = get_current_user_id();
-			$has_orders  = wc_get_orders(
-				array(
-					'customer_id' => $customer_id,
-					'limit'       => 1,
-					'status'      => array( 'on-hold', 'processing', 'completed' ),
-					'return'      => 'ids',
-				)
-			);
-			if ( ! empty( $has_orders ) ) {
-				return;
-			}
-		}
-		?>
-<div class="roji-checkout-reassure" role="region" aria-label="What happens next">
-	<div class="roji-checkout-reassure__title">What happens after you place the order</div>
-	<ul class="roji-checkout-reassure__list">
-		<li><strong>Nothing is charged today.</strong> No card details collected on this page.</li>
-		<li><strong>You'll get a secure payment link by email within 24 hours.</strong> Pay then; your order ships after.</li>
-		<li><strong>No account needed.</strong> Just shipping + email so we can send the link.</li>
-	</ul>
-</div>
-		<?php
-	},
-	3
-);
 
 add_action(
 	'template_redirect',
