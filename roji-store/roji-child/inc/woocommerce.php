@@ -407,6 +407,35 @@ add_action(
 	2 // Before the reassurance card (priority 3).
 );
 
+/**
+ * Disable the WooCommerce "Order notes (optional)" field on /checkout/.
+ *
+ * 2026-05-20: removed at request. The field added a multi-line textarea
+ * the visitor had to scroll past to reach the Place Order button, with
+ * no real use case on a research-supplies checkout (delivery instructions
+ * aren't actionable for our fulfillment process and we have no current
+ * support need for free-text order metadata at submission time).
+ *
+ * Two filters on purpose — `woocommerce_enable_order_notes_field` only
+ * suppresses the "Additional information" <h3> heading and the outer
+ * <div class="woocommerce-additional-fields"> wrapper. On modern WC
+ * (>=8.x) the textarea itself is still rendered by checkout templates
+ * via the `order` group inside `woocommerce_checkout_fields`. Removing
+ * the field definition there is what actually nukes the textarea +
+ * label markup. Belt-and-suspenders.
+ */
+add_filter( 'woocommerce_enable_order_notes_field', '__return_false' );
+add_filter(
+	'woocommerce_checkout_fields',
+	function ( $fields ) {
+		if ( isset( $fields['order']['order_comments'] ) ) {
+			unset( $fields['order']['order_comments'] );
+		}
+		return $fields;
+	},
+	9999 // Run after every other field-mutation filter so we're the last word.
+);
+
 /*
  * Checkout-page "What happens after you place the order" reassurance card.
  *
