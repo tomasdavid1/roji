@@ -204,28 +204,31 @@ add_filter(
 );
 
 /**
- * Redirect to /cart/ immediately after Add-to-Cart (changed 2026-05-06).
+ * Redirect straight to /checkout/ after Add-to-Cart.
  *
- * Prior behavior: stay on the PDP, show the green success notice +
- * Checkout / View cart buttons. That worked for power-shoppers who
- * wanted to keep browsing, but funnel data showed the opposite —
- * paid-search visitors who *do* add a product almost never browse
- * for a second one. They want one compound, then to check out.
+ * History
+ * -------
+ *   2026-05-06: introduced — redirected to /cart/ instead of staying
+ *               on the PDP, on the theory that paid-search visitors
+ *               want one product → checkout, not multi-product browsing.
+ *   2026-05-20: tightened further. Two weeks of funnel data showed
+ *               the cart→checkout step was the highest-drop point
+ *               (4 cart sessions, 0 checkouts in the post-fix window).
+ *               The cart page is dead weight — its job is "review what
+ *               you added" but every line-item review can happen on
+ *               the checkout page itself. We now skip /cart/ entirely
+ *               and merge the cart contents into a "Your order"
+ *               card at the top of /checkout/ (see woocommerce.php).
  *
- * Letting them bounce on the PDP after add-to-cart was a soft drop-
- * off step. Sending them directly to /cart/ is one fewer click to
- * checkout, the cart page already has the upsell + supplies-kit
- * cross-sell, and the action they'd take next from a "View cart"
- * button is exactly that page anyway.
- *
- * Implementation note: the `woocommerce_add_to_cart_redirect` filter
- * fires per add-to-cart action and accepts a redirect URL. Returning
- * the cart URL bypasses the standard "stay on PDP + show notice"
- * behavior entirely. We DON'T toggle the WooCommerce
- * `woocommerce_cart_redirect_after_add` option globally, because
- * that option is the legacy "redirect to cart" toggle and using the
- * filter is the more surgical path (works on AJAX + non-AJAX adds,
- * doesn't conflict with admin settings UI).
+ * Implementation note
+ * -------------------
+ * `woocommerce_add_to_cart_redirect` fires per add-to-cart action
+ * and accepts a redirect URL. Returning the checkout URL bypasses
+ * the standard "stay on PDP + show notice" behavior entirely.
+ * We don't toggle the WooCommerce `woocommerce_cart_redirect_after_add`
+ * option globally — that's the legacy redirect-to-cart toggle and
+ * the filter is the more surgical path (works on AJAX + non-AJAX
+ * adds, doesn't conflict with admin settings UI).
  */
 add_filter(
 	'woocommerce_add_to_cart_redirect',
@@ -236,10 +239,10 @@ add_filter(
 		if ( ! empty( $url ) ) {
 			return $url;
 		}
-		if ( ! function_exists( 'wc_get_cart_url' ) ) {
+		if ( ! function_exists( 'wc_get_checkout_url' ) ) {
 			return $url;
 		}
-		return wc_get_cart_url();
+		return wc_get_checkout_url();
 	}
 );
 

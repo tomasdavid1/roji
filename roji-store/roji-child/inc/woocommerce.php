@@ -250,6 +250,166 @@ add_action(
 	1
 );
 
+/* -----------------------------------------------------------------------------
+ * One-page cart + checkout
+ *
+ * 2026-05-20: data showed /cart/ → /checkout/ was the worst drop in
+ * the funnel (4 cart sessions, 0 begin_checkout events in 2 weeks).
+ * The cart page was a friction wall, not a feature — its job ("review
+ * what you added") is identical to what the checkout page already
+ * does in its order-review section, just on a separate URL.
+ *
+ * The fix is two parts:
+ *
+ *   1. Auto-redirect /cart/ → /checkout/ when the cart has items.
+ *      Empty carts still get the branded /cart/ empty-state, because
+ *      WooCommerce's checkout page itself redirects empty carts back
+ *      to /cart/ — we honor that loop terminator.
+ *
+ *   2. Render the cart line items as a "Your order" card at the top
+ *      of /checkout/ (above the customer-details form). Includes
+ *      thumbnail, name, quantity, line subtotal, and a remove link.
+ *      The default order-review table at the bottom is kept for
+ *      totals + payment + place-order, with its line-item rows
+ *      hidden via CSS (style.css → .roji-checkout-merge-cart).
+ *
+ * Together this collapses the funnel from 5 steps (PDP → ATC → cart →
+ * checkout → place order) to 3 (PDP → ATC → checkout → place order)
+ * and removes the highest-drop transition.
+ * -------------------------------------------------------------------------- */
+
+/**
+ * Auto-redirect /cart/ → /checkout/ when the cart has at least one item.
+ *
+ * Empty carts are left on /cart/ so the branded
+ * woocommerce/cart/cart-empty.php template can render. Logged-in admins
+ * can still inspect the cart page via ?roji_keep_cart=1 for QA.
+ *
+ * Hooks on `template_redirect` priority 5, AFTER the protocol_stack
+ * deep-link handler (which empties + repopulates the cart and then
+ * redirects to /checkout/ on its own) so we don't double-redirect.
+ */
+add_action(
+	'template_redirect',
+	function () {
+		if ( ! function_exists( 'is_cart' ) || ! is_cart() ) {
+			return;
+		}
+		if ( ! function_exists( 'WC' ) || null === WC()->cart ) {
+			return;
+		}
+		if ( WC()->cart->is_empty() ) {
+			return; // Branded empty-cart template handles this case.
+		}
+		// QA escape hatch for editors who need to see the cart page
+		// (e.g. testing the cart-empty fallback or the legacy template).
+		if (
+			is_user_logged_in()
+			&& current_user_can( 'edit_posts' )
+			&& ! empty( $_GET['roji_keep_cart'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		) {
+			return;
+		}
+		// Preserve any tracking / coupon query params on the way to
+		// /checkout/ so we don't lose attribution context.
+		$qs = isset( $_SERVER['QUERY_STRING'] ) ? (string) $_SERVER['QUERY_STRING'] : '';
+		$to = wc_get_checkout_url();
+		if ( $qs !== '' ) {
+			$to .= ( false === strpos( $to, '?' ) ? '?' : '&' ) . $qs;
+		}
+		wp_safe_redirect( $to, 302 );
+		exit;
+	},
+	5
+);
+
+/**
+ * "Your order" cart-summary card at the top of /checkout/.
+ *
+ * Renders ABOVE the Reserve-Order reassurance card and the customer-
+ * details form so the user reviews what they're buying first, then
+ * fills in shipping, then sees totals + place-order at the bottom —
+ * the standard ecommerce flow, all on one URL.
+ *
+ * Each line item shows a thumbnail, product name (passes through the
+ * existing `woocommerce_cart_item_name` filter so the per-week
+ * caption from the protocol-engine deep-link still appears),
+ * quantity, line subtotal, and an inline remove button. Clicking
+ * remove uses WooCommerce's own /?remove_item= endpoint which
+ * round-trips through the standard cart API and sends the user back
+ * to /checkout/.
+ *
+ * Hooked on woocommerce_before_checkout_form at priority 2 so it
+ * appears BEFORE the reassurance card (priority 3) and any other
+ * pre-form widgets. The default order_review table at the bottom of
+ * the page keeps the totals + payment + place-order button; its
+ * line-item rows are CSS-hidden so we don't duplicate the items.
+ */
+add_action(
+	'woocommerce_before_checkout_form',
+	function () {
+		if ( ! function_exists( 'WC' ) || null === WC()->cart ) {
+			return;
+		}
+		$cart = WC()->cart;
+		if ( $cart->is_empty() ) {
+			return;
+		}
+		// Tag the body so style.css can hide the duplicate line-item
+		// rows in the bottom order-review table for this page only.
+		?>
+<script>document.documentElement.classList.add('roji-checkout-merge-cart');</script>
+<section class="roji-checkout-cart-summary" aria-label="Your order">
+	<header class="roji-checkout-cart-summary__head">
+		<span class="roji-checkout-cart-summary__eyebrow">Your order</span>
+		<a class="roji-checkout-cart-summary__continue" href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>">← Keep shopping</a>
+	</header>
+	<ul class="roji-checkout-cart-summary__list">
+		<?php
+		foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) {
+			$product = isset( $cart_item['data'] ) ? $cart_item['data'] : null;
+			if ( ! $product || ! $product->exists() || (int) $cart_item['quantity'] <= 0 ) {
+				continue;
+			}
+			$thumb         = $product->get_image( 'woocommerce_gallery_thumbnail' );
+			$name_html     = apply_filters( 'woocommerce_cart_item_name', $product->get_name(), $cart_item, $cart_item_key );
+			$line_subtotal = $cart->get_product_subtotal( $product, $cart_item['quantity'] );
+			$remove_url    = wc_get_cart_remove_url( $cart_item_key );
+			$qty_label     = sprintf(
+				/* translators: %d = quantity */
+				_n( 'Qty %d', 'Qty %d', (int) $cart_item['quantity'], 'roji-child' ),
+				(int) $cart_item['quantity']
+			);
+			?>
+			<li class="roji-checkout-cart-summary__item">
+				<div class="roji-checkout-cart-summary__thumb"><?php echo $thumb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+				<div class="roji-checkout-cart-summary__body">
+					<div class="roji-checkout-cart-summary__name"><?php echo wp_kses_post( $name_html ); ?></div>
+					<div class="roji-checkout-cart-summary__meta">
+						<span class="roji-checkout-cart-summary__qty"><?php echo esc_html( $qty_label ); ?></span>
+						<span class="roji-checkout-cart-summary__dot" aria-hidden="true">·</span>
+						<span class="roji-checkout-cart-summary__price"><?php echo wp_kses_post( $line_subtotal ); ?></span>
+					</div>
+				</div>
+				<a
+					class="roji-checkout-cart-summary__remove"
+					href="<?php echo esc_url( $remove_url ); ?>"
+					aria-label="<?php
+					/* translators: %s = product name */
+					echo esc_attr( sprintf( __( 'Remove %s from order', 'roji-child' ), wp_strip_all_tags( $product->get_name() ) ) );
+					?>"
+				>×</a>
+			</li>
+			<?php
+		}
+		?>
+	</ul>
+</section>
+		<?php
+	},
+	2 // Before the reassurance card (priority 3).
+);
+
 /**
  * Checkout-page trust + "what happens next" banner.
  *
@@ -326,7 +486,9 @@ add_action(
 
 		WC()->cart->empty_cart();
 		WC()->cart->add_to_cart( $product_id, $qty, 0, array(), $item_data );
-		wp_safe_redirect( wc_get_cart_url() );
+		// Skip /cart/ — the cart contents now render at the top of
+		// /checkout/ as the "Your order" card (see hook below).
+		wp_safe_redirect( wc_get_checkout_url() );
 		exit;
 	}
 );

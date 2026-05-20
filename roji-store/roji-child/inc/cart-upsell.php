@@ -76,7 +76,7 @@ add_action(
 			}
 
 			$ref = wp_get_referer();
-			wp_safe_redirect( $ref ? $ref : wc_get_cart_url() );
+			wp_safe_redirect( $ref ? $ref : wc_get_checkout_url() );
 			exit;
 		}
 
@@ -125,10 +125,11 @@ add_action(
 			);
 		}
 
-		// Redirect back to whatever page they were on (cart or checkout) so
-		// the order totals refresh and the upsell card recomputes.
+		// Redirect back to whatever page they were on (most likely
+		// /checkout/ now that /cart/ is one-page-merged) so the
+		// order totals refresh and the upsell card recomputes.
 		$ref = wp_get_referer();
-		wp_safe_redirect( $ref ? $ref : wc_get_cart_url() );
+		wp_safe_redirect( $ref ? $ref : wc_get_checkout_url() );
 		exit;
 	}
 );

@@ -3486,6 +3486,189 @@ header .current-menu-item > a {
   font-weight: 700;
 }
 
+/* ============================================================
+   Checkout — "Your order" cart summary card
+   ============================================================
+   Renders at the top of /checkout/ (priority 2 on
+   woocommerce_before_checkout_form, above the reassurance card)
+   so customers review their items first, fill in shipping next,
+   and confirm totals + place the order at the bottom — one URL,
+   one flow. Replaces the legacy /cart/ page entirely; that URL
+   now auto-redirects to /checkout/ when the cart has items.
+
+   The default order-review table at the bottom of the page still
+   shows totals + payment + place-order; its line-item rows are
+   hidden by the .roji-checkout-merge-cart selectors below so the
+   items don't appear twice.
+   ============================================================ */
+.roji-checkout-cart-summary {
+  background: var(--roji-surface, #16161c);
+  border: 1px solid var(--roji-border, rgba(255,255,255,0.08));
+  border-radius: var(--roji-radius);
+  padding: 18px 20px 6px;
+  margin: 0 0 22px;
+}
+.roji-checkout-cart-summary__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--roji-border, rgba(255,255,255,0.06));
+}
+.roji-checkout-cart-summary__eyebrow {
+  font-size: 11px;
+  font-family: var(--roji-font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--roji-accent);
+  font-weight: 600;
+}
+.roji-checkout-cart-summary__continue {
+  font-size: 13px;
+  color: var(--roji-text-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.roji-checkout-cart-summary__continue:hover,
+.roji-checkout-cart-summary__continue:focus {
+  color: var(--roji-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.roji-checkout-cart-summary__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.roji-checkout-cart-summary__item {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--roji-border, rgba(255,255,255,0.06));
+}
+.roji-checkout-cart-summary__item:last-child {
+  border-bottom: 0;
+}
+.roji-checkout-cart-summary__thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.03);
+  flex-shrink: 0;
+}
+.roji-checkout-cart-summary__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.roji-checkout-cart-summary__body {
+  min-width: 0;
+}
+.roji-checkout-cart-summary__name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--roji-text-primary);
+  line-height: 1.35;
+}
+.roji-checkout-cart-summary__name a {
+  color: inherit;
+  text-decoration: none;
+}
+.roji-checkout-cart-summary__name a:hover {
+  color: var(--roji-accent);
+}
+/* Per-week breakdown caption injected by woocommerce_cart_item_name
+   filter — already styled inline in PHP. We override the inline
+   margin-top here so it sits a little tighter inside this card. */
+.roji-checkout-cart-summary__name .roji-cart-item-caption {
+  margin-top: 4px !important;
+}
+.roji-checkout-cart-summary__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--roji-text-secondary);
+}
+.roji-checkout-cart-summary__price {
+  color: var(--roji-text-primary);
+  font-weight: 500;
+}
+.roji-checkout-cart-summary__price .amount {
+  color: inherit;
+}
+.roji-checkout-cart-summary__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--roji-text-secondary);
+  font-size: 18px;
+  line-height: 1;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.roji-checkout-cart-summary__remove:hover,
+.roji-checkout-cart-summary__remove:focus {
+  background: rgba(244, 75, 75, 0.10);
+  color: #f44b4b;
+  border-color: rgba(244, 75, 75, 0.30);
+  outline: none;
+}
+
+/* When the cart-summary card is rendered (class added inline by the
+   PHP hook), hide the line-item rows + product header inside the
+   bottom order_review table so the items don't appear twice. We
+   keep the tfoot rows (cart-subtotal, shipping, order-total) and
+   the "Your order" heading so the user still gets a totals
+   confirmation right above the place-order button. */
+html.roji-checkout-merge-cart .woocommerce-checkout-review-order-table thead,
+html.roji-checkout-merge-cart .woocommerce-checkout-review-order-table tbody {
+  display: none;
+}
+/* Soften the now-truncated review-order table — it's totals-only. */
+html.roji-checkout-merge-cart .woocommerce-checkout-review-order-table {
+  border: 0;
+  margin-top: 0;
+}
+html.roji-checkout-merge-cart h3#order_review_heading {
+  font-size: 13px;
+  font-family: var(--roji-font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--roji-text-secondary);
+  font-weight: 600;
+  margin: 24px 0 10px;
+}
+
+@media (max-width: 480px) {
+  .roji-checkout-cart-summary {
+    padding: 14px 14px 4px;
+  }
+  .roji-checkout-cart-summary__item {
+    grid-template-columns: 48px 1fr auto;
+    gap: 10px;
+  }
+  .roji-checkout-cart-summary__thumb {
+    width: 48px;
+    height: 48px;
+  }
+  .roji-checkout-cart-summary__name {
+    font-size: 14px;
+  }
+}
+
 /* Cart line-item layout fixes are integrated into the @media block
    above (see the .woocommerce-cart table.cart tbody tr.cart_item
    grid). The duplicate price collapse and the divider/spacing fixes

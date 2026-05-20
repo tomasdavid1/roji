@@ -311,7 +311,9 @@ add_action(
 		if ( ! empty( $swaps ) ) {
 			wc_add_notice( sprintf( __( 'Switched %d item(s) to monthly autoship. You can cancel anytime from your account.', 'roji-child' ), count( $swaps ) ), 'success' );
 		}
-		wp_safe_redirect( wc_get_cart_url() );
+		// /cart/ now auto-redirects to /checkout/, but jumping
+		// straight to /checkout/ skips the extra round-trip.
+		wp_safe_redirect( wc_get_checkout_url() );
 		exit;
 	}
 );
