@@ -3501,11 +3501,10 @@ header .current-menu-item > a {
    hidden by the .roji-checkout-merge-cart selectors below so the
    items don't appear twice.
    ============================================================ */
+/* Wrapping section is just a logical group + spacing — no chrome,
+   so each line-item card carries its own surface treatment matching
+   the /cart/ page cards exactly. */
 .roji-checkout-cart-summary {
-  background: var(--roji-surface, #16161c);
-  border: 1px solid var(--roji-border, rgba(255,255,255,0.08));
-  border-radius: var(--roji-radius);
-  padding: 18px 20px 6px;
   margin: 0 0 22px;
 }
 .roji-checkout-cart-summary__head {
@@ -3513,9 +3512,7 @@ header .current-menu-item > a {
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  margin: 0 0 14px;
-  padding: 0 0 12px;
-  border-bottom: 1px solid var(--roji-border, rgba(255,255,255,0.06));
+  margin: 0 0 12px;
 }
 .roji-checkout-cart-summary__eyebrow {
   font-size: 11px;
@@ -3542,24 +3539,40 @@ header .current-menu-item > a {
   margin: 0;
   padding: 0;
 }
+
+/* Line-item card — visually identical to the /cart/ page line cards
+   (same grid areas, same divider, same remove placement). The only
+   difference is the markup wrapper (we use semantic <li> here, /cart/
+   uses WC's <tr>), so the selectors are different — but the layout
+   and spacing values are kept in lockstep on purpose. */
 .roji-checkout-cart-summary__item {
   display: grid;
-  grid-template-columns: 56px 1fr auto;
-  gap: 14px;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--roji-border, rgba(255,255,255,0.06));
+  grid-template-columns: 72px 1fr;
+  grid-template-areas:
+    "thumb  name"
+    "thumb  meta";
+  column-gap: 16px;
+  row-gap: 6px;
+  background: var(--roji-card);
+  border: 1px solid var(--roji-border);
+  border-radius: var(--roji-radius);
+  padding: 14px 14px 14px;
+  margin: 0 0 10px;
+  position: relative;
 }
 .roji-checkout-cart-summary__item:last-child {
-  border-bottom: 0;
+  margin-bottom: 0;
 }
+
 .roji-checkout-cart-summary__thumb {
-  width: 56px;
-  height: 56px;
+  grid-area: thumb;
+  align-self: start;
+  width: 72px;
+  height: 72px;
   border-radius: 8px;
   overflow: hidden;
   background: rgba(255,255,255,0.03);
-  flex-shrink: 0;
+  border: 1px solid var(--roji-border);
 }
 .roji-checkout-cart-summary__thumb img {
   width: 100%;
@@ -3567,14 +3580,17 @@ header .current-menu-item > a {
   object-fit: cover;
   display: block;
 }
-.roji-checkout-cart-summary__body {
-  min-width: 0;
-}
+
 .roji-checkout-cart-summary__name {
+  grid-area: name;
+  align-self: end;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
+  line-height: 1.3;
   color: var(--roji-text-primary);
-  line-height: 1.35;
+  /* Reserve space for the absolutely positioned remove button so a
+     long product name doesn't slide under it. */
+  padding-right: 36px;
 }
 .roji-checkout-cart-summary__name a {
   color: inherit;
@@ -3583,48 +3599,88 @@ header .current-menu-item > a {
 .roji-checkout-cart-summary__name a:hover {
   color: var(--roji-accent);
 }
-/* Per-week breakdown caption injected by woocommerce_cart_item_name
-   filter — already styled inline in PHP. We override the inline
-   margin-top here so it sits a little tighter inside this card. */
+/* The protocol-engine per-week caption gets injected into the name
+   block via the woocommerce_cart_item_name filter; pull it tighter
+   so it sits naturally under the product title inside the card. */
 .roji-checkout-cart-summary__name .roji-cart-item-caption {
   margin-top: 4px !important;
+  padding-right: 0;
 }
+
 .roji-checkout-cart-summary__meta {
+  grid-area: meta;
+  align-self: start;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 4px;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 2px;
+}
+.roji-checkout-cart-summary__qty {
   font-size: 13px;
   color: var(--roji-text-secondary);
+  font-family: var(--roji-font-mono);
+  letter-spacing: 0.04em;
 }
 .roji-checkout-cart-summary__price {
+  font-size: 16px;
+  font-weight: 600;
+  font-family: var(--roji-font-mono);
   color: var(--roji-text-primary);
-  font-weight: 500;
+  text-align: right;
 }
+.roji-checkout-cart-summary__price .woocommerce-Price-amount,
 .roji-checkout-cart-summary__price .amount {
   color: inherit;
 }
+
+/* Remove pill — pinned top-right inside the card, same shape and
+   hover state as the /cart/ page remove control. We use mathematically
+   centered pseudo-elements to draw the X (rather than the literal "×"
+   text node, which baselines weirdly across font stacks). */
 .roji-checkout-cart-summary__remove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-block;
   width: 30px;
   height: 30px;
-  border-radius: 50%;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--roji-text-secondary);
-  font-size: 18px;
-  line-height: 1;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
   text-decoration: none;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  overflow: hidden;
+  transition: background 0.15s ease;
 }
+.roji-checkout-cart-summary__remove::before,
+.roji-checkout-cart-summary__remove::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 2px;
+  margin: -1px 0 0 -6px;
+  background: var(--roji-text-secondary);
+  border-radius: 1px;
+  transition: background 0.15s ease;
+}
+.roji-checkout-cart-summary__remove::before { transform: rotate(45deg); }
+.roji-checkout-cart-summary__remove::after  { transform: rotate(-45deg); }
 .roji-checkout-cart-summary__remove:hover,
 .roji-checkout-cart-summary__remove:focus {
-  background: rgba(244, 75, 75, 0.10);
-  color: #f44b4b;
-  border-color: rgba(244, 75, 75, 0.30);
+  background: rgba(239, 68, 68, 0.15);
   outline: none;
+}
+.roji-checkout-cart-summary__remove:hover::before,
+.roji-checkout-cart-summary__remove:hover::after,
+.roji-checkout-cart-summary__remove:focus::before,
+.roji-checkout-cart-summary__remove:focus::after {
+  background: var(--roji-danger, #ef4444);
 }
 
 /* When the cart-summary card is rendered (class added inline by the
@@ -3637,7 +3693,6 @@ html.roji-checkout-merge-cart .woocommerce-checkout-review-order-table thead,
 html.roji-checkout-merge-cart .woocommerce-checkout-review-order-table tbody {
   display: none;
 }
-/* Soften the now-truncated review-order table — it's totals-only. */
 html.roji-checkout-merge-cart .woocommerce-checkout-review-order-table {
   border: 0;
   margin-top: 0;
@@ -3653,19 +3708,20 @@ html.roji-checkout-merge-cart h3#order_review_heading {
 }
 
 @media (max-width: 480px) {
-  .roji-checkout-cart-summary {
-    padding: 14px 14px 4px;
-  }
   .roji-checkout-cart-summary__item {
-    grid-template-columns: 48px 1fr auto;
-    gap: 10px;
+    grid-template-columns: 64px 1fr;
+    column-gap: 12px;
+    padding: 12px 12px 12px;
   }
   .roji-checkout-cart-summary__thumb {
-    width: 48px;
-    height: 48px;
+    width: 64px;
+    height: 64px;
   }
   .roji-checkout-cart-summary__name {
     font-size: 14px;
+  }
+  .roji-checkout-cart-summary__price {
+    font-size: 15px;
   }
 }
 

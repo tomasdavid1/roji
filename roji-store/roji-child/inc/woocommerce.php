@@ -383,13 +383,10 @@ add_action(
 			?>
 			<li class="roji-checkout-cart-summary__item">
 				<div class="roji-checkout-cart-summary__thumb"><?php echo $thumb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-				<div class="roji-checkout-cart-summary__body">
-					<div class="roji-checkout-cart-summary__name"><?php echo wp_kses_post( $name_html ); ?></div>
-					<div class="roji-checkout-cart-summary__meta">
-						<span class="roji-checkout-cart-summary__qty"><?php echo esc_html( $qty_label ); ?></span>
-						<span class="roji-checkout-cart-summary__dot" aria-hidden="true">·</span>
-						<span class="roji-checkout-cart-summary__price"><?php echo wp_kses_post( $line_subtotal ); ?></span>
-					</div>
+				<div class="roji-checkout-cart-summary__name"><?php echo wp_kses_post( $name_html ); ?></div>
+				<div class="roji-checkout-cart-summary__meta">
+					<span class="roji-checkout-cart-summary__qty"><?php echo esc_html( $qty_label ); ?></span>
+					<span class="roji-checkout-cart-summary__price"><?php echo wp_kses_post( $line_subtotal ); ?></span>
 				</div>
 				<a
 					class="roji-checkout-cart-summary__remove"
