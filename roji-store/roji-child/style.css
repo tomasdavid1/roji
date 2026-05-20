@@ -3725,6 +3725,17 @@ html.roji-checkout-merge-cart h3#order_review_heading {
   }
 }
 
+/* Supply-upsell row thumbnail (cart-upsell.php). The container is a
+   48px square with overflow:hidden; the WC-rendered <img> brings
+   its own width="100" height="100" attrs which we override here so
+   it cleanly fills the box at any DPR. */
+.roji-supply-upsell-thumb img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
 /* Cart line-item layout fixes are integrated into the @media block
    above (see the .woocommerce-cart table.cart tbody tr.cart_item
    grid). The duplicate price collapse and the divider/spacing fixes

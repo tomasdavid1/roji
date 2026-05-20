@@ -325,6 +325,7 @@ function roji_render_cart_upsell() {
 				<?php foreach ( $missing as $key => $entry ) : ?>
 					<label
 						for="roji-supply-<?php echo esc_attr( $key ); ?>"
+						class="roji-supply-upsell-row"
 						style="
 							display:flex;align-items:center;gap:14px;
 							background:rgba(255,255,255,0.025);
@@ -348,6 +349,17 @@ function roji_render_cart_upsell() {
 								cursor:pointer;
 							"
 						/>
+						<?php if ( ! empty( $entry['image'] ) ) : ?>
+							<div class="roji-supply-upsell-thumb" style="
+								width:48px;height:48px;flex-shrink:0;
+								border-radius:8px;
+								overflow:hidden;
+								background:rgba(255,255,255,0.03);
+								border:1px solid rgba(255,255,255,0.06);
+							">
+								<?php echo $entry['image']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							</div>
+						<?php endif; ?>
 						<div style="flex:1;min-width:0;">
 							<div style="font-size:14px;font-weight:600;color:#f0f0f5;">
 								<?php echo esc_html( $entry['name'] ); ?>
@@ -357,7 +369,7 @@ function roji_render_cart_upsell() {
 							</div>
 						</div>
 						<div style="font-family:ui-monospace,monospace;font-size:14px;color:#f0f0f5;flex-shrink:0;">
-							<?php echo wp_kses_post( wc_price( $entry['price'] ) ); ?>
+							<?php echo wp_kses_post( wc_price( $entry['price'] )); ?>
 						</div>
 					</label>
 				<?php endforeach; ?>
@@ -436,6 +448,10 @@ function roji_supply_upsell_catalog() {
 			'name'  => isset( $meta['name'] ) ? $meta['name'] : $product->get_name(),
 			'why'   => isset( $meta['why'] ) ? $meta['why'] : '',
 			'price' => (float) $product->get_price(),
+			// `woocommerce_gallery_thumbnail` is the small 100x100
+			// crop WC keeps for cart line items — perfect size for
+			// the upsell row at 48px display, sharp at 2x.
+			'image' => $product->get_image( 'woocommerce_gallery_thumbnail' ),
 		);
 	}
 
