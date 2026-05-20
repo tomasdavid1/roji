@@ -70,8 +70,26 @@ gtag('config', '<?php echo esc_js( $ads_id ); ?>', { linker: { domains: <?php ec
  *     a stable event-level signal so we can build a "LLM funnel"
  *     report and import it as a Google Ads audience later.
  *
- * Detection runs client-side because `document.referrer` is the most
- * reliable signal. The data sent to gtag is non-PII (host + path).
+ * Detection runs client-side and tries TWO signals in order:
+ *
+ *   1. document.referrer — works for clients that send a Referer
+ *      header (older or browser-resident LLMs).
+ *
+ *   2. ?utm_source=… — works when the LLM client strips Referer
+ *      (most modern AI clients including ChatGPT desktop/iOS/Android
+ *      and recent ChatGPT web). ChatGPT appends utm_source=chatgpt.com
+ *      automatically; Claude does utm_source=claude.ai, etc.
+ *
+ * 2026-05-20 root-cause note
+ * --------------------------
+ * The original v1 only checked document.referrer and silently bailed
+ * on empty. GA4 saw 14 chatgpt.com sessions in 30 days but recorded 0
+ * llm_referral events — the referrer was being stripped by ChatGPT's
+ * outbound-link policy. The utm_source fallback (added here) recovers
+ * those sessions. We also send `detection_method` so we can verify in
+ * GA4 which signal is actually catching production traffic.
+ *
+ * Data sent is non-PII (canonical LLM host, detection method, path).
  * sessionStorage flag prevents double-fires on internal navigation.
  */
 add_action(
@@ -84,14 +102,11 @@ add_action(
 <script>
 (function () {
   if (typeof gtag !== 'function') return;
-  if (!document.referrer) return;
   try {
     if (window.sessionStorage.getItem('roji_llm_referral_fired_v1') === '1') return;
   } catch (e) { /* private mode / iframe — fall through */ }
-  var host;
-  try { host = new URL(document.referrer).hostname.toLowerCase(); }
-  catch (e) { return; }
-  var llms = {
+
+  var llmHosts = {
     'chatgpt.com': 1, 'chat.openai.com': 1, 'openai.com': 1,
     'perplexity.ai': 1, 'www.perplexity.ai': 1,
     'claude.ai': 1, 'anthropic.com': 1,
@@ -101,9 +116,49 @@ add_action(
     'poe.com': 1, 'character.ai': 1, 'groq.com': 1, 'mistral.ai': 1,
     'huggingface.co': 1
   };
-  if (!llms[host]) return;
+  // utm_source short-form aliases → canonical host. Many LLMs tag
+  // links with utm_source=<host> directly, in which case llmHosts
+  // already covers it; this only catches the short forms.
+  var utmAlias = {
+    'chatgpt': 'chatgpt.com',
+    'openai': 'openai.com',
+    'perplexity': 'perplexity.ai',
+    'claude': 'claude.ai',
+    'anthropic': 'anthropic.com',
+    'gemini': 'gemini.google.com',
+    'bard': 'bard.google.com',
+    'copilot': 'copilot.microsoft.com',
+    'bing-chat': 'copilot.microsoft.com'
+  };
+
+  var source = null;
+  var method = null;
+
+  // 1) Try document.referrer.
+  if (document.referrer) {
+    try {
+      var host = new URL(document.referrer).hostname.toLowerCase();
+      if (llmHosts[host]) { source = host; method = 'referrer'; }
+    } catch (e) { /* malformed referrer */ }
+  }
+
+  // 2) Fall back to utm_source (covers Referer-stripping clients).
+  if (!source) {
+    try {
+      var raw = (new URLSearchParams(window.location.search).get('utm_source') || '')
+        .toLowerCase().trim();
+      if (raw) {
+        if (llmHosts[raw]) { source = raw; method = 'utm_source'; }
+        else if (utmAlias[raw]) { source = utmAlias[raw]; method = 'utm_source'; }
+      }
+    } catch (e) { /* querystring parse failed */ }
+  }
+
+  if (!source) return;
+
   gtag('event', 'llm_referral', {
-    llm_source: host,
+    llm_source: source,
+    detection_method: method,
     landing_path: window.location.pathname,
     landing_host: window.location.hostname
   });

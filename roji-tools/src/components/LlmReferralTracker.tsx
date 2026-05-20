@@ -18,17 +18,38 @@
  *
  * Detection
  * ---------
- * We use `document.referrer` because GA4's source-detection sometimes
- * misses LLM-driven referrals (especially when the user opens links
- * in a new tab from a desktop ChatGPT app, where the referrer is
- * preserved but UTMs aren't). Set is union of every public LLM product
- * known to send referer headers as of 2026-05.
+ * We try TWO signals, in order:
+ *
+ *   1. document.referrer — works when the LLM client sends a Referer
+ *      header (older clients, web-side GPTs without no-referrer).
+ *
+ *   2. ?utm_source=… — works when the LLM client strips Referer (which
+ *      is most modern AI clients, including ChatGPT desktop/iOS/Android
+ *      and recent ChatGPT web). ChatGPT appends utm_source=chatgpt.com,
+ *      Claude appends utm_source=claude.ai, etc.
+ *
+ * 2026-05-20 root-cause note
+ * --------------------------
+ * Original v1 only looked at document.referrer and silently bailed
+ * when it was empty. GA4 saw 14 chatgpt.com sessions in 30 days but
+ * fired 0 llm_referral events — the referrer was being stripped by
+ * ChatGPT's outbound-link policy. Adding the utm_source fallback
+ * unblocks the event for all modern LLM clients.
  *
  * Once-per-session
  * ----------------
- * We use sessionStorage to avoid double-firing on SPA route changes.
- * If the session storage is unavailable (e.g. private mode), we fall
- * back to "fire once per page mount" which is acceptable noise.
+ * sessionStorage flag prevents double-firing on SPA route changes.
+ * If sessionStorage is unavailable (private mode / sandboxed iframe),
+ * we fall through to "fire once per page mount" — acceptable noise.
+ *
+ * Event payload
+ * -------------
+ *   llm_source        canonical LLM host (e.g. "chatgpt.com")
+ *   detection_method  "referrer" or "utm_source" — useful for
+ *                     debugging which signal is actually catching
+ *                     traffic in production.
+ *   landing_path      window.location.pathname
+ *   landing_host      window.location.hostname
  */
 
 import { useEffect } from "react";
@@ -55,12 +76,65 @@ const LLM_HOSTS = new Set([
   "huggingface.co",
 ]);
 
+/**
+ * Map of utm_source aliases → canonical host.
+ *
+ * Most LLM products tag outbound links with utm_source=<host>
+ * (e.g. utm_source=chatgpt.com), in which case LLM_HOSTS already
+ * matches. This table only handles the short-form aliases we've
+ * actually observed in the wild.
+ */
+const UTM_ALIAS: Record<string, string> = {
+  chatgpt: "chatgpt.com",
+  openai: "openai.com",
+  perplexity: "perplexity.ai",
+  claude: "claude.ai",
+  anthropic: "anthropic.com",
+  gemini: "gemini.google.com",
+  bard: "bard.google.com",
+  copilot: "copilot.microsoft.com",
+  "bing-chat": "copilot.microsoft.com",
+};
+
 const FLAG_KEY = "roji_llm_referral_fired_v1";
+
+type Detection = { source: string; method: "referrer" | "utm_source" };
+
+function detectLlmReferral(): Detection | null {
+  if (typeof window === "undefined" || typeof document === "undefined") return null;
+
+  // 1) Try document.referrer first.
+  const ref = document.referrer;
+  if (ref) {
+    try {
+      const host = new URL(ref).hostname.toLowerCase();
+      if (LLM_HOSTS.has(host)) return { source: host, method: "referrer" };
+    } catch {
+      // malformed referrer, fall through
+    }
+  }
+
+  // 2) Fall back to utm_source — covers Referer-stripping clients
+  //    (ChatGPT desktop/iOS/Android, recent ChatGPT web, etc.).
+  try {
+    const raw = new URLSearchParams(window.location.search)
+      .get("utm_source")
+      ?.toLowerCase()
+      .trim();
+    if (raw) {
+      if (LLM_HOSTS.has(raw)) return { source: raw, method: "utm_source" };
+      if (UTM_ALIAS[raw]) return { source: UTM_ALIAS[raw], method: "utm_source" };
+    }
+  } catch {
+    // querystring parse failed — give up
+  }
+
+  return null;
+}
 
 export function LlmReferralTracker() {
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (typeof document === "undefined") return;
 
     let alreadyFired = false;
     try {
@@ -70,21 +144,15 @@ export function LlmReferralTracker() {
     }
     if (alreadyFired) return;
 
-    const ref = document.referrer;
-    if (!ref) return;
-    let host = "";
-    try {
-      host = new URL(ref).hostname.toLowerCase();
-    } catch {
-      return;
-    }
-    if (!LLM_HOSTS.has(host)) return;
+    const detected = detectLlmReferral();
+    if (!detected) return;
 
     const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
     if (typeof gtag !== "function") return;
 
     gtag("event", "llm_referral", {
-      llm_source: host,
+      llm_source: detected.source,
+      detection_method: detected.method,
       landing_path: window.location.pathname,
       landing_host: window.location.hostname,
     });
